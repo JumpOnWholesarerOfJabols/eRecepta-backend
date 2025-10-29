@@ -1,0 +1,71 @@
+# ========================
+# ENUMS
+# ========================
+
+enum UserRole{
+    PATIENT
+}
+
+enum Gender{
+    MALE, FEMALE
+}
+
+# ========================
+# INPUTS
+# ========================
+
+input RegisterInput {
+    email: String!
+    password: String!
+    pesel: String!
+    role: UserRole!
+    gender: Gender!
+}
+
+input LoginInput {
+    login: String! #email or pesel
+    password: String!
+}
+
+input VerifyInput {
+    login: String! #email or pesel
+    code: String!
+}
+
+input ResetPasswordRequestInput {
+    login: String! #email or pesel
+}
+
+input ResetPasswordInput {
+    login: String! #email or pesel
+    password: String!
+    code: String!
+}
+
+# ========================
+# OUTPUTS
+# ========================
+
+type AuthToken {
+    token: String!
+}
+
+type Message {
+    message: String!
+}
+
+# ========================
+# OPERATIONS
+# ========================
+
+type Query {
+    _dummy_identity: String
+}
+
+type Mutation {
+    register(input: RegisterInput!): Message!
+    verifyAccount(input: VerifyInput!): Message!
+    login(input: LoginInput!): AuthToken!
+    requestPasswordReset(input: ResetPasswordRequestInput!): Message!
+    resetPassword(input: ResetPasswordInput!): Message!
+}
