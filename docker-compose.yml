@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  identity-service:
+    build: ./identity-service
+    container_name: identity-service
+    ports:
+      - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    environment:
+      SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
 
 networks:
   erecepta-network:
