@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+
+networks:
+  erecepta-network:
+    driver: bridge
