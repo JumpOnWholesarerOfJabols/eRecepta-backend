@@ -2,6 +2,8 @@ package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
 import com.example.demo.codegen.types.Role;
+import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
+import edu.pk.jawolh.erecepta.identityservice.mapper.RoleMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
@@ -25,16 +27,9 @@ public class AuthService {
         //  -Validate PESEL
         //  -Encrypt password
         //  -Ensure role security (user cannot register as admin)
-        //  -gender and role mappers
 
-        UserRole userRole = switch (role){
-            case PATIENT -> UserRole.PATIENT;
-        };
-
-        UserGender userGender = switch (gender) {
-            case MALE -> UserGender.MALE;
-            case FEMALE -> UserGender.FEMALE;
-        };
+        UserRole userRole = RoleMapper.mapRole(role);
+        UserGender userGender = GenderMapper.mapGender(gender);
 
         UserAccount account = UserAccount.builder()
                 .email(email)
