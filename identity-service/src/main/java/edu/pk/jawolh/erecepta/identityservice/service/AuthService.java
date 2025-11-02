@@ -7,16 +7,14 @@ import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-
-    public AuthService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public String registerUser(String email, String password, String pesel, Role role, Gender gender) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
@@ -46,7 +44,7 @@ public class AuthService {
                 .verified(false)
                 .build();
 
-        userRepository.save(account);
+        UserAccount savedUser = userRepository.save(account);
 
         return "User registered successfully";
     }
