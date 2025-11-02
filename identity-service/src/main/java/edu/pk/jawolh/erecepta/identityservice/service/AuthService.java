@@ -2,7 +2,6 @@ package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
 import com.example.demo.codegen.types.Role;
-import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsException;
 import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
@@ -15,10 +14,11 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final VerificationCodeService verificationCodeService;
 
     public String registerUser(String email, String password, String pesel, Role role, Gender gender) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
-            throw new UserAlreadyExistsException("User with given PESEL or email already exists");
+            throw new IllegalArgumentException("User with given PESEL or email already exists");
         }
         // TODO:
         //  -Validate PESEL
@@ -46,15 +46,30 @@ public class AuthService {
 
         UserAccount savedUser = userRepository.save(account);
 
+        // TODO: mail with verification code
+        String verificationCode = verificationCodeService.generateVerificationCode(savedUser.getEmail(), savedUser.getPesel());
+
         return "User registered successfully";
     }
 
     public String verifyAccount(String login, String code) {
+        verificationCodeService.verifyVerificationCode(login, login, code);
+
         return "Account verified successfully";
     }
 
     public String login(String login, String password) {
-        return "Login successfully";
+        UserAccount account = userRepository.findByPeselOrEmail(login, login)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
+
+        if (!password.equals(account.getHashedPassword()))
+            throw new IllegalArgumentException("Wrong password");
+
+        //TODO token generation
+        String token = "Bearer " + account.getId();
+
+        return token;
     }
 
     public String resetPasswordRequest(String login) {
