@@ -2,7 +2,7 @@
 # ENUMS
 # ========================
 
-enum UserRole{
+enum Role{
     PATIENT
 }
 
@@ -18,7 +18,7 @@ input RegisterInput {
     email: String!
     password: String!
     pesel: String!
-    role: UserRole!
+    role: Role!
     gender: Gender!
 }
 

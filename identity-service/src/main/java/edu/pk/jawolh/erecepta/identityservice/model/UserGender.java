@@ -1,5 +1,5 @@
 package edu.pk.jawolh.erecepta.identityservice.model;
 
-public enum Gender {
+public enum UserGender {
     MALE, FEMALE
 }
