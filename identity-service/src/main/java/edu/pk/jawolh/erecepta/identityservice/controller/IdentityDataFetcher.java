@@ -20,7 +20,6 @@ public class IdentityDataFetcher {
                 input.getPassword(),
                 input.getPesel(),
                 input.getRole(),
-                input.getGender(),
                 input.getGender());
 
         return Message.newBuilder()

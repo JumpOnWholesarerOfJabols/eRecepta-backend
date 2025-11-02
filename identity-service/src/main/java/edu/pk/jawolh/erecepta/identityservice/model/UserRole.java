@@ -1,2 +1,5 @@
-package edu.pk.jawolh.erecepta.identityservice.model;public enum UserRole {
+package edu.pk.jawolh.erecepta.identityservice.model;
+
+public enum UserRole {
+    PATIENT, DOCTOR, ADMINISTRATOR
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    public String registerUser(String email, String password, String pesel, UserRole role, Gender gender, Gender gender1) {
+    public String registerUser(String email, String password, String pesel, UserRole role, Gender gender) {
         return "User registered successfully";
     }
 
