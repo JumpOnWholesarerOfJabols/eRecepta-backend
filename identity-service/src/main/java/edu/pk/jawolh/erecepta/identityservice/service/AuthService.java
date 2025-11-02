@@ -15,6 +15,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final VerificationCodeService verificationCodeService;
+    private final ResetPasswordCodeService resetPasswordCodeService;
 
     public String registerUser(String email, String password, String pesel, Role role, Gender gender) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
@@ -73,10 +74,25 @@ public class AuthService {
     }
 
     public String resetPasswordRequest(String login) {
+        UserAccount account = userRepository.findByPeselOrEmail(login, login)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // TODO: mail with reset password code
+        String code = resetPasswordCodeService.generateResetPasswordCode(account.getEmail(), account.getPesel());
+
         return "Reset password request successfully";
     }
 
-    public String resetPassword(String login) {
+    public String resetPassword(String login, String password, String code) {
+        UserAccount account = userRepository.findByPeselOrEmail(login, login)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        resetPasswordCodeService.verifyResetPasswordCode(login, login, code);
+
+        //TODO: Encrypt password
+        account.setHashedPassword(password);
+        userRepository.save(account);
+
         return "Reset password successfully";
     }
 }

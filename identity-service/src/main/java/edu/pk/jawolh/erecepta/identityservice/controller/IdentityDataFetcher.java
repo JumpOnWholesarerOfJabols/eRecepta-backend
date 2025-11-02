@@ -57,7 +57,10 @@ public class IdentityDataFetcher {
     @DgsMutation
     public Message resetPassword(@InputArgument ResetPasswordInput input){
         String message = authService.resetPassword(
-                input.getLogin());
+                input.getLogin(),
+                input.getPassword(),
+                input.getCode()
+        );
 
         return Message.newBuilder().message(message).build();
     }
