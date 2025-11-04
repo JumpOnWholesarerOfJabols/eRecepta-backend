@@ -1,9 +1,8 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
-import com.example.demo.codegen.types.Role;
+import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
-import edu.pk.jawolh.erecepta.identityservice.mapper.RoleMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
@@ -18,25 +17,22 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationCodeService verificationCodeService;
     private final ResetPasswordCodeService resetPasswordCodeService;
+    private final JwtService jwtService;
 
-    public String registerUser(String email, String password, String pesel, Role role, Gender gender) {
+    public String registerUser(String email, String password, String pesel, Gender gender) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
             throw new IllegalArgumentException("User with given PESEL or email already exists");
         }
         // TODO:
         //  -Validate PESEL
         //  -Encrypt password
-        //  -Ensure role security (user cannot register as admin)
-
-        UserRole userRole = RoleMapper.mapRole(role);
-        UserGender userGender = GenderMapper.mapGender(gender);
 
         UserAccount account = UserAccount.builder()
                 .email(email)
                 .pesel(pesel)
                 .hashedPassword(password)
-                .role(userRole)
-                .userGender(userGender)
+                .role(UserRole.PATIENT)
+                .userGender(GenderMapper.mapGender(gender))
                 .verified(false)
                 .build();
 
@@ -54,7 +50,7 @@ public class AuthService {
         return "Account verified successfully";
     }
 
-    public String login(String login, String password) {
+    public JwtTokenDTO login(String login, String password) {
         UserAccount account = userRepository.findByPeselOrEmail(login, login)
                 .orElseThrow(
                         ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
@@ -62,10 +58,7 @@ public class AuthService {
         if (!password.equals(account.getHashedPassword()))
             throw new IllegalArgumentException("Wrong password");
 
-        //TODO token generation
-        String token = "Bearer " + account.getId();
-
-        return token;
+        return jwtService.generateToken(account.getId());
     }
 
     public String resetPasswordRequest(String login) {
