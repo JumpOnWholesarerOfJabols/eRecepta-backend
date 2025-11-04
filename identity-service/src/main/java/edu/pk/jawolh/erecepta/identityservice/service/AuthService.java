@@ -8,8 +8,11 @@ import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -18,6 +21,7 @@ public class AuthService {
     private final VerificationCodeService verificationCodeService;
     private final ResetPasswordCodeService resetPasswordCodeService;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     public String registerUser(String email, String password, String pesel, Gender gender) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
@@ -26,12 +30,11 @@ public class AuthService {
         // TODO:
         //  -Validate PESEL
         //  -Validate data
-        //  -Encrypt password
 
         UserAccount account = UserAccount.builder()
                 .email(email)
                 .pesel(pesel)
-                .hashedPassword(password)
+                .hashedPassword(passwordEncoder.encode(password))
                 .role(UserRole.PATIENT)
                 .userGender(GenderMapper.mapGender(gender))
                 .verified(false)
@@ -41,15 +44,20 @@ public class AuthService {
 
         // TODO: mail with verification code
         String verificationCode = verificationCodeService.generateVerificationCode(savedUser.getEmail(), savedUser.getPesel());
+        log.info("Generated verification code: {}", verificationCode);
 
         return "User registered successfully";
     }
 
     public String verifyAccount(String login, String code) {
-        if (!userRepository.existsByPeselOrEmail(login, login))
-            throw new IllegalArgumentException("User with given PESEL or email does not exist");
+        UserAccount account = userRepository.findByPeselOrEmail(login, login)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
 
-        verificationCodeService.verifyVerificationCode(login, login, code);
+        verificationCodeService.verifyVerificationCode(account.getEmail(), account.getPesel(), code);
+
+        account.setVerified(true);
+        userRepository.save(account);
 
         return "Account verified successfully";
     }
@@ -59,7 +67,7 @@ public class AuthService {
                 .orElseThrow(
                         ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
 
-        if (!password.equals(account.getHashedPassword()))
+        if (!passwordEncoder.matches(password, account.getHashedPassword()))
             throw new IllegalArgumentException("Wrong password");
 
         if (!account.isVerified())
@@ -74,6 +82,7 @@ public class AuthService {
 
         // TODO: mail with reset password code
         String code = resetPasswordCodeService.generateResetPasswordCode(account.getEmail(), account.getPesel());
+        log.info("Generated reset password code: {}", code);
 
         return "Reset password request successfully";
     }
@@ -84,8 +93,7 @@ public class AuthService {
 
         resetPasswordCodeService.verifyResetPasswordCode(login, login, code);
 
-        //TODO: Encrypt password
-        account.setHashedPassword(password);
+        account.setHashedPassword(passwordEncoder.encode(password));
         userRepository.save(account);
 
         return "Reset password successfully";
@@ -95,7 +103,9 @@ public class AuthService {
         UserAccount account = userRepository.findByPeselOrEmail(login, login)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
+        //TODO: send mail with verification code
+        String code = verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
+        log.info("Generated verification code: {}", code);
 
         return "Verification code sent";
     }
