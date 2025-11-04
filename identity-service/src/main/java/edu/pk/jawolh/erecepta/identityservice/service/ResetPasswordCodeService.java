@@ -1,6 +1,9 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 import edu.pk.jawolh.erecepta.identityservice.config.CodeProperties;
+import edu.pk.jawolh.erecepta.identityservice.exception.CodeDoesNotExistException;
+import edu.pk.jawolh.erecepta.identityservice.exception.CodeExpiredException;
+import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsException;
 import edu.pk.jawolh.erecepta.identityservice.model.ResetPasswordCode;
 import edu.pk.jawolh.erecepta.identityservice.model.UserVerificationCode;
 import edu.pk.jawolh.erecepta.identityservice.repository.ResetPasswordCodeRepository;
@@ -42,14 +45,14 @@ public class ResetPasswordCodeService {
                 resetPasswordCodeRepository
                         .findByPeselOrEmail(email, pesel)
                         .orElseThrow(()->
-                                new IllegalArgumentException("Reset password code not found for provided PESEL or email"));
+                                new CodeDoesNotExistException("Reset password code not found for provided PESEL or email"));
 
         if (!resetPasswordCode.getCode().equals(code)) {
-            throw new IllegalArgumentException("Invalid reset password code");
+            throw new InvalidCredentialsException("Invalid reset password code");
         }
 
         if (resetPasswordCode.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Expired reset password code");
+            throw new CodeExpiredException("Expired reset password code");
         }
 
         resetPasswordCodeRepository.delete(resetPasswordCode);

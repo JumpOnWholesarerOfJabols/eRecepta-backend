@@ -1,6 +1,9 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 import edu.pk.jawolh.erecepta.identityservice.config.CodeProperties;
+import edu.pk.jawolh.erecepta.identityservice.exception.CodeDoesNotExistException;
+import edu.pk.jawolh.erecepta.identityservice.exception.CodeExpiredException;
+import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsException;
 import edu.pk.jawolh.erecepta.identityservice.model.UserVerificationCode;
 import edu.pk.jawolh.erecepta.identityservice.repository.VerificationCodeRepository;
 import edu.pk.jawolh.erecepta.identityservice.util.CodeGenerator;
@@ -45,14 +48,14 @@ public class VerificationCodeService {
                 verificationCodeRepository
                         .findByPeselOrEmail(pesel, email)
                         .orElseThrow(()->
-                                new IllegalArgumentException("Verification code not found for provided PESEL or email"));
+                                new CodeDoesNotExistException("Verification code not found for provided PESEL or email"));
 
         if (!verificationCode.getCode().equals(code)) {
-            throw new IllegalArgumentException("Invalid verification code");
+            throw new InvalidCredentialsException("Invalid verification code");
         }
 
         if (verificationCode.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Expired verification code");
+            throw new CodeExpiredException("Expired verification code");
         }
 
         verificationCodeRepository.delete(verificationCode);

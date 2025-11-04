@@ -2,6 +2,10 @@ package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
+import edu.pk.jawolh.erecepta.identityservice.exception.AccountVerificationException;
+import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsException;
+import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsException;
+import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistException;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
@@ -38,7 +42,7 @@ public class AuthService {
             String password
     ) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
-            throw new IllegalArgumentException("User with given PESEL or email already exists");
+            throw new UserAlreadyExistsException("User with given PESEL or email already exists");
         }
 
         UserGender userGender = GenderMapper.mapGender(gender);
@@ -74,18 +78,15 @@ public class AuthService {
 
         // TODO: mail with verification code
         String verificationCode = verificationCodeService.generateVerificationCode(savedUser.getEmail(), savedUser.getPesel());
-        log.info("Generated verification code: {}", verificationCode);
 
         return "User registered successfully";
     }
 
     public String verifyAccount(String login, String code) {
-        UserAccount account = userRepository.findByPeselOrEmail(login, login)
-                .orElseThrow(
-                        ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
+        UserAccount account = getAccount(login);
 
         if (account.isVerified())
-            throw new IllegalStateException("Account is already verified");
+            throw new AccountVerificationException("Account is already verified");
 
         log.info("Verification data check: email={}, pesel={}, code={}",
                 account.getEmail(), account.getPesel(), code);
@@ -99,22 +100,22 @@ public class AuthService {
     }
 
     public JwtTokenDTO login(String login, String password) {
-        UserAccount account = userRepository.findByPeselOrEmail(login, login)
-                .orElseThrow(
-                        ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
+        UserAccount account = getAccount(login);
 
         if (!passwordEncoder.matches(password, account.getHashedPassword()))
-            throw new IllegalArgumentException("Wrong password");
+            throw new InvalidCredentialsException("Wrong password");
 
         if (!account.isVerified())
-            throw new IllegalStateException("Account is not verified");
+            throw new AccountVerificationException("Account is not verified");
 
         return jwtService.generateToken(account.getId());
     }
 
     public String resetPasswordRequest(String login) {
-        UserAccount account = userRepository.findByPeselOrEmail(login, login)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        UserAccount account = getAccount(login);
+
+        if (!account.isVerified())
+            throw new AccountVerificationException("Account is not verified");
 
         // TODO: mail with reset password code
         String code = resetPasswordCodeService.generateResetPasswordCode(account.getEmail(), account.getPesel());
@@ -124,8 +125,10 @@ public class AuthService {
     }
 
     public String resetPassword(String login, String password, String code) {
-        UserAccount account = userRepository.findByPeselOrEmail(login, login)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        UserAccount account = getAccount(login);
+
+        if (!account.isVerified())
+            throw new AccountVerificationException("Account is not verified");
 
         resetPasswordCodeService.verifyResetPasswordCode(login, login, code);
 
@@ -136,16 +139,21 @@ public class AuthService {
     }
 
     public String sendVerificationCode(String login) {
-        UserAccount account = userRepository.findByPeselOrEmail(login, login)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        UserAccount account = getAccount(login);
 
         if (account.isVerified())
-            throw new IllegalStateException("Account is already verified");
+            throw new AccountVerificationException("Account is already verified");
 
         //TODO: send mail with verification code
         String code = verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
         log.info("Generated verification code: {}", code);
 
         return "Verification code sent";
+    }
+
+    private UserAccount getAccount(String login) {
+        return userRepository.findByPeselOrEmail(login, login)
+                .orElseThrow(
+                        () -> new UserDoesNotExistException("User with given PESEL or email does not exist"));
     }
 }
