@@ -1,4 +1,4 @@
-package edu.pk.jawolh.erecepta.identityservice.config;
+package edu.pk.jawolh.erecepta.identityservice.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
