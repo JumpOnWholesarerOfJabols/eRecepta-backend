@@ -4,6 +4,7 @@ import com.example.demo.codegen.types.*;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.InputArgument;
+import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,6 @@ public class IdentityDataFetcher {
                 input.getEmail(),
                 input.getPassword(),
                 input.getPesel(),
-                input.getRole(),
                 input.getGender());
 
         return Message.newBuilder()
@@ -38,12 +38,14 @@ public class IdentityDataFetcher {
 
     @DgsMutation
     public AuthToken login(@InputArgument LoginInput input){
-        String token = authService.login(
+        JwtTokenDTO token = authService.login(
                 input.getLogin(),
                 input.getPassword());
 
         return AuthToken.newBuilder()
-                .token(token).build();
+                .token(token.token())
+                .expiresAt(token.expiresAt())
+                .build();
     }
 
     @DgsMutation
@@ -57,7 +59,10 @@ public class IdentityDataFetcher {
     @DgsMutation
     public Message resetPassword(@InputArgument ResetPasswordInput input){
         String message = authService.resetPassword(
-                input.getLogin());
+                input.getLogin(),
+                input.getPassword(),
+                input.getCode()
+        );
 
         return Message.newBuilder().message(message).build();
     }

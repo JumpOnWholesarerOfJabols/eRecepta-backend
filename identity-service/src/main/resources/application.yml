@@ -21,6 +21,14 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
 
+application:
+  security:
+    jwt:
+      secret-key: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
+      expiration: ${APPLICATION_SECURITY_JWT_EXPIRATION:1h}
+  action-token:
+    verification-expiration: ${APPLICATION_ACTION_TOKEN_VERIFICATION_EXPIRATION:15m}
+
 eureka:
   client:
     register-with-eureka: true
