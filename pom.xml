@@ -26,6 +26,8 @@
 
     <modules>
         <module>identity-service</module>
+        <module>eureka</module>
+        <module>gateway</module>
     </modules>
 
     <dependencyManagement>
