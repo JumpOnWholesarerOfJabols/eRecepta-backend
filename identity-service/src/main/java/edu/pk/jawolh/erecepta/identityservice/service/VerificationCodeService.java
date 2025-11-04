@@ -5,11 +5,13 @@ import edu.pk.jawolh.erecepta.identityservice.model.UserVerificationCode;
 import edu.pk.jawolh.erecepta.identityservice.repository.VerificationCodeRepository;
 import edu.pk.jawolh.erecepta.identityservice.util.CodeGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VerificationCodeService {
@@ -30,6 +32,8 @@ public class VerificationCodeService {
                 .expiryDate(LocalDateTime.now().plus(codeProperties.getExpiration()))
                 .build();
 
+        log.info(userVerificationCode.toString());
+
         verificationCodeRepository.save(userVerificationCode);
 
         return code;
@@ -39,7 +43,7 @@ public class VerificationCodeService {
     public void verifyVerificationCode(String email, String pesel, String code) {
         UserVerificationCode verificationCode =
                 verificationCodeRepository
-                        .findByPeselOrEmail(email, pesel)
+                        .findByPeselOrEmail(pesel, email)
                         .orElseThrow(()->
                                 new IllegalArgumentException("Verification code not found for provided PESEL or email"));
 

@@ -68,6 +68,8 @@ public class AuthService {
                 .verified(false)
                 .build();
 
+        log.info("Registering user: {}", account);
+
         UserAccount savedUser = userRepository.save(account);
 
         // TODO: mail with verification code
@@ -84,6 +86,9 @@ public class AuthService {
 
         if (account.isVerified())
             throw new IllegalStateException("Account is already verified");
+
+        log.info("Verification data check: email={}, pesel={}, code={}",
+                account.getEmail(), account.getPesel(), code);
 
         verificationCodeService.verifyVerificationCode(account.getEmail(), account.getPesel(), code);
 
