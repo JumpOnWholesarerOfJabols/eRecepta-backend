@@ -18,9 +18,14 @@ public class IdentityDataFetcher {
     public Message register(@InputArgument RegisterInput input){
         String message = authService.registerUser(
                 input.getEmail(),
-                input.getPassword(),
                 input.getPesel(),
-                input.getGender());
+                input.getFirstName(),
+                input.getLastName(),
+                input.getPhoneNumber(),
+                input.getGender(),
+                input.getDateOfBirth(),
+                input.getPassword()
+        );
 
         return Message.newBuilder()
                 .message(message).build();

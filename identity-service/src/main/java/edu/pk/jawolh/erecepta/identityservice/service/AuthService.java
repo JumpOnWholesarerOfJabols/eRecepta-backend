@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,16 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    public String registerUser(String email, String password, String pesel, Gender gender) {
+    public String registerUser(
+            String email,
+            String pesel,
+            String firstName,
+            String lastName,
+            String phoneNumber,
+            Gender gender,
+            String dateOfBirth,
+            String password
+    ) {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
             throw new IllegalArgumentException("User with given PESEL or email already exists");
         }
@@ -34,9 +45,13 @@ public class AuthService {
         UserAccount account = UserAccount.builder()
                 .email(email)
                 .pesel(pesel)
+                .firstName(firstName)
+                .lastName(lastName)
+                .phoneNumber(phoneNumber)
+                .userGender(GenderMapper.mapGender(gender))
+                .dateOfBirth(LocalDate.parse(dateOfBirth))
                 .hashedPassword(passwordEncoder.encode(password))
                 .role(UserRole.PATIENT)
-                .userGender(GenderMapper.mapGender(gender))
                 .verified(false)
                 .build();
 

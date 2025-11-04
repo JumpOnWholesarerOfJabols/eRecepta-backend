@@ -12,9 +12,13 @@ enum Gender{
 
 input RegisterInput {
     email: String!
-    password: String!
     pesel: String!
+    firstName: String!
+    lastName: String!
+    phoneNumber: String!
     gender: Gender!
+    dateOfBirth: String!
+    password: String!
 }
 
 input LoginInput {
