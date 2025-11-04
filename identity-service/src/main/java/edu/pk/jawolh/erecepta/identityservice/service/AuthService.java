@@ -54,6 +54,9 @@ public class AuthService {
                 .orElseThrow(
                         ()-> new IllegalArgumentException("User with given PESEL or email does not exist"));
 
+        if (account.isVerified())
+            throw new IllegalStateException("Account is already verified");
+
         verificationCodeService.verifyVerificationCode(account.getEmail(), account.getPesel(), code);
 
         account.setVerified(true);
@@ -102,6 +105,9 @@ public class AuthService {
     public String sendVerificationCode(String login) {
         UserAccount account = userRepository.findByPeselOrEmail(login, login)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (account.isVerified())
+            throw new IllegalStateException("Account is already verified");
 
         //TODO: send mail with verification code
         String code = verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
