@@ -66,4 +66,11 @@ public class IdentityDataFetcher {
 
         return Message.newBuilder().message(message).build();
     }
+
+    @DgsMutation
+    public Message sendVerificationCodeRequest(@InputArgument SendVerificationCodeRequestInput input){
+        String message = authService.sendVerificationCode(input.getLogin());
+
+        return Message.newBuilder().message(message).build();
+    }
 }

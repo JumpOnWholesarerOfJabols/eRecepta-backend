@@ -25,6 +25,7 @@ public class AuthService {
         }
         // TODO:
         //  -Validate PESEL
+        //  -Validate data
         //  -Encrypt password
 
         UserAccount account = UserAccount.builder()
@@ -45,6 +46,9 @@ public class AuthService {
     }
 
     public String verifyAccount(String login, String code) {
+        if (!userRepository.existsByPeselOrEmail(login, login))
+            throw new IllegalArgumentException("User with given PESEL or email does not exist");
+
         verificationCodeService.verifyVerificationCode(login, login, code);
 
         return "Account verified successfully";
@@ -57,6 +61,9 @@ public class AuthService {
 
         if (!password.equals(account.getHashedPassword()))
             throw new IllegalArgumentException("Wrong password");
+
+        if (!account.isVerified())
+            throw new IllegalStateException("Account is not verified");
 
         return jwtService.generateToken(account.getId());
     }
@@ -82,5 +89,14 @@ public class AuthService {
         userRepository.save(account);
 
         return "Reset password successfully";
+    }
+
+    public String sendVerificationCode(String login) {
+        UserAccount account = userRepository.findByPeselOrEmail(login, login)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
+
+        return "Verification code sent";
     }
 }

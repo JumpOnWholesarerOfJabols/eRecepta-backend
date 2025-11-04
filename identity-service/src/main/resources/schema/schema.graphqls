@@ -27,6 +27,10 @@ input VerifyInput {
     code: String!
 }
 
+input SendVerificationCodeRequestInput {
+    login: String! #email or pesel
+}
+
 input ResetPasswordRequestInput {
     login: String! #email or pesel
 }
@@ -60,6 +64,7 @@ type Query {
 
 type Mutation {
     register(input: RegisterInput!): Message!
+    sendVerificationCodeRequest(input: SendVerificationCodeRequestInput!): Message!
     verifyAccount(input: VerifyInput!): Message!
     login(input: LoginInput!): AuthToken!
     requestPasswordReset(input: ResetPasswordRequestInput!): Message!
