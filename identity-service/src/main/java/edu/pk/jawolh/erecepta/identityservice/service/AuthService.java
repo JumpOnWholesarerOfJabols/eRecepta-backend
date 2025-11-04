@@ -7,6 +7,7 @@ import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
+import edu.pk.jawolh.erecepta.identityservice.validation.RegisterValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ public class AuthService {
     private final ResetPasswordCodeService resetPasswordCodeService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RegisterValidator registerValidator;
 
     public String registerUser(
             String email,
@@ -38,9 +40,20 @@ public class AuthService {
         if (userRepository.existsByPeselOrEmail(email, pesel)) {
             throw new IllegalArgumentException("User with given PESEL or email already exists");
         }
-        // TODO:
-        //  -Validate PESEL
-        //  -Validate data
+
+        UserGender userGender = GenderMapper.mapGender(gender);
+        LocalDate dateOfBirthParsed = LocalDate.parse(dateOfBirth);
+
+        registerValidator.validateRegistrationData(
+                pesel,
+                dateOfBirthParsed,
+                userGender,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                password
+        );
 
         UserAccount account = UserAccount.builder()
                 .email(email)
@@ -48,8 +61,8 @@ public class AuthService {
                 .firstName(firstName)
                 .lastName(lastName)
                 .phoneNumber(phoneNumber)
-                .userGender(GenderMapper.mapGender(gender))
-                .dateOfBirth(LocalDate.parse(dateOfBirth))
+                .userGender(userGender)
+                .dateOfBirth(dateOfBirthParsed)
                 .hashedPassword(passwordEncoder.encode(password))
                 .role(UserRole.PATIENT)
                 .verified(false)
