@@ -18,9 +18,14 @@ public class IdentityDataFetcher {
     public Message register(@InputArgument RegisterInput input){
         String message = authService.registerUser(
                 input.getEmail(),
-                input.getPassword(),
                 input.getPesel(),
-                input.getGender());
+                input.getFirstName(),
+                input.getLastName(),
+                input.getPhoneNumber(),
+                input.getGender(),
+                input.getDateOfBirth(),
+                input.getPassword()
+        );
 
         return Message.newBuilder()
                 .message(message).build();
@@ -63,6 +68,13 @@ public class IdentityDataFetcher {
                 input.getPassword(),
                 input.getCode()
         );
+
+        return Message.newBuilder().message(message).build();
+    }
+
+    @DgsMutation
+    public Message sendVerificationCodeRequest(@InputArgument SendVerificationCodeRequestInput input){
+        String message = authService.sendVerificationCode(input.getLogin());
 
         return Message.newBuilder().message(message).build();
     }

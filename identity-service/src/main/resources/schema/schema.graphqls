@@ -12,9 +12,13 @@ enum Gender{
 
 input RegisterInput {
     email: String!
-    password: String!
     pesel: String!
+    firstName: String!
+    lastName: String!
+    phoneNumber: String!
     gender: Gender!
+    dateOfBirth: String!
+    password: String!
 }
 
 input LoginInput {
@@ -25,6 +29,10 @@ input LoginInput {
 input VerifyInput {
     login: String! #email or pesel
     code: String!
+}
+
+input SendVerificationCodeRequestInput {
+    login: String! #email or pesel
 }
 
 input ResetPasswordRequestInput {
@@ -60,6 +68,7 @@ type Query {
 
 type Mutation {
     register(input: RegisterInput!): Message!
+    sendVerificationCodeRequest(input: SendVerificationCodeRequestInput!): Message!
     verifyAccount(input: VerifyInput!): Message!
     login(input: LoginInput!): AuthToken!
     requestPasswordReset(input: ResetPasswordRequestInput!): Message!
