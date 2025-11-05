@@ -3,6 +3,7 @@ package edu.pk.jawolh.erecepta.identityservice.service;
 
 import edu.pk.jawolh.erecepta.identityservice.config.JwtProperties;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
+import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.util.TimeFormatter;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -24,7 +25,7 @@ public class JwtService {
     private final JwtProperties jwtProperties;
     private final TimeFormatter timeFormatter;
 
-    public JwtTokenDTO generateToken(UUID id) {
+    public JwtTokenDTO generateToken(UUID id, UserRole role) {
 
         Instant now = timeFormatter.now();
         Instant expiration = now.plus(jwtProperties.getExpiration());
@@ -37,6 +38,7 @@ public class JwtService {
                 .subject(id.toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
+                .claim("role", role.name())
                 .signWith(getSignInKey())
                 .compact();
 

@@ -4,7 +4,7 @@ spring:
   cloud:
     gateway:
       server:
-        webmvc:
+        webflux:
           routes:
             - id: identity-service
               uri: lb://identity-service
@@ -12,6 +12,14 @@ spring:
                 - Path=/auth/**
               filters:
                 - StripPrefix=1
+
+application:
+  security:
+    jwt:
+      secret-key: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
+      expiration: ${APPLICATION_SECURITY_JWT_EXPIRATION:1h}
+  action-token:
+    verification-expiration: ${APPLICATION_ACTION_TOKEN_VERIFICATION_EXPIRATION:15m}
 
 eureka:
   client:
