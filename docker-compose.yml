@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  identity-service:
+    build: ./identity-service
+    container_name: identity-service
+    ports:
+      - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    environment:
+      SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
+
+      APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
+      APPLICATION_ACTION_TOKEN_EXPIRATION: ${ACTION_TOKEN_EXPIRATION}
 
 networks:
   erecepta-network:

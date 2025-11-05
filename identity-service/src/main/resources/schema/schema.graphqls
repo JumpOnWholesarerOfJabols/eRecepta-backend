@@ -1,0 +1,76 @@
+# ========================
+# ENUMS
+# ========================
+
+enum Gender{
+    MALE, FEMALE
+}
+
+# ========================
+# INPUTS
+# ========================
+
+input RegisterInput {
+    email: String!
+    pesel: String!
+    firstName: String!
+    lastName: String!
+    phoneNumber: String!
+    gender: Gender!
+    dateOfBirth: String!
+    password: String!
+}
+
+input LoginInput {
+    login: String! #email or pesel
+    password: String!
+}
+
+input VerifyInput {
+    login: String! #email or pesel
+    code: String!
+}
+
+input SendVerificationCodeRequestInput {
+    login: String! #email or pesel
+}
+
+input ResetPasswordRequestInput {
+    login: String! #email or pesel
+}
+
+input ResetPasswordInput {
+    login: String! #email or pesel
+    password: String!
+    code: String!
+}
+
+# ========================
+# OUTPUTS
+# ========================
+
+type AuthToken {
+    token: String!
+    expiresAt: String!
+}
+
+type Message {
+    message: String!
+}
+
+# ========================
+# OPERATIONS
+# ========================
+
+type Query {
+    _dummy_identity: String
+}
+
+type Mutation {
+    register(input: RegisterInput!): Message!
+    sendVerificationCodeRequest(input: SendVerificationCodeRequestInput!): Message!
+    verifyAccount(input: VerifyInput!): Message!
+    login(input: LoginInput!): AuthToken!
+    requestPasswordReset(input: ResetPasswordRequestInput!): Message!
+    resetPassword(input: ResetPasswordInput!): Message!
+}
