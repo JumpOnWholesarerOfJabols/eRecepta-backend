@@ -7,9 +7,9 @@ import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsExcept
 import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsException;
 import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistException;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
+import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.validation.RegisterValidator;
 import lombok.RequiredArgsConstructor;
@@ -108,7 +108,7 @@ public class AuthService {
         if (!account.isVerified())
             throw new AccountVerificationException("Account is not verified");
 
-        return jwtService.generateToken(account.getId());
+        return jwtService.generateToken(account.getId(), account.getRole());
     }
 
     public String resetPasswordRequest(String login) {

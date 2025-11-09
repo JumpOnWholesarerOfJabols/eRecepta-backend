@@ -29,3 +29,10 @@ application:
   codes:
     expiration: ${APPLICATION_ACTION_TOKEN_EXPIRATION:15m}
     length: 6
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:${ERECEPTA_EUREKA_PORT}/eureka/
