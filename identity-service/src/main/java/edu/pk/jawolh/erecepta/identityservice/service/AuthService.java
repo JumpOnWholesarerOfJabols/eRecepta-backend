@@ -41,7 +41,7 @@ public class AuthService {
             String dateOfBirth,
             String password
     ) {
-        if (userRepository.existsByPeselOrEmail(email, pesel)) {
+        if (userRepository.existsByPeselOrEmail(pesel, email)) {
             throw new UserAlreadyExistsException("User with given PESEL or email already exists");
         }
 
