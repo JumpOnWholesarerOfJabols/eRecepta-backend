@@ -31,6 +31,7 @@
         <module>identity-service</module>
         <module>eureka</module>
         <module>gateway</module>
+        <module>visit-service</module>
     </modules>
 
     <dependencyManagement>

@@ -1,0 +1,23 @@
+input CreateVisitInput{
+    doctorId: String!
+    patientId: String!
+    specialization: Int!
+    visitTime: String
+}
+
+type Visit {
+    id: Int!
+    doctorId: String!
+    patientId: String!
+    specialization: Int!
+    visitTime: String
+}
+
+type Query {
+    findAll: [Visit]
+    findById(id: Int!): Visit
+}
+
+type Mutation {
+    createVisit(in: CreateVisitInput!): Int
+}
