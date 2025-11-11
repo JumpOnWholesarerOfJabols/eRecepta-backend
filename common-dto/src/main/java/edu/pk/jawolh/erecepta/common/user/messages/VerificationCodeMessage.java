@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendResetPasswordCodeMessage {
+public class VerificationCodeMessage {
     private String email;
     private String code;
 }

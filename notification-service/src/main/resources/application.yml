@@ -20,6 +20,13 @@ spring:
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
+rabbitmq:
+  exchange-name: user-exchange
+  verification-code-event-routing-key: verification-code-event
+  reset-password-code-event-routing-key: reset-password-code-event
+  verification-code-event-topic: verification-code-queue
+  reset-password-code-event-topic: reset-password-code-queue
+
 server:
   port: ${SERVER_PORT:12001}
 

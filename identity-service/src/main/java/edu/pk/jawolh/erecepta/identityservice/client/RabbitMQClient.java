@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.identityservice.client;
 
-import edu.pk.jawolh.erecepta.common.user.messages.SendResetPasswordCodeMessage;
-import edu.pk.jawolh.erecepta.common.user.messages.SendVerificationCodeMessage;
+import edu.pk.jawolh.erecepta.common.user.messages.ResetPasswordCodeMessage;
+import edu.pk.jawolh.erecepta.common.user.messages.VerificationCodeMessage;
 import edu.pk.jawolh.erecepta.identityservice.config.RabbitMqProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,21 +15,21 @@ public class RabbitMQClient {
     private final RabbitMqProperties rabbitMqProperties;
 
     public void sendVerificationCodeEvent(String email, String verificationCode) {
-        SendVerificationCodeMessage event = new SendVerificationCodeMessage(email, verificationCode);
+        VerificationCodeMessage event = new VerificationCodeMessage(email, verificationCode);
 
         rabbitTemplate.convertAndSend(
                 rabbitMqProperties.getExchangeName(),
-                rabbitMqProperties.getSendVerificationCodeRoutingKey(),
+                rabbitMqProperties.getVerificationCodeRoutingKey(),
                 event
         );
     }
 
     public void sendResetPasswordCodeEvent(String email, String resetPasswordCode) {
-        SendResetPasswordCodeMessage event = new SendResetPasswordCodeMessage(email, resetPasswordCode);
+        ResetPasswordCodeMessage event = new ResetPasswordCodeMessage(email, resetPasswordCode);
 
         rabbitTemplate.convertAndSend(
                 rabbitMqProperties.getExchangeName(),
-                rabbitMqProperties.getSendResetPasswordRoutingKey(),
+                rabbitMqProperties.getResetPasswordCodeRoutingKey(),
                 event
         );
     }

@@ -12,8 +12,8 @@ spring:
 
 rabbitmq:
   exchange-name: user-exchange
-  send-verification-code-routing-key: verification-code-event
-  send-reset-password-code-routing-key: reset-password-code-event
+  verification-code-routing-key: verification-code-event
+  reset-password-code-routing-key: reset-password-code-event
 
   h2:
     console:

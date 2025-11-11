@@ -1,4 +1,5 @@
-package edu.pk.jawolh.erecepta.identityservice.config;
+package edu.pk.jawolh.erecepta.notificationservice.configuration;
+
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,7 +10,10 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitMqProperties {
     private String exchangeName;
+    private String resetPasswordCodeEventTopic;
+    private String verificationCodeEventTopic;
 
-    private String verificationCodeRoutingKey;
-    private String resetPasswordCodeRoutingKey;
+    private String resetPasswordCodeEventRoutingKey;
+    private String verificationCodeEventRoutingKey;
+
 }
