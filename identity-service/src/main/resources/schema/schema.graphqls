@@ -62,10 +62,6 @@ type Message {
 # OPERATIONS
 # ========================
 
-type Query {
-    _dummy_identity: String
-}
-
 type Mutation {
     register(input: RegisterInput!): Message!
     sendVerificationCodeRequest(input: SendVerificationCodeRequestInput!): Message!

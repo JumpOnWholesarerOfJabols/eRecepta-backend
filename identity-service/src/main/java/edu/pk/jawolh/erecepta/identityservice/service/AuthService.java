@@ -1,6 +1,7 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
+import edu.pk.jawolh.erecepta.identityservice.client.RabbitMQClient;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.exception.AccountVerificationException;
 import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsException;
@@ -30,6 +31,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RegisterValidator registerValidator;
+    private final RabbitMQClient rabbitMQClient;
 
     public String registerUser(
             String email,
@@ -41,7 +43,7 @@ public class AuthService {
             String dateOfBirth,
             String password
     ) {
-        if (userRepository.existsByPeselOrEmail(email, pesel)) {
+        if (userRepository.existsByPeselOrEmail(pesel, email)) {
             throw new UserAlreadyExistsException("User with given PESEL or email already exists");
         }
 
@@ -76,8 +78,8 @@ public class AuthService {
 
         UserAccount savedUser = userRepository.save(account);
 
-        // TODO: mail with verification code
         String verificationCode = verificationCodeService.generateVerificationCode(savedUser.getEmail(), savedUser.getPesel());
+        rabbitMQClient.sendVerificationCodeEvent(savedUser.getEmail(), verificationCode);
 
         return "User registered successfully";
     }
@@ -114,11 +116,8 @@ public class AuthService {
     public String resetPasswordRequest(String login) {
         UserAccount account = getAccount(login);
 
-        if (!account.isVerified())
-            throw new AccountVerificationException("Account is not verified");
-
-        // TODO: mail with reset password code
         String code = resetPasswordCodeService.generateResetPasswordCode(account.getEmail(), account.getPesel());
+        rabbitMQClient.sendResetPasswordCodeEvent(account.getEmail(), code);
         log.info("Generated reset password code: {}", code);
 
         return "Reset password request successfully";
@@ -144,8 +143,8 @@ public class AuthService {
         if (account.isVerified())
             throw new AccountVerificationException("Account is already verified");
 
-        //TODO: send mail with verification code
         String code = verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
+        rabbitMQClient.sendVerificationCodeEvent(account.getEmail(), code);
         log.info("Generated verification code: {}", code);
 
         return "Verification code sent";
