@@ -1,11 +1,14 @@
 package edu.pk.jawolh.erecepta.identityservice.validation;
 
+import edu.pk.jawolh.erecepta.identityservice.exception.MultiFieldValidationException;
 import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Component
@@ -33,46 +36,55 @@ public class RegisterValidator {
             String phoneNumber,
             String password
     ) {
+        Map<String, String> errors = new HashMap<>();
 
-        peselValidator.validate(pesel, dateOfBirth, gender);
+        try {
+            peselValidator.validate(pesel, dateOfBirth, gender);
+        } catch (ValidationException ex) {
+            errors.put("pesel", ex.getMessage());
+        }
 
         if (isBlank(email) || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new ValidationException("Invalid email address format");
+            errors.put("email", "Invalid email address format");
         }
 
         if (isBlank(firstName) || !NAME_PATTERN.matcher(firstName.trim()).matches()) {
-            throw new ValidationException("Invalid first name");
+            errors.put("firstName", "Invalid first name");
         }
 
         if (isBlank(lastName) || !NAME_PATTERN.matcher(lastName.trim()).matches()) {
-            throw new ValidationException("Invalid last name");
+            errors.put("lastName", "Invalid last name");
         }
 
         if (!isBlank(phoneNumber) && !PHONE_PATTERN.matcher(phoneNumber.trim()).matches()) {
-            throw new ValidationException("Invalid phone number format");
+            errors.put("phoneNumber", "Invalid phone number format");
         }
 
-        validatePassword(password);
+        validatePassword(password, errors);
+
+        if (!errors.isEmpty()) {
+            throw new MultiFieldValidationException(errors);
+        }
     }
 
-    private void validatePassword(String password) {
+    private void validatePassword(String password, Map<String, String> errors) {
         if (isBlank(password)) {
-            throw new ValidationException("Password cannot be empty");
+            errors.put("password", "Password cannot be empty");
+            return;
         }
 
         String trimmed = password.trim();
         if (trimmed.length() < 8) {
-            throw new ValidationException("Password must be at least 8 characters long");
+            errors.put("password", "Password must be at least 8 characters long");
         }
-
         if (!trimmed.matches(".*[A-Z].*")) {
-            throw new ValidationException("Password must contain at least one uppercase letter");
+            errors.put("password", "Password must contain at least one uppercase letter");
         }
         if (!trimmed.matches(".*[a-z].*")) {
-            throw new ValidationException("Password must contain at least one lowercase letter");
+            errors.put("password", "Password must contain at least one lowercase letter");
         }
         if (!trimmed.matches(".*\\d.*")) {
-            throw new ValidationException("Password must contain at least one number");
+            errors.put("password", "Password must contain at least one number");
         }
     }
 
