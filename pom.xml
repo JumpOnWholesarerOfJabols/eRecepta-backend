@@ -30,6 +30,7 @@
 
     <modules>
         <module>identity-service</module>
+        <module>notification-service</module>
         <module>eureka</module>
         <module>gateway</module>
     </modules>
