@@ -199,7 +199,7 @@ public class AuthServiceIntegrationTest {
         void shouldSucceed_whenCredentialsAreCorrectAndUserIsVerified() {
             String password = "Password123!";
             UserAccount user = saveVerifiedUser(password);
-            when(jwtService.generateToken(user.getId())).thenReturn(new JwtTokenDTO("test-token", ""));
+            when(jwtService.generateToken(user.getId(), user.getRole())).thenReturn(new JwtTokenDTO("test-token", ""));
 
             JwtTokenDTO token = authService.login(user.getEmail(), password);
 
