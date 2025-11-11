@@ -27,10 +27,7 @@ public class PeselValidator {
         }
 
         if (!dateOfBirth.equals(dateFromPesel)) {
-            throw new ValidationException(String.format(
-                    "Date of birth (%s) does not match PESEL (%s)",
-                    dateOfBirth, dateFromPesel
-            ));
+            throw new ValidationException("Date of birth does not match PESEL");
         }
 
         if (gender != null && !isGenderConsistent(pesel, gender)) {

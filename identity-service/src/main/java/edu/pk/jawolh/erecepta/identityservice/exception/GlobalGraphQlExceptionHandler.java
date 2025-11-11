@@ -9,6 +9,8 @@ import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandle
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -52,19 +54,26 @@ public class GlobalGraphQlExceptionHandler {
     }
 
     @GraphQlExceptionHandler
-    public GraphQLError handle(ValidationException ex, DataFetchingEnvironment env) {
-        log.warn("Generic validation failed: {}", ex.getMessage());
-        return buildError(ex, env, ErrorType.BAD_REQUEST);
+    public GraphQLError handle(MultiFieldValidationException ex, DataFetchingEnvironment env) {
+        log.warn("Multi-field validation failed: {}", ex.getErrors());
+        return buildError(ex, env, ErrorType.BAD_REQUEST, Map.of("validationErrors", ex.getErrors()));
     }
 
-
     private GraphQLError buildError(Throwable ex, DataFetchingEnvironment env, ErrorType errorType) {
+        return buildError(ex, env, errorType, Collections.emptyMap());
+    }
+
+    private GraphQLError buildError(Throwable ex, DataFetchingEnvironment env, ErrorType errorType, Map<String, Object> additionalExtensions) {
+        Map<String, Object> extensions = new HashMap<>();
+        extensions.put("errorCode", ex.getClass().getSimpleName());
+        extensions.putAll(additionalExtensions);
+
         return GraphqlErrorBuilder.newError()
                 .message(ex.getMessage())
                 .path(env.getExecutionStepInfo().getPath())
                 .location(env.getField().getSourceLocation())
                 .errorType(errorType)
-                .extensions(Map.of("errorCode", ex.getClass().getSimpleName()))
+                .extensions(extensions)
                 .build();
     }
 }
