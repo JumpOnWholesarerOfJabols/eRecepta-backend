@@ -4,6 +4,16 @@ server:
 spring:
   application:
     name: identity-service
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+rabbitmq:
+  exchange-name: user-exchange
+  send-verification-code-routing-key: verification-code-event
+  send-reset-password-code-routing-key: reset-password-code-event
 
   h2:
     console:

@@ -29,6 +29,7 @@
     </properties>
 
     <modules>
+        <module>common-dto</module>
         <module>identity-service</module>
         <module>notification-service</module>
         <module>eureka</module>
@@ -37,6 +38,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>edu.pk.jawolh.erecepta</groupId>
+                <artifactId>common-dto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.netflix.graphql.dgs</groupId>
                 <artifactId>graphql-dgs-platform-dependencies</artifactId>
