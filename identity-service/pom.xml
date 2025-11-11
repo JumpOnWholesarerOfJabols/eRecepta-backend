@@ -13,10 +13,6 @@
     <name>identity-service</name>
     <description>identity-service</description>
 
-    <properties>
-        <spring-cloud.version>2025.0.0</spring-cloud.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
