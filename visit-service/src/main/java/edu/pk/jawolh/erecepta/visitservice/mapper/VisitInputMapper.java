@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Component
 public class VisitInputMapper {
 
-    public Visit mapFromInput(CreateVisitInput in) {
-        Visit v = new Visit(in.getDoctorId(), in.getPatientId(), Specialization.values()[in.getSpecialization()]);
+    public Visit mapFromInput(String patientId, CreateVisitInput in) {
+        Visit v = new Visit(in.getDoctorId(), patientId, Specialization.values()[in.getSpecialization()]);
         v.setVisitTime(LocalDateTime.parse(in.getVisitTime()));
 
         return v;

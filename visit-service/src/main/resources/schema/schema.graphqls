@@ -1,6 +1,5 @@
 input CreateVisitInput{
     doctorId: String!
-    patientId: String!
     specialization: Int!
     visitTime: String
 }
