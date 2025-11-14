@@ -6,7 +6,6 @@
         <groupId>edu.pk.jawolh.erecepta</groupId>
         <artifactId>erecepta-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>

@@ -1,0 +1,25 @@
+package edu.pk.jawolh.erecepta.visitservice.model;
+
+public enum Specialization {
+    CARDIOLOGY,
+    DERMATOLOGY,
+    ENDOCRINOLOGY,
+    GASTROENTEROLOGY,
+    NEUROLOGY,
+    ONCOLOGY,
+    OPHTHALMOLOGY,
+    ORTHOPEDICS,
+    OTOLARYNGOLOGY, // ENT
+    PEDIATRICS,
+    PSYCHIATRY,
+    PULMONOLOGY,
+    RADIOLOGY,
+    SURGERY,
+    UROLOGY,
+    GYNECOLOGY,
+    OBSTETRICS,
+    FAMILY_MEDICINE,
+    INTERNAL_MEDICINE,
+    EMERGENCY_MEDICINE
+}
+

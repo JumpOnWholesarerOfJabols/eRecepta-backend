@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -28,11 +29,11 @@ public class JwtService {
                     .getPayload();
 
             Date now = Date.from(Instant.now());
-            if (claims.getExpiration().before(now) || claims.getIssuedAt().after(now) || claims.get("role", String.class) == null)
+            if (claims.getExpiration() == null || claims.getExpiration().before(now) || claims.getIssuedAt().after(now) || claims.get("role", String.class) == null)
                 return null;
 
             return claims;
-        } catch (ExpiredJwtException e) {
+        } catch (ExpiredJwtException | SignatureException e) {
             return null;
         }
     }
