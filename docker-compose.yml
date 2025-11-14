@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_NODE_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    networks:
+      - erecepta-network
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   identity-service:
     build: ./identity-service
     container_name: identity-service
@@ -8,12 +25,45 @@ services:
       - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
 
       APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
       APPLICATION_ACTION_TOKEN_EXPIRATION: ${ACTION_TOKEN_EXPIRATION}
+
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: ${NOTIFICATION_SERVICE_INTERNAL_PORT}
+
+      SPRING_MAIL_HOST: ${MAIL_HOST}
+      SPRING_MAIL_PORT: ${MAIL_PORT}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+
 
 networks:
   erecepta-network:
