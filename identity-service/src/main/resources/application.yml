@@ -45,4 +45,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://${ERECEPTA_EUREKA_HOST}:${ERECEPTA_EUREKA_PORT}/eureka
+      defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka
