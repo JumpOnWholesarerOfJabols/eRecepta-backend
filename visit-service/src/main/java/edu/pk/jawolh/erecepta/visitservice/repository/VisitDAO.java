@@ -2,6 +2,7 @@ package edu.pk.jawolh.erecepta.visitservice.repository;
 
 import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
+import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ public class VisitDAO implements VisitRepository {
     private VisitDAO(@Value("${spring.datasource.url}") String dbUrl) {
         try {
             connection = DriverManager.getConnection(dbUrl, "admin", "password");
-            connection.createStatement().execute("CREATE TABLE VISIT(id int primary key, doctorId varchar(255), patientId varchar(255), specialization int, visitTime timestamp)");
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS VISIT(id int primary key, doctorId varchar(255), patientId varchar(255), specialization int, visitTime timestamp, visitStatus int)");
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);
             ex.printStackTrace();
@@ -35,12 +36,13 @@ public class VisitDAO implements VisitRepository {
 
             visit.setId(id);
 
-            PreparedStatement insert = connection.prepareStatement("insert into visit values(?, ?, ?, ?, ?)");
+            PreparedStatement insert = connection.prepareStatement("insert into visit values(?, ?, ?, ?, ?, ?)");
             insert.setInt(1, id);
             insert.setString(2, visit.getDoctorId());
             insert.setString(3, visit.getPatientId());
             insert.setInt(4, visit.getSpecialization().ordinal());
             insert.setTimestamp(5, Timestamp.valueOf(visit.getVisitTime()));
+            insert.setInt(6, visit.getVisitStatus().ordinal());
 
             insert.execute();
 
@@ -62,11 +64,7 @@ public class VisitDAO implements VisitRepository {
             if (!result.next())
                 return Optional.empty();
 
-            Visit v = new Visit(result.getString(2), result.getString(3), Specialization.values()[result.getInt(4)]);
-            v.setId(result.getInt(1));
-            v.setVisitTime(result.getTimestamp(5).toLocalDateTime());
-
-            return Optional.of(v);
+            return Optional.of(mapFromResult(result));
         } catch (SQLException ex) {
             System.err.println("Error trying to find visit: " + id);
             ex.printStackTrace();
@@ -82,11 +80,7 @@ public class VisitDAO implements VisitRepository {
             ResultSet result = query.executeQuery();
 
             while (result.next()) {
-                Visit v = new Visit(result.getString(2), result.getString(3), Specialization.values()[result.getInt(4)]);
-                v.setId(result.getInt(1));
-                v.setVisitTime(result.getTimestamp(5).toLocalDateTime());
-
-                visits.add(v);
+                visits.add(mapFromResult(result));
             }
 
             return visits;
@@ -95,5 +89,14 @@ public class VisitDAO implements VisitRepository {
             ex.printStackTrace();
             return Collections.emptyList();
         }
+    }
+
+    private Visit mapFromResult(ResultSet result) throws SQLException {
+        Visit v = new Visit(result.getString(2), result.getString(3), Specialization.values()[result.getInt(4)]);
+        v.setId(result.getInt(1));
+        v.setVisitTime(result.getTimestamp(5).toLocalDateTime());
+        v.setVisitStatus(VisitStatus.values()[result.getInt(6)]);
+
+        return v;
     }
 }

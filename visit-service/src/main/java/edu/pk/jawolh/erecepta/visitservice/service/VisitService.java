@@ -4,6 +4,7 @@ import com.example.demo.codegen.types.CreateVisitInput;
 import edu.pk.jawolh.erecepta.visitservice.exception.DoctorNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
+import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,12 @@ public class VisitService {
     private final VisitInputMapper mapper;
     private final GrpcDoctorService grpcDoctorService;
 
-    public int save(String patientId, CreateVisitInput input) {
+    public int createVisit(String patientId, CreateVisitInput input) {
         if (!grpcDoctorService.checkDoctorExists(input.getDoctorId())) {
             throw new DoctorNotFoundException(input.getDoctorId());
         }
         Visit v = mapper.mapFromInput(patientId, input);
+        v.setVisitStatus(VisitStatus.SCHEDULED);
         return visitRepository.save(v);
     }
 

@@ -11,4 +11,5 @@ public class Visit {
     private final String patientId;
     private final Specialization specialization;
     private LocalDateTime visitTime;
+    private VisitStatus visitStatus;
 }

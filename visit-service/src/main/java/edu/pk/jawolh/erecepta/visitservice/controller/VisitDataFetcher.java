@@ -33,7 +33,7 @@ public class VisitDataFetcher {
     @DgsMutation
     @PreAuthorize("hasRole('PATIENT')")
     public int createVisit(@InputArgument CreateVisitInput in) {
-        return service.save(getCurrentUserId(), in);
+        return service.createVisit(getCurrentUserId(), in);
     }
 
     private String getCurrentUserId() {

@@ -9,7 +9,7 @@ public enum Specialization {
     ONCOLOGY,
     OPHTHALMOLOGY,
     ORTHOPEDICS,
-    OTOLARYNGOLOGY, // ENT
+    OTOLARYNGOLOGY,
     PEDIATRICS,
     PSYCHIATRY,
     PULMONOLOGY,

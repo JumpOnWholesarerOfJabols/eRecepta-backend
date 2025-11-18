@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class VisitInputMapper {
 
     public Visit mapFromInput(String patientId, CreateVisitInput in) {
-        Visit v = new Visit(in.getDoctorId(), patientId, Specialization.values()[in.getSpecialization()]);
+        Visit v = new Visit(in.getDoctorId(), patientId, Specialization.valueOf(in.getSpecialization().name()));
         v.setVisitTime(LocalDateTime.parse(in.getVisitTime()));
 
         return v;
