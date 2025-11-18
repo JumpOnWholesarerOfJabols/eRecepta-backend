@@ -13,6 +13,8 @@ spring:
           auth: true
           starttls:
             enable: true
+          ssl:
+            trust: "*"
 
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
