@@ -9,12 +9,6 @@ spring:
     port: ${SPRING_RABBITMQ_PORT:5672}
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
-
-rabbitmq:
-  exchange-name: user-exchange
-  verification-code-routing-key: verification-code-event
-  reset-password-code-routing-key: reset-password-code-event
-
   h2:
     console:
       enabled: true
@@ -30,6 +24,12 @@ rabbitmq:
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+
+rabbitmq:
+  exchange-name: user-exchange
+  verification-code-routing-key: verification-code-event
+  reset-password-code-routing-key: reset-password-code-event
+
 
 application:
   security:
