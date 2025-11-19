@@ -1,0 +1,18 @@
+type Query {
+    getPatientRecordByUserId(userId: ID!): PatientInfo
+}
+
+type PatientInfo {
+    userId: String #todo graphql federalization with identity service
+    bloodType: String
+    height: Float
+    weight: Float
+    allergies: [String]
+    chronicDiseases: [String]
+    medications: [String] #todo graphql federalization with meds service
+    emergencyContact: String
+}
+
+
+
+
