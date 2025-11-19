@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VisitRepository {
-    int save(Visit visit);
+    void save(Visit visit);
 
-    Optional<Visit> findById(int id);
+    Optional<Visit> findById(String id);
 
     List<Visit> findAll();
 }

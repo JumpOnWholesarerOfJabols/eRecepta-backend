@@ -1,16 +1,14 @@
-package edu.pk.jawolh.erecepta.visitservice.repository;
+package edu.pk.jawolh.erecepta.visitservice.dao;
 
 import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
+import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class VisitDAO implements VisitRepository {
@@ -19,46 +17,40 @@ public class VisitDAO implements VisitRepository {
     private VisitDAO(@Value("${spring.datasource.url}") String dbUrl) {
         try {
             connection = DriverManager.getConnection(dbUrl, "admin", "password");
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS VISIT(id int primary key, doctorId varchar(255), patientId varchar(255), specialization int, visitTime timestamp, visitStatus int)");
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS VISIT(id uuid primary key, doctorId uuid, patientId uuid, specialization int, visitTime timestamp, visitStatus int)");
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);
             ex.printStackTrace();
         }
     }
 
-    public int save(Visit visit) {
+    public void save(Visit visit) {
         try {
             Statement statement = connection.createStatement();
             ResultSet maxId = statement.executeQuery("select max(id) from visit");
 
             maxId.next();
-            int id = maxId.getInt(1) + 1;
-
-            visit.setId(id);
 
             PreparedStatement insert = connection.prepareStatement("insert into visit values(?, ?, ?, ?, ?, ?)");
-            insert.setInt(1, id);
-            insert.setString(2, visit.getDoctorId());
-            insert.setString(3, visit.getPatientId());
+            insert.setString(1, visit.getId().toString());
+            insert.setString(2, visit.getDoctorId().toString());
+            insert.setString(3, visit.getPatientId().toString());
             insert.setInt(4, visit.getSpecialization().ordinal());
             insert.setTimestamp(5, Timestamp.valueOf(visit.getVisitTime()));
             insert.setInt(6, visit.getVisitStatus().ordinal());
 
             insert.execute();
-
-            return id;
         } catch (SQLException ex) {
             System.err.println("Error trying to insert visit");
             ex.printStackTrace();
-            return -1;
         }
     }
 
     @Override
-    public Optional<Visit> findById(int id) {
+    public Optional<Visit> findById(String id) {
         try {
             PreparedStatement query = connection.prepareStatement("select * from visit where id = ?");
-            query.setInt(1, id);
+            query.setString(1, id);
             ResultSet result = query.executeQuery();
 
             if (!result.next())
@@ -92,8 +84,7 @@ public class VisitDAO implements VisitRepository {
     }
 
     private Visit mapFromResult(ResultSet result) throws SQLException {
-        Visit v = new Visit(result.getString(2), result.getString(3), Specialization.values()[result.getInt(4)]);
-        v.setId(result.getInt(1));
+        Visit v = new Visit(UUID.fromString(result.getString(1)), UUID.fromString(result.getString(2)), UUID.fromString(result.getString(3)), Specialization.values()[result.getInt(4)]);
         v.setVisitTime(result.getTimestamp(5).toLocalDateTime());
         v.setVisitStatus(VisitStatus.values()[result.getInt(6)]);
 

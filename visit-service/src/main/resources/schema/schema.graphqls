@@ -1,50 +1,12 @@
-enum VisitStatus{
-    SCHEDULED, COMPLETED, CANCELLED
-}
-
-enum Specialization {
-    CARDIOLOGY,
-    DERMATOLOGY,
-    ENDOCRINOLOGY,
-    GASTROENTEROLOGY,
-    NEUROLOGY,
-    ONCOLOGY,
-    OPHTHALMOLOGY,
-    ORTHOPEDICS,
-    OTOLARYNGOLOGY,
-    PEDIATRICS,
-    PSYCHIATRY,
-    PULMONOLOGY,
-    RADIOLOGY,
-    SURGERY,
-    UROLOGY,
-    GYNECOLOGY,
-    OBSTETRICS,
-    FAMILY_MEDICINE,
-    INTERNAL_MEDICINE,
-    EMERGENCY_MEDICINE
-}
-
-input CreateVisitInput{
-    doctorId: String!
-    specialization: Specialization!
-    visitTime: String
-}
-
-type Visit {
-    id: Int!
-    doctorId: String!
-    patientId: String!
-    specialization: Specialization!
-    visitTime: String
-    visitStatus: VisitStatus
-}
-
 type Query {
-    findAll: [Visit]
-    findById(id: Int!): Visit
+    findAllVisits: [Visit]
+    findVisitById(id: String!): Visit
+    findAllWeeklyAvailabilities(doctorId: String!): [WeeklyAvailability]
+    findAllAvailabilityExceptions(doctorId: String!): [AvailabilityException]
 }
 
 type Mutation {
-    createVisit(in: CreateVisitInput!): Int
+    createVisit(in: CreateVisitInput!): String
+    createWeeklyAvailability(in: CreateWeeklyAvailabilityInput!): DayOfWeek
+    createAvailabilityException(in: CreateAvailabilityExceptionInput!): String
 }
