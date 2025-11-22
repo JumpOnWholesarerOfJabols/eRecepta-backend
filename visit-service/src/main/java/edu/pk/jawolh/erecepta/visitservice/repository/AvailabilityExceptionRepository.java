@@ -4,13 +4,16 @@ import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface AvailabilityExceptionRepository {
     void save(AvailabilityException avex);
 
-    List<AvailabilityException> findAllByDoctorId(String doctorId);
+    List<AvailabilityException> findAllByDoctorId(UUID doctorId);
 
-    List<AvailabilityException> findAllByDoctorIdAndDateEquals(String doctorId, LocalDate date);
+    List<AvailabilityException> findAllByDoctorIdAndDateEquals(UUID doctorId, LocalDate date);
 
-    List<AvailabilityException> findAllByDoctorIdAndDateBetween(String doctorId, LocalDate dateStart, LocalDate dateEnd);
+    List<AvailabilityException> findAllByDoctorIdAndDateBetween(UUID doctorId, LocalDate dateStart, LocalDate dateEnd);
+
+    void deleteById(UUID id);
 }

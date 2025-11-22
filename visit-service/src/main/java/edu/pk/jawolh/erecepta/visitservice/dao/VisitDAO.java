@@ -8,16 +8,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
 public class VisitDAO implements VisitRepository {
     private Connection connection;
 
-    private VisitDAO(@Value("${spring.datasource.url}") String dbUrl) {
+    public VisitDAO(@Value("${spring.datasource.url}") String dbUrl) {
         try {
             connection = DriverManager.getConnection(dbUrl, "admin", "password");
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS VISIT(id uuid primary key, doctorId uuid, patientId uuid, specialization int, visitTime timestamp, visitStatus int)");
+            Statement st = connection.createStatement();
+            st.execute("CREATE TABLE IF NOT EXISTS VISIT(id uuid primary key, doctorId uuid, patientId uuid, specialization int, visitTime timestamp, visitStatus int)");
+            st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);
             ex.printStackTrace();
@@ -25,10 +28,8 @@ public class VisitDAO implements VisitRepository {
     }
 
     public void save(Visit visit) {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             ResultSet maxId = statement.executeQuery("select max(id) from visit");
-
             maxId.next();
 
             PreparedStatement insert = connection.prepareStatement("insert into visit values(?, ?, ?, ?, ?, ?)");
@@ -47,10 +48,9 @@ public class VisitDAO implements VisitRepository {
     }
 
     @Override
-    public Optional<Visit> findById(String id) {
-        try {
-            PreparedStatement query = connection.prepareStatement("select * from visit where id = ?");
-            query.setString(1, id);
+    public Optional<Visit> findById(UUID id) {
+        try (PreparedStatement query = connection.prepareStatement("select * from visit where id = ?")) {
+            query.setString(1, id.toString());
             ResultSet result = query.executeQuery();
 
             if (!result.next())
@@ -66,20 +66,87 @@ public class VisitDAO implements VisitRepository {
 
     @Override
     public List<Visit> findAll() {
-        try {
+        try (PreparedStatement query = connection.prepareStatement("select * from visit")) {
             List<Visit> visits = new ArrayList<>();
-            PreparedStatement query = connection.prepareStatement("select * from visit");
             ResultSet result = query.executeQuery();
 
             while (result.next()) {
                 visits.add(mapFromResult(result));
             }
-
             return visits;
         } catch (SQLException ex) {
             System.err.println("Error trying to find all visits");
             ex.printStackTrace();
             return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Visit> findAllByVisitTimeBetween(LocalDateTime start, LocalDateTime end) {
+        try (PreparedStatement query = connection.prepareStatement("select * from visit where visitTime between ? and ?")) {
+            List<Visit> visits = new ArrayList<>();
+
+            query.setTimestamp(1, Timestamp.valueOf(start));
+            query.setTimestamp(2, Timestamp.valueOf(end));
+            ResultSet result = query.executeQuery();
+
+            while (result.next()) {
+                visits.add(mapFromResult(result));
+            }
+            return visits;
+        } catch (SQLException ex) {
+            System.err.println("Error trying to find all visits");
+            ex.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Visit> findAllByDoctorId(UUID doctorId) {
+        try (PreparedStatement query = connection.prepareStatement("select * from visit where doctorId = ?")) {
+            List<Visit> visits = new ArrayList<>();
+
+            query.setString(1, doctorId.toString());
+            ResultSet result = query.executeQuery();
+
+            while (result.next()) {
+                visits.add(mapFromResult(result));
+            }
+            return visits;
+        } catch (SQLException ex) {
+            System.err.println("Error trying to find all visits");
+            ex.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Visit> findAllByPatientId(UUID patientId) {
+        try (PreparedStatement query = connection.prepareStatement("select * from visit where patientId = ?")) {
+            List<Visit> visits = new ArrayList<>();
+
+            query.setString(1, patientId.toString());
+            ResultSet result = query.executeQuery();
+
+            while (result.next()) {
+                visits.add(mapFromResult(result));
+            }
+            return visits;
+        } catch (SQLException ex) {
+            System.err.println("Error trying to find all visits");
+            ex.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM visit WHERE id = ?")) {
+            statement.setString(1, id.toString());
+            statement.execute();
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
         }
     }
 

@@ -11,8 +11,8 @@ import java.util.UUID;
 @Component
 public class VisitInputMapper {
 
-    public Visit mapFromInput(String patientId, CreateVisitInput in) {
-        Visit v = new Visit(UUID.randomUUID(), UUID.fromString(in.getDoctorId()), UUID.fromString(patientId), Specialization.valueOf(in.getSpecialization().name()));
+    public Visit mapFromInput(UUID patientId, CreateVisitInput in) {
+        Visit v = new Visit(UUID.randomUUID(), UUID.fromString(in.getDoctorId()), patientId, Specialization.valueOf(in.getSpecialization().name()));
         v.setVisitTime(LocalDateTime.parse(in.getVisitTime()));
 
         return v;

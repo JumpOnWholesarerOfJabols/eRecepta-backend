@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class WeeklyAvailabilityService {
     private final WeeklyAvailabilityReporitory repository;
     private final WeeklyAvailabilityInputMapper mapper;
 
-    public DayOfWeek createWeeklyAvailability(String doctorId, CreateWeeklyAvailabilityInput input) {
+    public DayOfWeek createWeeklyAvailability(UUID doctorId, CreateWeeklyAvailabilityInput input) {
         WeeklyAvailability weeklyAvailability = mapper.mapFromInput(doctorId, input);
 
         if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())) {
@@ -28,11 +29,11 @@ public class WeeklyAvailabilityService {
         return weeklyAvailability.getDayOfWeek();
     }
 
-    public List<WeeklyAvailability> findAllByDoctorId(String doctorId) {
+    public List<WeeklyAvailability> findAllByDoctorId(UUID doctorId) {
         return repository.findAllByDoctorId(doctorId);
     }
 
-    public Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(String doctorId, DayOfWeek dayOfWeek) {
+    public Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
         return repository.findByDoctorIdAndDayOfWeekEquals(doctorId, dayOfWeek);
     }
 }

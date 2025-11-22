@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @Component
 public class AvailabilityExceptionInputMapper {
-    public AvailabilityException mapFromInput(String doctorId, CreateAvailabilityExceptionInput input) {
-        AvailabilityException avex = new AvailabilityException(UUID.randomUUID(), UUID.fromString(doctorId));
+    public AvailabilityException mapFromInput(UUID doctorId, CreateAvailabilityExceptionInput input) {
+        AvailabilityException avex = new AvailabilityException(UUID.randomUUID(), doctorId);
         avex.setExceptionDate(LocalDate.parse(input.getExceptionDate()));
         avex.setStartTime(LocalTime.parse(input.getStartTime()));
         avex.setEndTime(LocalTime.parse(input.getEndTime()));

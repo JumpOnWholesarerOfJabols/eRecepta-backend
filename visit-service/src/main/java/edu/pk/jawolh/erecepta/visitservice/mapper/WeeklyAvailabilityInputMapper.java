@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @Component
 public class WeeklyAvailabilityInputMapper {
-    public WeeklyAvailability mapFromInput(String doctorId, CreateWeeklyAvailabilityInput input) {
-        WeeklyAvailability av = new WeeklyAvailability(UUID.fromString(doctorId), DayOfWeek.valueOf(input.getDayOfWeek().name()));
+    public WeeklyAvailability mapFromInput(UUID doctorId, CreateWeeklyAvailabilityInput input) {
+        WeeklyAvailability av = new WeeklyAvailability(doctorId, DayOfWeek.valueOf(input.getDayOfWeek().name()));
         av.setStartTime(LocalTime.parse(input.getStartTime()));
         av.setEndTime(LocalTime.parse(input.getEndTime()));
 

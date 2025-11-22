@@ -3,10 +3,12 @@ type Query {
     findVisitById(id: String!): Visit
     findAllWeeklyAvailabilities(doctorId: String!): [WeeklyAvailability]
     findAllAvailabilityExceptions(doctorId: String!, startDate: String, endDate: String): [AvailabilityException]
+    findAllSpecializations(doctorId: String!): [Specialization]
 }
 
 type Mutation {
     createVisit(in: CreateVisitInput!): String
     createWeeklyAvailability(in: CreateWeeklyAvailabilityInput!): DayOfWeek
     createAvailabilityException(in: CreateAvailabilityExceptionInput!): String
+    createSpecialization(in: Specialization!) : Specialization
 }

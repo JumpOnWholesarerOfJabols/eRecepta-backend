@@ -20,7 +20,7 @@ public class AvailabilityExceptionDataFetcher extends AbstractDataFetcher {
     private final AvailabilityExceptionService service;
 
     @DgsQuery
-    public List<AvailabilityException> findAllAvailabilityExceptions(@InputArgument String doctorId, @InputArgument Optional<String> startDate, @InputArgument Optional<String> endDate) {
+    public List<AvailabilityException> findAllAvailabilityExceptions(@InputArgument UUID doctorId, @InputArgument Optional<String> startDate, @InputArgument Optional<String> endDate) {
         if (startDate.isPresent() && endDate.isPresent()) {
             return service.findAllByDoctorIdAndDateBetween(doctorId, startDate.get(), endDate.get());
         } else if (startDate.isPresent() || endDate.isPresent()) {

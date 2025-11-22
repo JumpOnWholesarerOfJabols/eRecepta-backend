@@ -3,10 +3,7 @@ package edu.pk.jawolh.erecepta.visitservice.service;
 import com.example.demo.codegen.types.CreateVisitInput;
 import edu.pk.jawolh.erecepta.visitservice.exception.DoctorNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
-import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
-import edu.pk.jawolh.erecepta.visitservice.model.Visit;
-import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
-import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
+import edu.pk.jawolh.erecepta.visitservice.model.*;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,25 +16,34 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class VisitService {
+    private static final int VISIT_DURATION_MINUTES = 20;
+
     private final VisitRepository visitRepository;
     private final VisitInputMapper mapper;
     private final GrpcDoctorService grpcDoctorService;
 
     private final WeeklyAvailabilityService weeklyAvailabilityService;
     private final AvailabilityExceptionService availabilityExceptionService;
+    private final DoctorSpecializationService doctorSpecializationService;
 
-    public UUID createVisit(String patientId, CreateVisitInput input) {
+    public UUID createVisit(UUID patientId, CreateVisitInput input) {
         if (!grpcDoctorService.checkDoctorExists(input.getDoctorId())) {
             throw new DoctorNotFoundException(input.getDoctorId());
         }
 
         LocalDateTime vdt = LocalDateTime.parse(input.getVisitTime());
+        UUID doctorId = UUID.fromString(input.getDoctorId());
+        Specialization sp = Specialization.valueOf(input.getSpecialization().name());
+
+        if (!doctorSpecializationService.getSpecializations(doctorId).contains(sp)) {
+            throw new IllegalArgumentException("Doctor does not accept visits for this specialization");
+        }
 
         if (vdt.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("visitTime cannot be set in the past");
         }
 
-        Optional<WeeklyAvailability> av = weeklyAvailabilityService.findByDoctorIdAndDayOfWeekEquals(input.getDoctorId(), vdt.getDayOfWeek());
+        Optional<WeeklyAvailability> av = weeklyAvailabilityService.findByDoctorIdAndDayOfWeekEquals(doctorId, vdt.getDayOfWeek());
 
         if (av.isEmpty()) {
             throw new IllegalArgumentException("Doctor does not accept visits on this day of week");
@@ -46,13 +52,16 @@ public class VisitService {
             throw new IllegalArgumentException("Cannot create a visit outside of the doctor's availability window");
         }
 
-        List<AvailabilityException> exceptionList = availabilityExceptionService.findAllBydDoctorIdAndDateEquals(input.getDoctorId(), vdt.toLocalDate().toString());
+        List<AvailabilityException> exceptionList = availabilityExceptionService.findAllBydDoctorIdAndDateEquals(doctorId, vdt.toLocalDate().toString());
 
         for (AvailabilityException avex : exceptionList) {
             if (vdt.toLocalTime().isAfter(avex.getStartTime()) && vdt.toLocalTime().isBefore(avex.getEndTime())) {
                 throw new IllegalArgumentException("Cannot create a visit outside of the doctor's availability window");
             }
         }
+
+        if (!visitRepository.findAllByVisitTimeBetween(vdt, vdt.plusMinutes(VISIT_DURATION_MINUTES)).isEmpty())
+            throw new IllegalArgumentException("Cannot create a visit colliding with another visit");
 
         Visit v = mapper.mapFromInput(patientId, input);
         v.setVisitStatus(VisitStatus.SCHEDULED);
@@ -61,7 +70,7 @@ public class VisitService {
         return v.getId();
     }
 
-    public Optional<Visit> findById(String id) {
+    public Optional<Visit> findById(UUID id) {
         return visitRepository.findById(id);
     }
 
@@ -69,4 +78,11 @@ public class VisitService {
         return visitRepository.findAll();
     }
 
+    public List<Visit> findAllByDoctorId(UUID doctorId) {
+        return visitRepository.findAllByDoctorId(doctorId);
+    }
+
+    public List<Visit> findAllByPatientId(UUID patientId) {
+        return visitRepository.findAllByPatientId(patientId);
+    }
 }

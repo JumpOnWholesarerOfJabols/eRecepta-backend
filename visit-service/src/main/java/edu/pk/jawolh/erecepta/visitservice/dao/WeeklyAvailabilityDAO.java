@@ -16,10 +16,12 @@ import java.util.UUID;
 public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
     private Connection connection;
 
-    private WeeklyAvailabilityDAO(@Value("${spring.datasource.url}") String dbUrl) {
+    public WeeklyAvailabilityDAO(@Value("${spring.datasource.url}") String dbUrl) {
         try {
             connection = DriverManager.getConnection(dbUrl, "admin", "password");
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS WEEKLY_AVAILABILITY(doctorId uuid, dayOfWeek tinyint, startTime time, endTime time, CONSTRAINT PK_WA PRIMARY KEY (doctorId, dayOfWeek))");
+            Statement st = connection.createStatement();
+            st.execute("CREATE TABLE IF NOT EXISTS WEEKLY_AVAILABILITY(doctorId uuid, dayOfWeek tinyint, startTime time, endTime time, CONSTRAINT PK_WA PRIMARY KEY (doctorId, dayOfWeek))");
+            st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);
             ex.printStackTrace();
@@ -28,8 +30,7 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
 
     @Override
     public void save(WeeklyAvailability availability) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO WEEKLY_AVAILABILITY VALUES(?, ?, ?, ?)");
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO WEEKLY_AVAILABILITY VALUES(?, ?, ?, ?)")) {
             statement.setString(1, availability.getDoctorId().toString());
             statement.setInt(2, availability.getDayOfWeek().getValue());
             statement.setTime(3, Time.valueOf(availability.getStartTime()));
@@ -43,18 +44,15 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
     }
 
     @Override
-    public List<WeeklyAvailability> findAllByDoctorId(String doctorId) {
-        try {
+    public List<WeeklyAvailability> findAllByDoctorId(UUID doctorId) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM WEEKLY_AVAILABILITY WHERE doctorId = ?")) {
             List<WeeklyAvailability> availabilities = new ArrayList<>();
-
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM WEEKLY_AVAILABILITY WHERE doctorId = ?");
-            statement.setString(1, doctorId);
+            statement.setString(1, doctorId.toString());
             ResultSet result = statement.executeQuery();
 
             while (result.next()) {
                 availabilities.add(mapFromResult(result));
             }
-
             return availabilities;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -62,10 +60,9 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
     }
 
     @Override
-    public Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(String doctorId, DayOfWeek dayOfWeek) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM WEEKLY_AVAILABILITY WHERE doctorId = ? AND dayOfWeek = ?");
-            statement.setString(1, doctorId);
+    public Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM WEEKLY_AVAILABILITY WHERE doctorId = ? AND dayOfWeek = ?")) {
+            statement.setString(1, doctorId.toString());
             statement.setInt(2, dayOfWeek.getValue());
 
             ResultSet result = statement.executeQuery();
@@ -77,6 +74,18 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
             System.err.println("Error connecting to database");
             ex.printStackTrace();
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public void deleteByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
+        try (PreparedStatement statement = connection.prepareStatement("DELETE * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND dayOfWeek = ?")) {
+            statement.setString(1, doctorId.toString());
+            statement.setInt(2, dayOfWeek.getValue());
+            statement.execute();
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
         }
     }
 

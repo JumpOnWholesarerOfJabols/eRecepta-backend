@@ -16,10 +16,12 @@ import java.util.UUID;
 public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository {
     private Connection connection;
 
-    private AvailabilityExceptionDAO(@Value("${spring.datasource.url}") String dbUrl) {
+    public AvailabilityExceptionDAO(@Value("${spring.datasource.url}") String dbUrl) {
         try {
             connection = DriverManager.getConnection(dbUrl, "admin", "password");
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS AVAILABILITY_EXCEPTION(id uuid PRIMARY KEY, doctorId uuid, exceptionDate date, startTime time, endTime time)");
+            Statement st = connection.createStatement();
+            st.execute("CREATE TABLE IF NOT EXISTS AVAILABILITY_EXCEPTION(id uuid PRIMARY KEY, doctorId uuid, exceptionDate date, startTime time, endTime time)");
+            st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);
             ex.printStackTrace();
@@ -28,8 +30,7 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
 
     @Override
     public void save(AvailabilityException avex) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO AVAILABILITY_EXCEPTION VALUES(?, ?, ?, ?, ?)");
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO AVAILABILITY_EXCEPTION VALUES(?, ?, ?, ?, ?)")) {
             statement.setString(1, avex.getId().toString());
             statement.setString(2, avex.getDoctorId().toString());
             statement.setDate(3, Date.valueOf(avex.getExceptionDate()));
@@ -44,12 +45,10 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
     }
 
     @Override
-    public List<AvailabilityException> findAllByDoctorId(String doctorId) {
-        try {
+    public List<AvailabilityException> findAllByDoctorId(UUID doctorId) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ?")) {
             List<AvailabilityException> exceptions = new ArrayList<>();
-
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ?");
-            statement.setString(1, doctorId);
+            statement.setString(1, doctorId.toString());
 
             ResultSet result = statement.executeQuery();
             while (result.next()) {
@@ -65,12 +64,11 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
     }
 
     @Override
-    public List<AvailabilityException> findAllByDoctorIdAndDateEquals(String doctorId, LocalDate date) {
-        try {
+    public List<AvailabilityException> findAllByDoctorIdAndDateEquals(UUID doctorId, LocalDate date) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND exceptionDate = ?")) {
             List<AvailabilityException> exceptions = new ArrayList<>();
 
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND exceptionDate = ?");
-            statement.setString(1, doctorId);
+            statement.setString(1, doctorId.toString());
             statement.setDate(2, Date.valueOf(date));
 
             ResultSet result = statement.executeQuery();
@@ -87,12 +85,11 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
     }
 
     @Override
-    public List<AvailabilityException> findAllByDoctorIdAndDateBetween(String doctorId, LocalDate dateStart, LocalDate dateEnd) {
-        try {
+    public List<AvailabilityException> findAllByDoctorIdAndDateBetween(UUID doctorId, LocalDate dateStart, LocalDate dateEnd) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND exceptionDate BETWEEN ? AND ?")) {
             List<AvailabilityException> exceptions = new ArrayList<>();
 
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND exceptionDate BETWEEN ? AND ?");
-            statement.setString(1, doctorId);
+            statement.setString(1, doctorId.toString());
             statement.setDate(2, Date.valueOf(dateStart));
             statement.setDate(3, Date.valueOf(dateEnd));
 
@@ -106,6 +103,17 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
             System.err.println("Error connecting to database");
             e.printStackTrace();
             return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM AVAILABILITY_EXCEPTION WHERE id = ?")) {
+            statement.setString(1, id.toString());
+            statement.execute();
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
         }
     }
 

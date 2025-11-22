@@ -20,13 +20,18 @@ public class VisitDataFetcher extends AbstractDataFetcher {
     private final VisitService service;
 
     @DgsQuery
-    public Optional<Visit> findVisitById(@InputArgument String id) {
+    public Optional<Visit> findVisitById(@InputArgument UUID id) {
         return service.findById(id);
     }
 
     @DgsQuery
     public List<Visit> findAllVisits() {
-        return service.findAll();
+        if (hasRole("ROLE_ADMIN"))
+            return service.findAll();
+        else if (hasRole("ROLE_DOCTOR"))
+            return service.findAllByDoctorId(getCurrentUserId());
+        else
+            return service.findAllByPatientId(getCurrentUserId());
     }
 
     @DgsMutation

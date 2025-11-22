@@ -17,7 +17,7 @@ public class AvailabilityExceptionService {
     private final AvailabilityExceptionRepository repository;
     private final AvailabilityExceptionInputMapper mapper;
 
-    public UUID createAvailabilityException(String doctorId, CreateAvailabilityExceptionInput input) {
+    public UUID createAvailabilityException(UUID doctorId, CreateAvailabilityExceptionInput input) {
         AvailabilityException avex = mapper.mapFromInput(doctorId, input);
 
         if (avex.getExceptionDate().isBefore(LocalDate.now())) {
@@ -32,16 +32,16 @@ public class AvailabilityExceptionService {
         return avex.getId();
     }
 
-    public List<AvailabilityException> findAllByDoctorId(String doctorId) {
+    public List<AvailabilityException> findAllByDoctorId(UUID doctorId) {
         return repository.findAllByDoctorId(doctorId);
     }
 
-    public List<AvailabilityException> findAllBydDoctorIdAndDateEquals(String doctorId, String date) {
+    public List<AvailabilityException> findAllBydDoctorIdAndDateEquals(UUID doctorId, String date) {
         LocalDate localDate = LocalDate.parse(date);
         return repository.findAllByDoctorIdAndDateEquals(doctorId, localDate);
     }
 
-    public List<AvailabilityException> findAllByDoctorIdAndDateBetween(String doctorId, String dateStart, String dateEnd) {
+    public List<AvailabilityException> findAllByDoctorIdAndDateBetween(UUID doctorId, String dateStart, String dateEnd) {
         LocalDate startDate = LocalDate.parse(dateStart);
         LocalDate endDate = LocalDate.parse(dateEnd);
         return repository.findAllByDoctorIdAndDateBetween(doctorId, startDate, endDate);

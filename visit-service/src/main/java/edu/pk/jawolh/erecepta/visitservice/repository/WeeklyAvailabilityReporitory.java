@@ -5,11 +5,14 @@ import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface WeeklyAvailabilityReporitory {
     void save(WeeklyAvailability availability);
 
-    List<WeeklyAvailability> findAllByDoctorId(String doctorId);
+    List<WeeklyAvailability> findAllByDoctorId(UUID doctorId);
 
-    Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(String doctorId, DayOfWeek dayOfWeek);
+    Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek);
+
+    void deleteByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek);
 }

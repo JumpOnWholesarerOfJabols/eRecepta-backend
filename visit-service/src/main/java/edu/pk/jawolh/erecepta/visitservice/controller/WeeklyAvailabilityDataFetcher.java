@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.UUID;
 
 @DgsComponent
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class WeeklyAvailabilityDataFetcher extends AbstractDataFetcher {
     private final WeeklyAvailabilityService service;
 
     @DgsQuery
-    public List<WeeklyAvailability> findAllWeeklyAvailabilities(@InputArgument String doctorId) {
+    public List<WeeklyAvailability> findAllWeeklyAvailabilities(@InputArgument UUID doctorId) {
         return service.findAllByDoctorId(doctorId);
     }
 
