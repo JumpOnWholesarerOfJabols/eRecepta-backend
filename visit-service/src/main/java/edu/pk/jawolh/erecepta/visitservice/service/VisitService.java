@@ -32,6 +32,11 @@ public class VisitService {
         }
 
         LocalDateTime vdt = LocalDateTime.parse(input.getVisitTime());
+
+        if (vdt.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("visitTime cannot be set in the past");
+        }
+
         Optional<WeeklyAvailability> av = weeklyAvailabilityService.findByDoctorIdAndDayOfWeekEquals(input.getDoctorId(), vdt.getDayOfWeek());
 
         if (av.isEmpty()) {

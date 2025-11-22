@@ -19,6 +19,11 @@ public class WeeklyAvailabilityService {
 
     public DayOfWeek createWeeklyAvailability(String doctorId, CreateWeeklyAvailabilityInput input) {
         WeeklyAvailability weeklyAvailability = mapper.mapFromInput(doctorId, input);
+
+        if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())) {
+            throw new IllegalArgumentException("startTime cannot be before endTime");
+        }
+
         repository.save(weeklyAvailability);
         return weeklyAvailability.getDayOfWeek();
     }

@@ -2,7 +2,7 @@ type Query {
     findAllVisits: [Visit]
     findVisitById(id: String!): Visit
     findAllWeeklyAvailabilities(doctorId: String!): [WeeklyAvailability]
-    findAllAvailabilityExceptions(doctorId: String!): [AvailabilityException]
+    findAllAvailabilityExceptions(doctorId: String!, startDate: String, endDate: String): [AvailabilityException]
 }
 
 type Mutation {

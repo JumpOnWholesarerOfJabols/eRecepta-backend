@@ -19,6 +19,15 @@ public class AvailabilityExceptionService {
 
     public UUID createAvailabilityException(String doctorId, CreateAvailabilityExceptionInput input) {
         AvailabilityException avex = mapper.mapFromInput(doctorId, input);
+
+        if (avex.getExceptionDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("exceptionDate cannot be set in the past");
+        }
+
+        if (avex.getStartTime().isAfter(avex.getEndTime())) {
+            throw new IllegalArgumentException("startTime cannot be before endTime");
+        }
+
         repository.save(avex);
         return avex.getId();
     }
@@ -32,9 +41,9 @@ public class AvailabilityExceptionService {
         return repository.findAllByDoctorIdAndDateEquals(doctorId, localDate);
     }
 
-    public List<AvailabilityException> findAllByDoctorIdAndDateBetween(String doctorId, String dateStart, LocalDate dateEnd) {
+    public List<AvailabilityException> findAllByDoctorIdAndDateBetween(String doctorId, String dateStart, String dateEnd) {
         LocalDate startDate = LocalDate.parse(dateStart);
-        LocalDate endDate = LocalDate.parse(dateEnd.toString());
+        LocalDate endDate = LocalDate.parse(dateEnd);
         return repository.findAllByDoctorIdAndDateBetween(doctorId, startDate, endDate);
     }
 }
