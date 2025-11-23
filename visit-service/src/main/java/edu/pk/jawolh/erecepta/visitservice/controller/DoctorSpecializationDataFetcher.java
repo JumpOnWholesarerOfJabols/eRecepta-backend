@@ -7,11 +7,13 @@ import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.service.DoctorSpecializationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @DgsComponent
 @RequiredArgsConstructor
 public class DoctorSpecializationDataFetcher extends AbstractDataFetcher {
@@ -19,19 +21,24 @@ public class DoctorSpecializationDataFetcher extends AbstractDataFetcher {
 
     @DgsQuery
     public List<Specialization> findAllSpecializations(@InputArgument UUID doctorId) {
+        log.info("GraphQL Query: findAllSpecializations for doctor: {}", doctorId);
         return service.getSpecializations(doctorId);
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR')")
     public boolean createSpecialization(@InputArgument Specialization specialization) {
-        return service.createDoctorSpecialization(getCurrentUserId(), specialization);
+        UUID userId = getCurrentUserId();
+        log.info("GraphQL Mutation: createSpecialization {} by user: {}", specialization, userId);
+        return service.createDoctorSpecialization(userId, specialization);
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR')")
     public boolean deleteSpecialization(@InputArgument Specialization specialization) {
-        return service.deleteDoctorSpecialization(getCurrentUserId(), specialization);
+        UUID userId = getCurrentUserId();
+        log.info("GraphQL Mutation: deleteSpecialization {} by user: {}", specialization, userId);
+        return service.deleteDoctorSpecialization(userId, specialization);
     }
 
 }
