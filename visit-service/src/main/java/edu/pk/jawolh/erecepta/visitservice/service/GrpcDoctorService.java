@@ -3,6 +3,7 @@ package edu.pk.jawolh.erecepta.visitservice.service;
 import edu.pk.jawolh.erecepta.common.user.proto.DoctorExistsGrpc;
 import edu.pk.jawolh.erecepta.common.user.proto.DoctorExistsReply;
 import edu.pk.jawolh.erecepta.common.user.proto.DoctorExistsRequest;
+import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,8 @@ public class GrpcDoctorService {
             boolean exists = response.getDoctorExists();
             log.debug("Doctor exists check result for {}: {}", UUID, exists);
             return exists;
-        } catch (Exception e) {
-            log.error("Error checking if doctor exists: {}", UUID, e);
+        } catch (StatusRuntimeException e) {
+            log.error("gRPC error checking if doctor exists: {}", UUID, e);
             throw e;
         }
     }
