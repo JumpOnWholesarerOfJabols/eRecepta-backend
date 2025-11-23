@@ -65,6 +65,12 @@ public class GlobalGraphQlExceptionHandler {
     }
 
     @GraphQlExceptionHandler
+    public GraphQLError handle(InvalidQueryParametersException ex, DataFetchingEnvironment env) {
+        log.warn("Exception: {}", ex.getMessage());
+        return buildError(ex, env, ErrorType.BAD_REQUEST);
+    }
+
+    @GraphQlExceptionHandler
     public GraphQLError handle(IllegalArgumentException ex, DataFetchingEnvironment env) {
         log.warn("Exception: {}", ex.getMessage());
         return buildError(ex, env, ErrorType.BAD_REQUEST);

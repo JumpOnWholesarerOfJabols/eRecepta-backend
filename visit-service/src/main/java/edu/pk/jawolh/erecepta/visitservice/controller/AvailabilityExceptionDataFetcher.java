@@ -5,6 +5,7 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
+import edu.pk.jawolh.erecepta.visitservice.exception.InvalidQueryParametersException;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.service.AvailabilityExceptionService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class AvailabilityExceptionDataFetcher extends AbstractDataFetcher {
             return service.findAllByDoctorIdAndDateBetween(doctorId, startDate.get(), endDate.get());
         } else if (startDate.isPresent() || endDate.isPresent()) {
             log.warn("Invalid query parameters: both startDate and endDate must be provided or both must be null");
-            throw new IllegalArgumentException("startDate and endDate must both not be null");
+            throw new InvalidQueryParametersException("startDate and endDate must both not be null");
         }
 
         return service.findAllByDoctorId(doctorId);
