@@ -2,6 +2,7 @@ package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateVisitInput;
 import edu.pk.jawolh.erecepta.visitservice.exception.DoctorNotFoundException;
+import edu.pk.jawolh.erecepta.visitservice.exception.InvalidSpecializationException;
 import edu.pk.jawolh.erecepta.visitservice.exception.InvalidTimeConstraintException;
 import edu.pk.jawolh.erecepta.visitservice.exception.VisitNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
@@ -44,7 +45,7 @@ public class VisitService {
 
         if (!doctorSpecializationService.getSpecializations(doctorId).contains(sp)) {
             log.warn("Doctor {} does not accept visits for specialization: {}", doctorId, sp);
-            throw new InvalidTimeConstraintException("Doctor does not accept visits for this specialization");
+            throw new InvalidSpecializationException("Doctor does not accept visits for this specialization");
         }
 
         checkTimeConstraints(doctorId, vdt);
@@ -98,7 +99,9 @@ public class VisitService {
             throw new VisitNotFoundException(id.toString());
         }
 
-        UUID doctorId = findById(id).orElseThrow().getDoctorId();
+        UUID doctorId = findById(id)
+            .orElseThrow(() -> new VisitNotFoundException(id.toString()))
+            .getDoctorId();
 
         LocalDateTime vdt = LocalDateTime.parse(newVisitTime);
         checkTimeConstraints(doctorId, vdt);
