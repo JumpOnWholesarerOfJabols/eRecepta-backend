@@ -39,6 +39,51 @@ public class VisitService {
             throw new IllegalArgumentException("Doctor does not accept visits for this specialization");
         }
 
+        checkTimeConstraints(doctorId, vdt);
+
+        Visit v = mapper.mapFromInput(patientId, input);
+        v.setVisitStatus(VisitStatus.SCHEDULED);
+        visitRepository.save(v);
+
+        return v.getId();
+    }
+
+    public Optional<Visit> findById(UUID id) {
+        return visitRepository.findById(id);
+    }
+
+    public List<Visit> findAll() {
+        return visitRepository.findAll();
+    }
+
+    public List<Visit> findAllByDoctorId(UUID doctorId) {
+        return visitRepository.findAllByDoctorId(doctorId);
+    }
+
+    public List<Visit> findAllByPatientId(UUID patientId) {
+        return visitRepository.findAllByPatientId(patientId);
+    }
+
+    public boolean deleteById(UUID id, UUID userId) {
+        if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
+            throw new IllegalArgumentException("Visit not found");
+
+        return visitRepository.deleteById(id);
+    }
+
+    public boolean updateVisitTime(UUID id, UUID userId, String newVisitTime) {
+        if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
+            throw new IllegalArgumentException("Visit not found");
+
+        UUID doctorId = findById(id).orElseThrow().getDoctorId();
+
+        LocalDateTime vdt = LocalDateTime.parse(newVisitTime);
+        checkTimeConstraints(doctorId, vdt);
+
+        return visitRepository.updateVisitTime(id, vdt);
+    }
+
+    private void checkTimeConstraints(UUID doctorId, LocalDateTime vdt) {
         if (vdt.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("visitTime cannot be set in the past");
         }
@@ -62,27 +107,5 @@ public class VisitService {
 
         if (!visitRepository.findAllByVisitTimeBetween(vdt, vdt.plusMinutes(VISIT_DURATION_MINUTES)).isEmpty())
             throw new IllegalArgumentException("Cannot create a visit colliding with another visit");
-
-        Visit v = mapper.mapFromInput(patientId, input);
-        v.setVisitStatus(VisitStatus.SCHEDULED);
-        visitRepository.save(v);
-
-        return v.getId();
-    }
-
-    public Optional<Visit> findById(UUID id) {
-        return visitRepository.findById(id);
-    }
-
-    public List<Visit> findAll() {
-        return visitRepository.findAll();
-    }
-
-    public List<Visit> findAllByDoctorId(UUID doctorId) {
-        return visitRepository.findAllByDoctorId(doctorId);
-    }
-
-    public List<Visit> findAllByPatientId(UUID patientId) {
-        return visitRepository.findAllByPatientId(patientId);
     }
 }

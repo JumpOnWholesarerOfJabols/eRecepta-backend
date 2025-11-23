@@ -24,8 +24,14 @@ public class DoctorSpecializationDataFetcher extends AbstractDataFetcher {
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR')")
-    public Specialization createSpecialization(@InputArgument Specialization in) {
-        return service.createDoctorSpecialization(getCurrentUserId(), in);
+    public boolean createSpecialization(@InputArgument Specialization specialization) {
+        return service.createDoctorSpecialization(getCurrentUserId(), specialization);
+    }
+
+    @DgsMutation
+    @PreAuthorize("hasRole('DOCTOR')")
+    public boolean deleteSpecialization(@InputArgument Specialization specialization) {
+        return service.deleteDoctorSpecialization(getCurrentUserId(), specialization);
     }
 
 }

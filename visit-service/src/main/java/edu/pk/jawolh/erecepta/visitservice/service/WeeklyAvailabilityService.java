@@ -18,15 +18,17 @@ public class WeeklyAvailabilityService {
     private final WeeklyAvailabilityReporitory repository;
     private final WeeklyAvailabilityInputMapper mapper;
 
-    public DayOfWeek createWeeklyAvailability(UUID doctorId, CreateWeeklyAvailabilityInput input) {
+    public boolean createWeeklyAvailability(UUID doctorId, CreateWeeklyAvailabilityInput input) {
         WeeklyAvailability weeklyAvailability = mapper.mapFromInput(doctorId, input);
 
         if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())) {
             throw new IllegalArgumentException("startTime cannot be before endTime");
         }
 
-        repository.save(weeklyAvailability);
-        return weeklyAvailability.getDayOfWeek();
+        if (repository.existsByDoctorIdAndDayOfWeekEquals(doctorId, weeklyAvailability.getDayOfWeek()))
+            return repository.update(weeklyAvailability);
+
+        return repository.save(weeklyAvailability);
     }
 
     public List<WeeklyAvailability> findAllByDoctorId(UUID doctorId) {
@@ -35,5 +37,12 @@ public class WeeklyAvailabilityService {
 
     public Optional<WeeklyAvailability> findByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
         return repository.findByDoctorIdAndDayOfWeekEquals(doctorId, dayOfWeek);
+    }
+
+    public boolean deleteWeeklyAvailability(UUID doctorId, DayOfWeek dow) {
+        if (!repository.existsByDoctorIdAndDayOfWeekEquals(doctorId, dow))
+            throw new IllegalArgumentException("WeeklyAvailability not found");
+
+        return repository.deleteByDoctorIdAndDayOfWeekEquals(doctorId, dow);
     }
 }

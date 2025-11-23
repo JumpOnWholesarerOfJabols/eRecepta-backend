@@ -32,7 +32,13 @@ public class AvailabilityExceptionDataFetcher extends AbstractDataFetcher {
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR')")
-    public UUID createAvailabilityException(@InputArgument CreateAvailabilityExceptionInput in) {
-        return service.createAvailabilityException(getCurrentUserId(), in);
+    public UUID createAvailabilityException(@InputArgument CreateAvailabilityExceptionInput avexInput) {
+        return service.createAvailabilityException(getCurrentUserId(), avexInput);
+    }
+
+    @DgsMutation
+    @PreAuthorize("hasRole('DOCTOR')")
+    public boolean deleteAvailabilityException(@InputArgument UUID avexId) {
+        return service.deleteById(getCurrentUserId(), avexId);
     }
 }

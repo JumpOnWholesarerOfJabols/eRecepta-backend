@@ -14,12 +14,21 @@ import java.util.UUID;
 public class DoctorSpecializationService {
     private final DoctorSpecializationRepository repository;
 
-    public Specialization createDoctorSpecialization(UUID doctorId, Specialization specialization) {
-        repository.save(new DoctorSpecialization(doctorId, specialization));
-        return specialization;
+    public boolean createDoctorSpecialization(UUID doctorId, Specialization specialization) {
+        if (repository.existsByDoctorIdAndSpecializationEquals(doctorId, specialization))
+            throw new IllegalArgumentException("DoctorSpecialization already exists");
+
+        return repository.save(new DoctorSpecialization(doctorId, specialization));
     }
 
     public List<Specialization> getSpecializations(UUID doctorId) {
         return repository.findAllByDoctorId(doctorId).stream().map(DoctorSpecialization::specialization).toList();
+    }
+
+    public boolean deleteDoctorSpecialization(UUID doctorId, Specialization specialization) {
+        if (!repository.existsByDoctorIdAndSpecializationEquals(doctorId, specialization))
+            throw new IllegalArgumentException("DoctorSpecialization not found");
+
+        return repository.deleteByDoctorIdAndSpecializationEquals(doctorId, specialization);
     }
 }

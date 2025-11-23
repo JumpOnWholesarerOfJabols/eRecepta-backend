@@ -16,9 +16,9 @@ import java.util.UUID;
 public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
     private Connection connection;
 
-    public WeeklyAvailabilityDAO(@Value("${spring.datasource.url}") String dbUrl) {
+    public WeeklyAvailabilityDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
         try {
-            connection = DriverManager.getConnection(dbUrl, "admin", "password");
+            connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
             st.execute("CREATE TABLE IF NOT EXISTS WEEKLY_AVAILABILITY(doctorId uuid, dayOfWeek tinyint, startTime time, endTime time, CONSTRAINT PK_WA PRIMARY KEY (doctorId, dayOfWeek))");
             st.close();
@@ -29,7 +29,7 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
     }
 
     @Override
-    public void save(WeeklyAvailability availability) {
+    public boolean save(WeeklyAvailability availability) {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO WEEKLY_AVAILABILITY VALUES(?, ?, ?, ?)")) {
             statement.setString(1, availability.getDoctorId().toString());
             statement.setInt(2, availability.getDayOfWeek().getValue());
@@ -37,9 +37,28 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
             statement.setTime(4, Time.valueOf(availability.getEndTime()));
 
             statement.execute();
+            return true;
         } catch (SQLException e) {
             System.err.println("Error connecting to database");
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(WeeklyAvailability availability) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE WEEKLY_AVAILABILITY SET startTime = ?, endTime = ? WHERE doctorId =  ? AND dayOfWeek = ?")) {
+            statement.setTime(1, Time.valueOf(availability.getStartTime()));
+            statement.setTime(2, Time.valueOf(availability.getEndTime()));
+            statement.setString(3, availability.getDoctorId().toString());
+            statement.setInt(4, availability.getDayOfWeek().getValue());
+
+            statement.execute();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -78,14 +97,31 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
     }
 
     @Override
-    public void deleteByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
-        try (PreparedStatement statement = connection.prepareStatement("DELETE * FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND dayOfWeek = ?")) {
+    public boolean existsByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT 1 FROM WEEKLY_AVAILABILITY WHERE doctorId = ? AND dayOfWeek = ?")) {
+            statement.setString(1, doctorId.toString());
+            statement.setInt(2, dayOfWeek.getValue());
+
+            ResultSet result = statement.executeQuery();
+            return result.next();
+        } catch (SQLException ex) {
+            System.err.println("Error connecting to database");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
+        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND dayOfWeek = ?")) {
             statement.setString(1, doctorId.toString());
             statement.setInt(2, dayOfWeek.getValue());
             statement.execute();
+            return true;
         } catch (SQLException e) {
             System.err.println("Error connecting to database");
             e.printStackTrace();
+            return false;
         }
     }
 

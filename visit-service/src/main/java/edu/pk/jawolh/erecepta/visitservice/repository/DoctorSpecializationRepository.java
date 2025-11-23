@@ -1,14 +1,17 @@
 package edu.pk.jawolh.erecepta.visitservice.repository;
 
 import edu.pk.jawolh.erecepta.visitservice.model.DoctorSpecialization;
+import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface DoctorSpecializationRepository {
-    void save(DoctorSpecialization doctorSpecialization);
+    boolean save(DoctorSpecialization doctorSpecialization);
 
-    void delete(DoctorSpecialization doctorSpecialization);
+    boolean existsByDoctorIdAndSpecializationEquals(UUID doctorId, Specialization specialization);
+
+    boolean deleteByDoctorIdAndSpecializationEquals(UUID doctorId, Specialization specialization);
 
     List<DoctorSpecialization> findAllByDoctorId(UUID doctorId);
 }

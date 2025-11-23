@@ -28,6 +28,15 @@ public class AvailabilityExceptionService {
             throw new IllegalArgumentException("startTime cannot be before endTime");
         }
 
+        List<AvailabilityException> avexList = repository.findAllByDoctorIdAndDateEquals(doctorId, avex.getExceptionDate());
+
+        for (AvailabilityException collision : avexList) {
+            if (avex.getStartTime().isBefore(collision.getEndTime()) &&
+                    collision.getStartTime().isBefore(avex.getEndTime())) {
+                throw new IllegalArgumentException("AvailabilityExceptions cannot collide");
+            }
+        }
+
         repository.save(avex);
         return avex.getId();
     }
@@ -45,5 +54,11 @@ public class AvailabilityExceptionService {
         LocalDate startDate = LocalDate.parse(dateStart);
         LocalDate endDate = LocalDate.parse(dateEnd);
         return repository.findAllByDoctorIdAndDateBetween(doctorId, startDate, endDate);
+    }
+
+    public boolean deleteById(UUID doctorId, UUID id) {
+        if (!repository.existsByIdAndDoctorIdEquals(id, doctorId))
+            throw new IllegalArgumentException("AvailabilityException not found");
+        return repository.deleteById(id);
     }
 }

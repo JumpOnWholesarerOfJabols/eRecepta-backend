@@ -19,5 +19,9 @@ public interface VisitRepository {
 
     List<Visit> findAllByPatientId(UUID patientId);
 
-    void deleteById(UUID id);
+    boolean existsByIdAndDoctorIdEqualsOrPatientIdEquals(UUID id, UUID doctorId, UUID patientId);
+
+    boolean deleteById(UUID id);
+
+    boolean updateVisitTime(UUID id, LocalDateTime newVisitTime);
 }

@@ -15,9 +15,9 @@ import java.util.*;
 public class VisitDAO implements VisitRepository {
     private Connection connection;
 
-    public VisitDAO(@Value("${spring.datasource.url}") String dbUrl) {
+    public VisitDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
         try {
-            connection = DriverManager.getConnection(dbUrl, "admin", "password");
+            connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
             st.execute("CREATE TABLE IF NOT EXISTS VISIT(id uuid primary key, doctorId uuid, patientId uuid, specialization int, visitTime timestamp, visitStatus int)");
             st.close();
@@ -140,13 +140,45 @@ public class VisitDAO implements VisitRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public boolean existsByIdAndDoctorIdEqualsOrPatientIdEquals(UUID id, UUID doctorId, UUID patientId) {
+        try (PreparedStatement query = connection.prepareStatement("select 1 from visit where id = ? and (doctorId = ? or patientId = ?)")) {
+            query.setString(1, id.toString());
+            query.setString(2, doctorId.toString());
+            query.setString(3, patientId.toString());
+
+            ResultSet result = query.executeQuery();
+            return result.next();
+        } catch (SQLException ex) {
+            System.err.println("Error trying to find all visits");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteById(UUID id) {
         try (PreparedStatement statement = connection.prepareStatement("DELETE FROM visit WHERE id = ?")) {
             statement.setString(1, id.toString());
             statement.execute();
+            return true;
         } catch (SQLException e) {
             System.err.println("Error connecting to database");
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateVisitTime(UUID id, LocalDateTime newVisitTime) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE VISIT SET visitTime = ? WHERE id = ?")) {
+            statement.setTimestamp(1, Timestamp.valueOf(newVisitTime));
+            statement.setString(2, id.toString());
+            statement.execute();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
+            return false;
         }
     }
 

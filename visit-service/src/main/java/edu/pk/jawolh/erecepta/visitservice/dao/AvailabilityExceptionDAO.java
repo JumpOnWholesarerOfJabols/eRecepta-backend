@@ -6,19 +6,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository {
     private Connection connection;
 
-    public AvailabilityExceptionDAO(@Value("${spring.datasource.url}") String dbUrl) {
+    public AvailabilityExceptionDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
         try {
-            connection = DriverManager.getConnection(dbUrl, "admin", "password");
+            connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
             st.execute("CREATE TABLE IF NOT EXISTS AVAILABILITY_EXCEPTION(id uuid PRIMARY KEY, doctorId uuid, exceptionDate date, startTime time, endTime time)");
             st.close();
@@ -29,7 +27,7 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
     }
 
     @Override
-    public void save(AvailabilityException avex) {
+    public boolean save(AvailabilityException avex) {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO AVAILABILITY_EXCEPTION VALUES(?, ?, ?, ?, ?)")) {
             statement.setString(1, avex.getId().toString());
             statement.setString(2, avex.getDoctorId().toString());
@@ -38,9 +36,28 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
             statement.setTime(5, Time.valueOf(avex.getEndTime()));
 
             statement.execute();
+            return true;
         } catch (SQLException e) {
             System.err.println("Error connecting to database");
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public Optional<AvailabilityException> findById(UUID id) {
+        try (PreparedStatement statement = connection.prepareStatement("AVAILABILITY_EXCEPTION WHERE id = ?")) {
+            statement.setString(1, id.toString());
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next())
+                return Optional.of(mapFromResult(resultSet));
+
+            return Optional.empty();
+        } catch (SQLException ex) {
+            System.err.println("Error connecting to database");
+            ex.printStackTrace();
+            return Optional.empty();
         }
     }
 
@@ -107,13 +124,30 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
     }
 
     @Override
-    public void deleteById(UUID id) {
-        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM AVAILABILITY_EXCEPTION WHERE id = ?")) {
+    public boolean existsByIdAndDoctorIdEquals(UUID id, UUID doctorId) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT 1 FROM AVAILABILITY_EXCEPTION WHERE id = ? AND doctorId = ?")) {
             statement.setString(1, id.toString());
-            statement.execute();
+            statement.setString(2, doctorId.toString());
+
+            ResultSet result = statement.executeQuery();
+            return result.next();
         } catch (SQLException e) {
             System.err.println("Error connecting to database");
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteById(UUID id) {
+        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM AVAILABILITY_EXCEPTION WHERE id = ?")) {
+            statement.setString(1, id.toString());
+            statement.execute();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
+            return false;
         }
     }
 

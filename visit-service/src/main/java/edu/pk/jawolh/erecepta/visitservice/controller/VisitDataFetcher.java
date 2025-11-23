@@ -36,7 +36,17 @@ public class VisitDataFetcher extends AbstractDataFetcher {
 
     @DgsMutation
     @PreAuthorize("hasRole('PATIENT')")
-    public UUID createVisit(@InputArgument CreateVisitInput in) {
-        return service.createVisit(getCurrentUserId(), in);
+    public UUID createVisit(@InputArgument CreateVisitInput visitInput) {
+        return service.createVisit(getCurrentUserId(), visitInput);
+    }
+
+    @DgsMutation
+    public boolean updateVisitTime(@InputArgument UUID visitId, @InputArgument String newVisitDateTime) {
+        return service.updateVisitTime(visitId, getCurrentUserId(), newVisitDateTime);
+    }
+
+    @DgsMutation
+    public boolean deleteVisit(@InputArgument UUID visitId) {
+        return service.deleteById(visitId, getCurrentUserId());
     }
 }
