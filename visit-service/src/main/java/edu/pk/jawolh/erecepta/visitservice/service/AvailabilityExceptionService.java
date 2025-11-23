@@ -2,6 +2,7 @@ package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateAvailabilityExceptionInput;
 import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionNotFoundException;
+import edu.pk.jawolh.erecepta.visitservice.exception.InvalidTimeConstraintException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.AvailabilityExceptionInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.repository.AvailabilityExceptionRepository;
@@ -27,12 +28,12 @@ public class AvailabilityExceptionService {
 
         if (avex.getExceptionDate().isBefore(LocalDate.now())) {
             log.warn("Attempted to create availability exception in the past: {}", avex.getExceptionDate());
-            throw new IllegalArgumentException("exceptionDate cannot be set in the past");
+            throw new InvalidTimeConstraintException("exceptionDate cannot be set in the past");
         }
 
         if (avex.getStartTime().isAfter(avex.getEndTime())) {
             log.warn("Invalid time range: startTime {} is after endTime {}", avex.getStartTime(), avex.getEndTime());
-            throw new IllegalArgumentException("startTime cannot be before endTime");
+            throw new InvalidTimeConstraintException("startTime cannot be before endTime");
         }
 
         List<AvailabilityException> avexList = repository.findAllByDoctorIdAndDateEquals(doctorId, avex.getExceptionDate());
@@ -41,7 +42,7 @@ public class AvailabilityExceptionService {
             if (avex.getStartTime().isBefore(collision.getEndTime()) &&
                     collision.getStartTime().isBefore(avex.getEndTime())) {
                 log.warn("Availability exception collision detected for doctor: {} on date: {}", doctorId, avex.getExceptionDate());
-                throw new IllegalArgumentException("AvailabilityExceptions cannot collide");
+                throw new InvalidTimeConstraintException("AvailabilityExceptions cannot collide");
             }
         }
 

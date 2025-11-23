@@ -1,6 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateWeeklyAvailabilityInput;
+import edu.pk.jawolh.erecepta.visitservice.exception.InvalidTimeConstraintException;
 import edu.pk.jawolh.erecepta.visitservice.exception.WeeklyAvailabilityNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.WeeklyAvailabilityInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
@@ -29,7 +30,7 @@ public class WeeklyAvailabilityService {
         if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())) {
             log.warn("Invalid time range: startTime {} is after endTime {}", 
                 weeklyAvailability.getStartTime(), weeklyAvailability.getEndTime());
-            throw new IllegalArgumentException("startTime cannot be before endTime");
+            throw new InvalidTimeConstraintException("startTime cannot be before endTime");
         }
 
         boolean result;
