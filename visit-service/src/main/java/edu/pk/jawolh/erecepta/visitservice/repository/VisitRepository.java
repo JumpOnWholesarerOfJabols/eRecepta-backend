@@ -13,7 +13,7 @@ public interface VisitRepository {
     Optional<Visit> findById(UUID id);
     List<Visit> findAll();
 
-    List<Visit> findAllByVisitTimeBetween(LocalDateTime start, LocalDateTime end);
+    List<Visit> findAllByDoctorIdAndVisitTimeBetween(UUID doctorId, LocalDateTime start, LocalDateTime end);
 
     List<Visit> findAllByDoctorId(UUID doctorId);
 

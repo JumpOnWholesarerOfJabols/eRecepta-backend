@@ -24,7 +24,7 @@ public class AvailabilityExceptionDataFetcher extends AbstractDataFetcher {
         if (startDate.isPresent() && endDate.isPresent()) {
             return service.findAllByDoctorIdAndDateBetween(doctorId, startDate.get(), endDate.get());
         } else if (startDate.isPresent() || endDate.isPresent()) {
-            throw new IllegalArgumentException("startDate and endDate must both not be null");
+            throw new IllegalArgumentException("startDate and endDate must both be provided or both be omitted");
         }
 
         return service.findAllByDoctorId(doctorId);

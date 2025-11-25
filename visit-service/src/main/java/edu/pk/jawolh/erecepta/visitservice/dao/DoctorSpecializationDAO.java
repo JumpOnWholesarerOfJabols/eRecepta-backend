@@ -19,7 +19,9 @@ public class DoctorSpecializationDAO implements DoctorSpecializationRepository {
     public DoctorSpecializationDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.password}") String password) {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS DOCTOR_SPECIALIZATION(doctorId uuid, specialization tinyint, CONSTRAINT PK_DS PRIMARY KEY (doctorId, specialization))");
+            Statement st = connection.createStatement();
+            st.execute("CREATE TABLE IF NOT EXISTS DOCTOR_SPECIALIZATION(doctorId uuid, specialization tinyint, CONSTRAINT PK_DS PRIMARY KEY (doctorId, specialization))");
+            st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);
             ex.printStackTrace();
@@ -49,7 +51,7 @@ public class DoctorSpecializationDAO implements DoctorSpecializationRepository {
 
             return resultSet.next();
         } catch (SQLException e) {
-            System.out.println("Error connecting to database");
+            System.err.println("Error connecting to database");
             e.printStackTrace();
             return false;
         }

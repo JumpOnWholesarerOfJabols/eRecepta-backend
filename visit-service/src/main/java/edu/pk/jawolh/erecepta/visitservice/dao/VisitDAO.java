@@ -79,12 +79,13 @@ public class VisitDAO implements VisitRepository {
     }
 
     @Override
-    public List<Visit> findAllByVisitTimeBetween(LocalDateTime start, LocalDateTime end) {
-        try (PreparedStatement query = connection.prepareStatement("select * from visit where visitTime between ? and ?")) {
+    public List<Visit> findAllByDoctorIdAndVisitTimeBetween(UUID doctorId, LocalDateTime start, LocalDateTime end) {
+        try (PreparedStatement query = connection.prepareStatement("select * from visit where doctorId = ? AND visitTime between ? and ?")) {
             List<Visit> visits = new ArrayList<>();
 
-            query.setTimestamp(1, Timestamp.valueOf(start));
-            query.setTimestamp(2, Timestamp.valueOf(end));
+            query.setString(1, doctorId.toString());
+            query.setTimestamp(2, Timestamp.valueOf(start));
+            query.setTimestamp(3, Timestamp.valueOf(end));
             ResultSet result = query.executeQuery();
 
             while (result.next()) {

@@ -105,7 +105,7 @@ public class VisitService {
             }
         }
 
-        if (!visitRepository.findAllByVisitTimeBetween(vdt, vdt.plusMinutes(VISIT_DURATION_MINUTES)).isEmpty())
+        if (!visitRepository.findAllByDoctorIdAndVisitTimeBetween(doctorId, vdt, vdt.plusMinutes(VISIT_DURATION_MINUTES)).isEmpty())
             throw new VisitCollisionException();
     }
 }

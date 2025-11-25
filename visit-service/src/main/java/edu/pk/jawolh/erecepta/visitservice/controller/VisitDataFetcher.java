@@ -41,11 +41,13 @@ public class VisitDataFetcher extends AbstractDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
     public boolean updateVisitTime(@InputArgument UUID visitId, @InputArgument String newVisitDateTime) {
         return service.updateVisitTime(visitId, getCurrentUserId(), newVisitDateTime);
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
     public boolean deleteVisit(@InputArgument UUID visitId) {
         return service.deleteById(visitId, getCurrentUserId());
     }
