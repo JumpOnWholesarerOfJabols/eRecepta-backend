@@ -1,0 +1,13 @@
+input CreateAvailabilityExceptionInput{
+    exceptionDate: String!
+    startTime: String!
+    endTime: String!
+}
+
+type AvailabilityException{
+    id: String!
+    doctorId: String!
+    exceptionDate: String!
+    startTime: String!
+    endTime: String!
+}

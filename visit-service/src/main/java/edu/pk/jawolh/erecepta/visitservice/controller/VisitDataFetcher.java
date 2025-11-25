@@ -9,35 +9,46 @@ import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import edu.pk.jawolh.erecepta.visitservice.service.VisitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @DgsComponent
 @RequiredArgsConstructor
-public class VisitDataFetcher {
+public class VisitDataFetcher extends AbstractDataFetcher {
     private final VisitService service;
 
     @DgsQuery
-    public Optional<Visit> findById(@InputArgument Integer id) {
+    public Optional<Visit> findVisitById(@InputArgument UUID id) {
         return service.findById(id);
     }
 
     @DgsQuery
-    public List<Visit> findAll() {
-        return service.findAll();
+    public List<Visit> findAllVisits() {
+        if (hasRole("ROLE_ADMIN"))
+            return service.findAll();
+        else if (hasRole("ROLE_DOCTOR"))
+            return service.findAllByDoctorId(getCurrentUserId());
+        else
+            return service.findAllByPatientId(getCurrentUserId());
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('PATIENT')")
-    public int createVisit(@InputArgument CreateVisitInput in) {
-        return service.save(getCurrentUserId(), in);
+    public UUID createVisit(@InputArgument CreateVisitInput visitInput) {
+        return service.createVisit(getCurrentUserId(), visitInput);
     }
 
-    private String getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
+    @DgsMutation
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
+    public boolean updateVisitTime(@InputArgument UUID visitId, @InputArgument String newVisitDateTime) {
+        return service.updateVisitTime(visitId, getCurrentUserId(), newVisitDateTime);
+    }
+
+    @DgsMutation
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
+    public boolean deleteVisit(@InputArgument UUID visitId) {
+        return service.deleteById(visitId, getCurrentUserId());
     }
 }
