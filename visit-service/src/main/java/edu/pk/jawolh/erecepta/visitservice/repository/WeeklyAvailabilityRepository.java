@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface WeeklyAvailabilityReporitory {
+public interface WeeklyAvailabilityRepository {
     boolean save(WeeklyAvailability availability);
 
     boolean update(WeeklyAvailability availability);

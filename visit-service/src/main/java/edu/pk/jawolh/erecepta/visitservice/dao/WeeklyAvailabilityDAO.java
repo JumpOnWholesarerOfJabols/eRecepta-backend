@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.dao;
 
 import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
-import edu.pk.jawolh.erecepta.visitservice.repository.WeeklyAvailabilityReporitory;
+import edu.pk.jawolh.erecepta.visitservice.repository.WeeklyAvailabilityRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,10 +13,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
+public class WeeklyAvailabilityDAO implements WeeklyAvailabilityRepository {
     private Connection connection;
 
-    public WeeklyAvailabilityDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
+    public WeeklyAvailabilityDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.password}") String password) {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
@@ -113,7 +113,7 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityReporitory {
 
     @Override
     public boolean deleteByDoctorIdAndDayOfWeekEquals(UUID doctorId, DayOfWeek dayOfWeek) {
-        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM AVAILABILITY_EXCEPTION WHERE doctorId = ? AND dayOfWeek = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM WEEKLY_AVAILABILITY WHERE doctorId = ? AND dayOfWeek = ?")) {
             statement.setString(1, doctorId.toString());
             statement.setInt(2, dayOfWeek.getValue());
             statement.execute();

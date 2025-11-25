@@ -3,8 +3,8 @@ package edu.pk.jawolh.erecepta.visitservice.service;
 import com.example.demo.codegen.types.CreateAvailabilityExceptionInput;
 import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionCollisionException;
 import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionNotFoundException;
+import edu.pk.jawolh.erecepta.visitservice.exception.EndBeforeStartException;
 import edu.pk.jawolh.erecepta.visitservice.exception.InThePastException;
-import edu.pk.jawolh.erecepta.visitservice.exception.StartBeforeEndException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.AvailabilityExceptionInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.repository.AvailabilityExceptionRepository;
@@ -29,7 +29,7 @@ public class AvailabilityExceptionService {
         }
 
         if (avex.getStartTime().isAfter(avex.getEndTime())) {
-            throw new StartBeforeEndException();
+            throw new EndBeforeStartException();
         }
 
         List<AvailabilityException> avexList = repository.findAllByDoctorIdAndDateEquals(doctorId, avex.getExceptionDate());
@@ -49,7 +49,7 @@ public class AvailabilityExceptionService {
         return repository.findAllByDoctorId(doctorId);
     }
 
-    public List<AvailabilityException> findAllBydDoctorIdAndDateEquals(UUID doctorId, String date) {
+    public List<AvailabilityException> findAllByDoctorIdAndDateEquals(UUID doctorId, String date) {
         LocalDate localDate = LocalDate.parse(date);
         return repository.findAllByDoctorIdAndDateEquals(doctorId, localDate);
     }

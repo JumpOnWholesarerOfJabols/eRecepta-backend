@@ -15,7 +15,7 @@ import java.util.*;
 public class VisitDAO implements VisitRepository {
     private Connection connection;
 
-    public VisitDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
+    public VisitDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.password}") String password) {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
@@ -27,12 +27,9 @@ public class VisitDAO implements VisitRepository {
         }
     }
 
+    @Override
     public void save(Visit visit) {
-        try (Statement statement = connection.createStatement()) {
-            ResultSet maxId = statement.executeQuery("select max(id) from visit");
-            maxId.next();
-
-            PreparedStatement insert = connection.prepareStatement("insert into visit values(?, ?, ?, ?, ?, ?)");
+        try (PreparedStatement insert = connection.prepareStatement("insert into visit values(?, ?, ?, ?, ?, ?)")) {
             insert.setString(1, visit.getId().toString());
             insert.setString(2, visit.getDoctorId().toString());
             insert.setString(3, visit.getPatientId().toString());

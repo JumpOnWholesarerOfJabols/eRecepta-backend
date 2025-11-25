@@ -97,7 +97,7 @@ public class VisitService {
             throw new OutsideAvailabilityException();
         }
 
-        List<AvailabilityException> exceptionList = availabilityExceptionService.findAllBydDoctorIdAndDateEquals(doctorId, vdt.toLocalDate().toString());
+        List<AvailabilityException> exceptionList = availabilityExceptionService.findAllByDoctorIdAndDateEquals(doctorId, vdt.toLocalDate().toString());
 
         for (AvailabilityException avex : exceptionList) {
             if (vdt.toLocalTime().isAfter(avex.getStartTime()) && vdt.toLocalTime().isBefore(avex.getEndTime())) {

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class DoctorSpecializationDAO implements DoctorSpecializationRepository {
     private Connection connection;
 
-    public DoctorSpecializationDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
+    public DoctorSpecializationDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.password}") String password) {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             connection.createStatement().execute("CREATE TABLE IF NOT EXISTS DOCTOR_SPECIALIZATION(doctorId uuid, specialization tinyint, CONSTRAINT PK_DS PRIMARY KEY (doctorId, specialization))");

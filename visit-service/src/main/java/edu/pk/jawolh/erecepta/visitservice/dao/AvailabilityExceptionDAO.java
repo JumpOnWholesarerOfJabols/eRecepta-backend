@@ -14,7 +14,7 @@ import java.util.*;
 public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository {
     private Connection connection;
 
-    public AvailabilityExceptionDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.username}") String password) {
+    public AvailabilityExceptionDAO(@Value("${spring.datasource.url}") String dbUrl, @Value("${spring.datasource.username}") String username, @Value("${spring.datasource.password}") String password) {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
@@ -46,7 +46,7 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
 
     @Override
     public Optional<AvailabilityException> findById(UUID id) {
-        try (PreparedStatement statement = connection.prepareStatement("AVAILABILITY_EXCEPTION WHERE id = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM AVAILABILITY_EXCEPTION WHERE id = ?")) {
             statement.setString(1, id.toString());
             ResultSet resultSet = statement.executeQuery();
 
