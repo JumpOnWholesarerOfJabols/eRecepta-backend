@@ -1,6 +1,8 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateWeeklyAvailabilityInput;
+import edu.pk.jawolh.erecepta.visitservice.exception.StartBeforeEndException;
+import edu.pk.jawolh.erecepta.visitservice.exception.WeeklyAvailabilityNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.WeeklyAvailabilityInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
 import edu.pk.jawolh.erecepta.visitservice.repository.WeeklyAvailabilityReporitory;
@@ -22,7 +24,7 @@ public class WeeklyAvailabilityService {
         WeeklyAvailability weeklyAvailability = mapper.mapFromInput(doctorId, input);
 
         if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())) {
-            throw new IllegalArgumentException("startTime cannot be before endTime");
+            throw new StartBeforeEndException();
         }
 
         if (repository.existsByDoctorIdAndDayOfWeekEquals(doctorId, weeklyAvailability.getDayOfWeek()))
@@ -41,7 +43,7 @@ public class WeeklyAvailabilityService {
 
     public boolean deleteWeeklyAvailability(UUID doctorId, DayOfWeek dow) {
         if (!repository.existsByDoctorIdAndDayOfWeekEquals(doctorId, dow))
-            throw new IllegalArgumentException("WeeklyAvailability not found");
+            throw new WeeklyAvailabilityNotFoundException(doctorId, dow);
 
         return repository.deleteByDoctorIdAndDayOfWeekEquals(doctorId, dow);
     }

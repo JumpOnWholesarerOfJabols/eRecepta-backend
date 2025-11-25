@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateVisitInput;
-import edu.pk.jawolh.erecepta.visitservice.exception.DoctorNotFoundException;
+import edu.pk.jawolh.erecepta.visitservice.exception.*;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.*;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
@@ -28,7 +28,7 @@ public class VisitService {
 
     public UUID createVisit(UUID patientId, CreateVisitInput input) {
         if (!grpcDoctorService.checkDoctorExists(input.getDoctorId())) {
-            throw new DoctorNotFoundException(input.getDoctorId());
+            throw new DoctorNotFoundException(UUID.fromString(input.getDoctorId()));
         }
 
         LocalDateTime vdt = LocalDateTime.parse(input.getVisitTime());
@@ -36,7 +36,7 @@ public class VisitService {
         Specialization sp = Specialization.valueOf(input.getSpecialization().name());
 
         if (!doctorSpecializationService.getSpecializations(doctorId).contains(sp)) {
-            throw new IllegalArgumentException("Doctor does not accept visits for this specialization");
+            throw new DoctorSpecializationNotFoundException(doctorId, sp);
         }
 
         checkTimeConstraints(doctorId, vdt);
@@ -66,14 +66,14 @@ public class VisitService {
 
     public boolean deleteById(UUID id, UUID userId) {
         if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
-            throw new IllegalArgumentException("Visit not found");
+            throw new VisitNotFoundException(id);
 
         return visitRepository.deleteById(id);
     }
 
     public boolean updateVisitTime(UUID id, UUID userId, String newVisitTime) {
         if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
-            throw new IllegalArgumentException("Visit not found");
+            throw new VisitNotFoundException(id);
 
         UUID doctorId = findById(id).orElseThrow().getDoctorId();
 
@@ -85,27 +85,27 @@ public class VisitService {
 
     private void checkTimeConstraints(UUID doctorId, LocalDateTime vdt) {
         if (vdt.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("visitTime cannot be set in the past");
+            throw new InThePastException("visitTime");
         }
 
         Optional<WeeklyAvailability> av = weeklyAvailabilityService.findByDoctorIdAndDayOfWeekEquals(doctorId, vdt.getDayOfWeek());
 
         if (av.isEmpty()) {
-            throw new IllegalArgumentException("Doctor does not accept visits on this day of week");
+            throw new WeeklyAvailabilityNotFoundException(doctorId, vdt.getDayOfWeek());
         }
         if (vdt.toLocalTime().isBefore(av.get().getStartTime()) || vdt.toLocalTime().isAfter(av.get().getEndTime())) {
-            throw new IllegalArgumentException("Cannot create a visit outside of the doctor's availability window");
+            throw new OutsideAvailabilityException();
         }
 
         List<AvailabilityException> exceptionList = availabilityExceptionService.findAllBydDoctorIdAndDateEquals(doctorId, vdt.toLocalDate().toString());
 
         for (AvailabilityException avex : exceptionList) {
             if (vdt.toLocalTime().isAfter(avex.getStartTime()) && vdt.toLocalTime().isBefore(avex.getEndTime())) {
-                throw new IllegalArgumentException("Cannot create a visit outside of the doctor's availability window");
+                throw new OutsideAvailabilityException();
             }
         }
 
         if (!visitRepository.findAllByVisitTimeBetween(vdt, vdt.plusMinutes(VISIT_DURATION_MINUTES)).isEmpty())
-            throw new IllegalArgumentException("Cannot create a visit colliding with another visit");
+            throw new VisitCollisionException();
     }
 }

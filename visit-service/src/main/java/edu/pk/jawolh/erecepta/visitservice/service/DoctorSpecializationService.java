@@ -1,5 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
+import edu.pk.jawolh.erecepta.visitservice.exception.DoctorSpecializationExistsException;
+import edu.pk.jawolh.erecepta.visitservice.exception.DoctorSpecializationNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.model.DoctorSpecialization;
 import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.repository.DoctorSpecializationRepository;
@@ -16,7 +18,7 @@ public class DoctorSpecializationService {
 
     public boolean createDoctorSpecialization(UUID doctorId, Specialization specialization) {
         if (repository.existsByDoctorIdAndSpecializationEquals(doctorId, specialization))
-            throw new IllegalArgumentException("DoctorSpecialization already exists");
+            throw new DoctorSpecializationExistsException(doctorId, specialization);
 
         return repository.save(new DoctorSpecialization(doctorId, specialization));
     }
@@ -27,7 +29,7 @@ public class DoctorSpecializationService {
 
     public boolean deleteDoctorSpecialization(UUID doctorId, Specialization specialization) {
         if (!repository.existsByDoctorIdAndSpecializationEquals(doctorId, specialization))
-            throw new IllegalArgumentException("DoctorSpecialization not found");
+            throw new DoctorSpecializationNotFoundException(doctorId, specialization);
 
         return repository.deleteByDoctorIdAndSpecializationEquals(doctorId, specialization);
     }

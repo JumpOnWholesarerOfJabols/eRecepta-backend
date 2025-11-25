@@ -1,6 +1,10 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateAvailabilityExceptionInput;
+import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionCollisionException;
+import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionNotFoundException;
+import edu.pk.jawolh.erecepta.visitservice.exception.InThePastException;
+import edu.pk.jawolh.erecepta.visitservice.exception.StartBeforeEndException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.AvailabilityExceptionInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.repository.AvailabilityExceptionRepository;
@@ -21,11 +25,11 @@ public class AvailabilityExceptionService {
         AvailabilityException avex = mapper.mapFromInput(doctorId, input);
 
         if (avex.getExceptionDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("exceptionDate cannot be set in the past");
+            throw new InThePastException("exceptionDate");
         }
 
         if (avex.getStartTime().isAfter(avex.getEndTime())) {
-            throw new IllegalArgumentException("startTime cannot be before endTime");
+            throw new StartBeforeEndException();
         }
 
         List<AvailabilityException> avexList = repository.findAllByDoctorIdAndDateEquals(doctorId, avex.getExceptionDate());
@@ -33,7 +37,7 @@ public class AvailabilityExceptionService {
         for (AvailabilityException collision : avexList) {
             if (avex.getStartTime().isBefore(collision.getEndTime()) &&
                     collision.getStartTime().isBefore(avex.getEndTime())) {
-                throw new IllegalArgumentException("AvailabilityExceptions cannot collide");
+                throw new AvailabilityExceptionCollisionException();
             }
         }
 
@@ -58,7 +62,7 @@ public class AvailabilityExceptionService {
 
     public boolean deleteById(UUID doctorId, UUID id) {
         if (!repository.existsByIdAndDoctorIdEquals(id, doctorId))
-            throw new IllegalArgumentException("AvailabilityException not found");
+            throw new AvailabilityExceptionNotFoundException(id);
         return repository.deleteById(id);
     }
 }
