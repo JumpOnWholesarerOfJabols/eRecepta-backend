@@ -12,6 +12,8 @@ type Query {
 type Mutation {
     createVisit(visitInput: CreateVisitInput!): String
     updateVisitTime(visitId: String!, newVisitDateTime: String!): Boolean
+    updateVisitStatus(visitId: String!, newVisitStatus: VisitStatus!): Boolean
+    cancelVisit(visitId: String!): Boolean
     deleteVisit(visitId: String!): Boolean
 
     createWeeklyAvailability(waInput: CreateWeeklyAvailabilityInput!): Boolean

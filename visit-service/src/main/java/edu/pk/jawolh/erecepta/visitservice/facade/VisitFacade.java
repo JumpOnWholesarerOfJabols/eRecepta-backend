@@ -56,8 +56,8 @@ public class VisitFacade {
         return visitService.findAllByPatientId(patientId);
     }
 
-    public boolean deleteById(UUID id, UUID userId) {
-        return visitService.deleteById(id, userId);
+    public boolean deleteById(UUID id) {
+        return visitService.deleteById(id);
     }
 
     public boolean updateVisitTime(UUID id, UUID userId, String newVisitTime) {

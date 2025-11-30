@@ -20,6 +20,7 @@ public interface VisitRepository {
 
     List<Visit> findAllByPatientId(UUID patientId);
 
+    boolean existsById(UUID id);
     boolean existsByIdAndDoctorIdEqualsOrPatientIdEquals(UUID id, UUID doctorId, UUID patientId);
 
     boolean deleteById(UUID id);

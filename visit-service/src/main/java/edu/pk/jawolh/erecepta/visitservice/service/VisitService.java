@@ -44,8 +44,8 @@ public class VisitService {
         return visitRepository.findAllByPatientId(patientId);
     }
 
-    public boolean deleteById(UUID id, UUID userId) {
-        if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
+    public boolean deleteById(UUID id) {
+        if (!visitRepository.existsById(id))
             throw new VisitNotFoundException(id);
 
         return visitRepository.deleteById(id);

@@ -138,6 +138,19 @@ public class VisitDAO implements VisitRepository {
     }
 
     @Override
+    public boolean existsById(UUID id) {
+        try (PreparedStatement query = connection.prepareStatement("select 1 from visit where id = ?")) {
+            query.setString(1, id.toString());
+            ResultSet result = query.executeQuery();
+            return result.next();
+        } catch (SQLException ex) {
+            System.err.println("Error trying to find all visits");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public boolean existsByIdAndDoctorIdEqualsOrPatientIdEquals(UUID id, UUID doctorId, UUID patientId) {
         try (PreparedStatement query = connection.prepareStatement("select 1 from visit where id = ? and (doctorId = ? or patientId = ?)")) {
             query.setString(1, id.toString());

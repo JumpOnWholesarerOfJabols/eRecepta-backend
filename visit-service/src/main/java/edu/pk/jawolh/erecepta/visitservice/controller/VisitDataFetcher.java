@@ -7,6 +7,7 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.visitservice.facade.VisitFacade;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
+import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -47,8 +48,20 @@ public class VisitDataFetcher extends AbstractDataFetcher {
     }
 
     @DgsMutation
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public boolean updateVisitStatus(@InputArgument UUID visitId, @InputArgument VisitStatus newVisitStatus) {
+        return facade.updateVisitStatus(visitId, getCurrentUserId(), newVisitStatus);
+    }
+
+    @DgsMutation
+    @PreAuthorize("hasRole('PATIENT')")
+    public boolean cancelVisit(@InputArgument UUID visitId) {
+        return facade.updateVisitStatus(visitId, getCurrentUserId(), VisitStatus.CANCELLED);
+    }
+
+    @DgsMutation
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean deleteVisit(@InputArgument UUID visitId) {
-        return facade.deleteById(visitId, getCurrentUserId());
+        return facade.deleteById(visitId);
     }
 }
