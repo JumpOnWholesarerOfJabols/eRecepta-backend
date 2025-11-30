@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 public class GrpcDoctorService {
     private final DoctorExistsGrpc.DoctorExistsBlockingStub grpcDoctorExistsStub;
 
-    boolean checkDoctorExists(String UUID) {
-        DoctorExistsRequest request = DoctorExistsRequest.newBuilder().setDoctorId(UUID).build();
+    public boolean checkDoctorExists(String uuid) {
+        DoctorExistsRequest request = DoctorExistsRequest.newBuilder().setDoctorId(uuid).build();
         DoctorExistsReply response = grpcDoctorExistsStub.checkDoctorExists(request);
         return response.getDoctorExists();
     }

@@ -1,0 +1,16 @@
+enum DayOfWeek{
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+}
+
+input CreateWeeklyAvailabilityInput{
+    dayOfWeek: DayOfWeek!
+    startTime: String!
+    endTime: String!
+}
+
+type WeeklyAvailability{
+    doctorId: String!
+    dayOfWeek: DayOfWeek!
+    startTime: String!
+    endTime: String!
+}
