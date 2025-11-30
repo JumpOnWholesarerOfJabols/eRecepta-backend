@@ -5,8 +5,8 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
+import edu.pk.jawolh.erecepta.visitservice.facade.AvailabilityExceptionFacade;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
-import edu.pk.jawolh.erecepta.visitservice.service.AvailabilityExceptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -17,28 +17,28 @@ import java.util.UUID;
 @DgsComponent
 @RequiredArgsConstructor
 public class AvailabilityExceptionDataFetcher extends AbstractDataFetcher {
-    private final AvailabilityExceptionService service;
+    private final AvailabilityExceptionFacade facade;
 
     @DgsQuery
     public List<AvailabilityException> findAllAvailabilityExceptions(@InputArgument UUID doctorId, @InputArgument Optional<String> startDate, @InputArgument Optional<String> endDate) {
         if (startDate.isPresent() && endDate.isPresent()) {
-            return service.findAllByDoctorIdAndDateBetween(doctorId, startDate.get(), endDate.get());
+            return facade.findAllByDoctorIdAndDateBetween(doctorId, startDate.get(), endDate.get());
         } else if (startDate.isPresent() || endDate.isPresent()) {
             throw new IllegalArgumentException("startDate and endDate must both be provided or both be omitted");
         }
 
-        return service.findAllByDoctorId(doctorId);
+        return facade.findAllByDoctorId(doctorId);
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR')")
     public UUID createAvailabilityException(@InputArgument CreateAvailabilityExceptionInput avexInput) {
-        return service.createAvailabilityException(getCurrentUserId(), avexInput);
+        return facade.createAvailabilityException(getCurrentUserId(), avexInput);
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR')")
     public boolean deleteAvailabilityException(@InputArgument UUID avexId) {
-        return service.deleteById(getCurrentUserId(), avexId);
+        return facade.deleteById(getCurrentUserId(), avexId);
     }
 }

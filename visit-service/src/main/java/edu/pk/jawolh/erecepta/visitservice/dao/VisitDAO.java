@@ -180,6 +180,20 @@ public class VisitDAO implements VisitRepository {
         }
     }
 
+    @Override
+    public boolean updateVisitStatus(UUID id, VisitStatus newVisitStatus) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE VISIT SET visitStatus = ? WHERE id = ?")) {
+            statement.setInt(1, newVisitStatus.ordinal());
+            statement.setString(2, id.toString());
+            statement.execute();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Visit mapFromResult(ResultSet result) throws SQLException {
         Visit v = new Visit(UUID.fromString(result.getString(1)), UUID.fromString(result.getString(2)), UUID.fromString(result.getString(3)), Specialization.values()[result.getInt(4)]);
         v.setVisitTime(result.getTimestamp(5).toLocalDateTime());

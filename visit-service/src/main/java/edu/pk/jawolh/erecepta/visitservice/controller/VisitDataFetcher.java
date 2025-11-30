@@ -5,8 +5,8 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
+import edu.pk.jawolh.erecepta.visitservice.facade.VisitFacade;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
-import edu.pk.jawolh.erecepta.visitservice.service.VisitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -17,38 +17,38 @@ import java.util.UUID;
 @DgsComponent
 @RequiredArgsConstructor
 public class VisitDataFetcher extends AbstractDataFetcher {
-    private final VisitService service;
+    private final VisitFacade facade;
 
     @DgsQuery
     public Optional<Visit> findVisitById(@InputArgument UUID id) {
-        return service.findById(id);
+        return facade.findById(id);
     }
 
     @DgsQuery
     public List<Visit> findAllVisits() {
         if (hasRole("ROLE_ADMIN"))
-            return service.findAll();
+            return facade.findAll();
         else if (hasRole("ROLE_DOCTOR"))
-            return service.findAllByDoctorId(getCurrentUserId());
+            return facade.findAllByDoctorId(getCurrentUserId());
         else
-            return service.findAllByPatientId(getCurrentUserId());
+            return facade.findAllByPatientId(getCurrentUserId());
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('PATIENT')")
     public UUID createVisit(@InputArgument CreateVisitInput visitInput) {
-        return service.createVisit(getCurrentUserId(), visitInput);
+        return facade.createVisit(getCurrentUserId(), visitInput);
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
     public boolean updateVisitTime(@InputArgument UUID visitId, @InputArgument String newVisitDateTime) {
-        return service.updateVisitTime(visitId, getCurrentUserId(), newVisitDateTime);
+        return facade.updateVisitTime(visitId, getCurrentUserId(), newVisitDateTime);
     }
 
     @DgsMutation
     @PreAuthorize("hasRole('DOCTOR') or hasRole('PATIENT')")
     public boolean deleteVisit(@InputArgument UUID visitId) {
-        return service.deleteById(visitId, getCurrentUserId());
+        return facade.deleteById(visitId, getCurrentUserId());
     }
 }

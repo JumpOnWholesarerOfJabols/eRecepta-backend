@@ -1,9 +1,10 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateVisitInput;
-import edu.pk.jawolh.erecepta.visitservice.exception.*;
+import edu.pk.jawolh.erecepta.visitservice.exception.VisitNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
-import edu.pk.jawolh.erecepta.visitservice.model.*;
+import edu.pk.jawolh.erecepta.visitservice.model.Visit;
+import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,31 +17,10 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class VisitService {
-    private static final int VISIT_DURATION_MINUTES = 20;
-
     private final VisitRepository visitRepository;
     private final VisitInputMapper mapper;
-    private final GrpcDoctorService grpcDoctorService;
-
-    private final WeeklyAvailabilityService weeklyAvailabilityService;
-    private final AvailabilityExceptionService availabilityExceptionService;
-    private final DoctorSpecializationService doctorSpecializationService;
 
     public UUID createVisit(UUID patientId, CreateVisitInput input) {
-        if (!grpcDoctorService.checkDoctorExists(input.getDoctorId())) {
-            throw new DoctorNotFoundException(UUID.fromString(input.getDoctorId()));
-        }
-
-        LocalDateTime vdt = LocalDateTime.parse(input.getVisitTime());
-        UUID doctorId = UUID.fromString(input.getDoctorId());
-        Specialization sp = Specialization.valueOf(input.getSpecialization().name());
-
-        if (!doctorSpecializationService.getSpecializations(doctorId).contains(sp)) {
-            throw new DoctorSpecializationNotFoundException(doctorId, sp);
-        }
-
-        checkTimeConstraints(doctorId, vdt);
-
         Visit v = mapper.mapFromInput(patientId, input);
         v.setVisitStatus(VisitStatus.SCHEDULED);
         visitRepository.save(v);
@@ -71,41 +51,25 @@ public class VisitService {
         return visitRepository.deleteById(id);
     }
 
-    public boolean updateVisitTime(UUID id, UUID userId, String newVisitTime) {
+    public boolean updateVisitTime(UUID id, UUID userId, LocalDateTime vdt) {
         if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
             throw new VisitNotFoundException(id);
-
-        UUID doctorId = findById(id).orElseThrow().getDoctorId();
-
-        LocalDateTime vdt = LocalDateTime.parse(newVisitTime);
-        checkTimeConstraints(doctorId, vdt);
-
         return visitRepository.updateVisitTime(id, vdt);
     }
 
-    private void checkTimeConstraints(UUID doctorId, LocalDateTime vdt) {
-        if (vdt.isBefore(LocalDateTime.now())) {
-            throw new InThePastException("visitTime");
-        }
+    public void cancelVisitsInBulk(UUID doctorId, LocalDateTime startTime, LocalDateTime endTime) {
+        findAllByDoctorIdAndVisitTimeBetween(doctorId, startTime, endTime)
+                .forEach(v -> visitRepository.updateVisitStatus(v.getId(), VisitStatus.CANCELLED));
+    }
 
-        Optional<WeeklyAvailability> av = weeklyAvailabilityService.findByDoctorIdAndDayOfWeekEquals(doctorId, vdt.getDayOfWeek());
+    public boolean updateVisitStatus(UUID id, UUID userId, VisitStatus status) {
+        if (!visitRepository.existsByIdAndDoctorIdEqualsOrPatientIdEquals(id, userId, userId))
+            throw new VisitNotFoundException(id);
 
-        if (av.isEmpty()) {
-            throw new WeeklyAvailabilityNotFoundException(doctorId, vdt.getDayOfWeek());
-        }
-        if (vdt.toLocalTime().isBefore(av.get().getStartTime()) || vdt.toLocalTime().isAfter(av.get().getEndTime())) {
-            throw new OutsideAvailabilityException();
-        }
+        return visitRepository.updateVisitStatus(id, status);
+    }
 
-        List<AvailabilityException> exceptionList = availabilityExceptionService.findAllByDoctorIdAndDateEquals(doctorId, vdt.toLocalDate().toString());
-
-        for (AvailabilityException avex : exceptionList) {
-            if (vdt.toLocalTime().isAfter(avex.getStartTime()) && vdt.toLocalTime().isBefore(avex.getEndTime())) {
-                throw new OutsideAvailabilityException();
-            }
-        }
-
-        if (!visitRepository.findAllByDoctorIdAndVisitTimeBetween(doctorId, vdt, vdt.plusMinutes(VISIT_DURATION_MINUTES)).isEmpty())
-            throw new VisitCollisionException();
+    public List<Visit> findAllByDoctorIdAndVisitTimeBetween(UUID doctorId, LocalDateTime start, LocalDateTime end) {
+        return visitRepository.findAllByDoctorIdAndVisitTimeBetween(doctorId, start, end);
     }
 }

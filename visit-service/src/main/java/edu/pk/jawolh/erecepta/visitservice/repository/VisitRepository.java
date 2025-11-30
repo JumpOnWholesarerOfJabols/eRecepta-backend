@@ -1,6 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.repository;
 
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
+import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,4 +25,6 @@ public interface VisitRepository {
     boolean deleteById(UUID id);
 
     boolean updateVisitTime(UUID id, LocalDateTime newVisitTime);
+
+    boolean updateVisitStatus(UUID id, VisitStatus newVisitStatus);
 }
