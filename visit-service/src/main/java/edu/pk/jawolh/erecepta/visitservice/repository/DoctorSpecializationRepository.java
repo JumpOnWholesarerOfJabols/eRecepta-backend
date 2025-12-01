@@ -13,5 +13,8 @@ public interface DoctorSpecializationRepository {
 
     boolean deleteByDoctorIdAndSpecializationEquals(UUID doctorId, Specialization specialization);
 
+    List<DoctorSpecialization> findAll();
     List<DoctorSpecialization> findAllByDoctorId(UUID doctorId);
+
+    List<DoctorSpecialization> findAllBySpecializationEquals(Specialization specialization);
 }

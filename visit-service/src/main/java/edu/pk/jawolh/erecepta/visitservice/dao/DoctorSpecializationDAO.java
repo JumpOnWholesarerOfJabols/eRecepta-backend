@@ -72,10 +72,49 @@ public class DoctorSpecializationDAO implements DoctorSpecializationRepository {
     }
 
     @Override
+    public List<DoctorSpecialization> findAll() {
+        List<DoctorSpecialization> doctorSpecializations = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM DOCTOR_SPECIALIZATION")) {
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                DoctorSpecialization ds = new DoctorSpecialization(UUID.fromString(resultSet.getString(1)), Specialization.values()[resultSet.getInt(2)]);
+                doctorSpecializations.add(ds);
+            }
+
+            return doctorSpecializations;
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
     public List<DoctorSpecialization> findAllByDoctorId(UUID doctorId) {
         List<DoctorSpecialization> doctorSpecializations = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM DOCTOR_SPECIALIZATION WHERE doctorId = ?")) {
             statement.setString(1, doctorId.toString());
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                DoctorSpecialization ds = new DoctorSpecialization(UUID.fromString(resultSet.getString(1)), Specialization.values()[resultSet.getInt(2)]);
+                doctorSpecializations.add(ds);
+            }
+
+            return doctorSpecializations;
+        } catch (SQLException e) {
+            System.err.println("Error connecting to database");
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<DoctorSpecialization> findAllBySpecializationEquals(Specialization specialization) {
+        List<DoctorSpecialization> doctorSpecializations = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM DOCTOR_SPECIALIZATION WHERE specialization = ?")) {
+            statement.setInt(1, specialization.ordinal());
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {

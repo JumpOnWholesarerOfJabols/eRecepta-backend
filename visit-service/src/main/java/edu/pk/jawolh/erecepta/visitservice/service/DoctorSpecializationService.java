@@ -27,6 +27,14 @@ public class DoctorSpecializationService {
         return repository.findAllByDoctorId(doctorId).stream().map(DoctorSpecialization::specialization).toList();
     }
 
+    public List<DoctorSpecialization> findAll() {
+        return repository.findAll();
+    }
+
+    public List<UUID> findAllDoctorsBySpecialization(Specialization specialization) {
+        return repository.findAllBySpecializationEquals(specialization).stream().map(DoctorSpecialization::doctorId).toList();
+    }
+
     public boolean deleteDoctorSpecialization(UUID doctorId, Specialization specialization) {
         if (!repository.existsByDoctorIdAndSpecializationEquals(doctorId, specialization))
             throw new DoctorSpecializationNotFoundException(doctorId, specialization);
