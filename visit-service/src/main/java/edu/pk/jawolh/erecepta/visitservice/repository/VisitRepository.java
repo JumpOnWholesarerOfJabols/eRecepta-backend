@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.repository;
 
+import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
-import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

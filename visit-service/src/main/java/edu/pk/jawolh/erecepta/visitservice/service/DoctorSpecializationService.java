@@ -1,9 +1,9 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.exception.DoctorSpecializationExistsException;
 import edu.pk.jawolh.erecepta.visitservice.exception.DoctorSpecializationNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.model.DoctorSpecialization;
-import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.repository.DoctorSpecializationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

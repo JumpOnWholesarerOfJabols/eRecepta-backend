@@ -1,8 +1,12 @@
 package edu.pk.jawolh.erecepta.visitservice.facade;
 
 import com.example.demo.codegen.types.CreateVisitInput;
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
+import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.exception.*;
-import edu.pk.jawolh.erecepta.visitservice.model.*;
+import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
+import edu.pk.jawolh.erecepta.visitservice.model.Visit;
+import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
 import edu.pk.jawolh.erecepta.visitservice.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,10 +25,10 @@ public class VisitFacade {
     private final AvailabilityExceptionService availabilityExceptionService;
     private final WeeklyAvailabilityService weeklyAvailabilityService;
     private final DoctorSpecializationService doctorSpecializationService;
-    private final GrpcDoctorService grpcDoctorService;
+    private final GrpcUserService grpcUserService;
 
     public UUID createVisit(UUID patientId, CreateVisitInput input) {
-        if (!grpcDoctorService.checkDoctorExists(input.getDoctorId())) {
+        if (!grpcUserService.checkDoctorExists(input.getDoctorId())) {
             throw new DoctorNotFoundException(UUID.fromString(input.getDoctorId()));
         }
 

@@ -22,6 +22,12 @@ spring:
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
+  grpc:
+    client:
+      channels:
+        user:
+          address: ${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}
+
 rabbitmq:
   exchange-name: user-exchange
   verification-code-event-routing-key: verification-code-event

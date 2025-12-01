@@ -1,4 +1,4 @@
-package edu.pk.jawolh.erecepta.visitservice.config;
+package edu.pk.jawolh.erecepta.notificationservice.configuration;
 
 import edu.pk.jawolh.erecepta.common.user.proto.UserServiceGrpc;
 import org.springframework.context.annotation.Bean;

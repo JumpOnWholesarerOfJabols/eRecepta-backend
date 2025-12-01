@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.mapper;
 
 import com.example.demo.codegen.types.CreateVisitInput;
-import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import org.springframework.stereotype.Component;
 

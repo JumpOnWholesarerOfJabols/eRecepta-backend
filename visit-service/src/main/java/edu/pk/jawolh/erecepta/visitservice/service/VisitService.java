@@ -1,10 +1,10 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateVisitInput;
+import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.exception.VisitNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
-import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
