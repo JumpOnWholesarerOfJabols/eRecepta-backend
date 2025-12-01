@@ -6,7 +6,9 @@ type Query {
 
     findAllAvailabilityExceptions(doctorId: String!, startDate: String, endDate: String): [AvailabilityException]
 
+    findAllDoctors(specialization: Specialization!): [String]
     findAllSpecializations(doctorId: String!): [Specialization]
+    findAllDoctorSpecializations: [DoctorSpecialization]
 }
 
 type Mutation {
