@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: visit-service
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: 'jdbc:h2:mem:db'
+    username: admin
+    password: password
+  graphql:
+    graphiql:
+      enabled: false
+  grpc:
+    client:
+      channels:
+        user:
+          address: '${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}'
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+server:
+  port: '13000'
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka
+
+rabbitmq:
+  exchange-name: user-exchange
+  visit-change-routing-key: 'visit-change-event'

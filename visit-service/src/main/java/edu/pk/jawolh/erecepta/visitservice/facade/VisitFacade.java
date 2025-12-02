@@ -4,6 +4,7 @@ import com.example.demo.codegen.types.CreateVisitInput;
 import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.exception.*;
+import edu.pk.jawolh.erecepta.visitservice.mapper.VisitMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import edu.pk.jawolh.erecepta.visitservice.model.WeeklyAvailability;
@@ -26,6 +27,8 @@ public class VisitFacade {
     private final WeeklyAvailabilityService weeklyAvailabilityService;
     private final DoctorSpecializationService doctorSpecializationService;
     private final GrpcUserService grpcUserService;
+    private final RabbitMQService rabbitMQService;
+    private final VisitMapper visitMapper;
 
     public UUID createVisit(UUID patientId, CreateVisitInput input) {
         if (!grpcUserService.checkDoctorExists(input.getDoctorId())) {
@@ -41,7 +44,10 @@ public class VisitFacade {
         }
 
         checkTimeConstraints(doctorId, vdt);
-        return visitService.createVisit(patientId, input);
+        Visit v = visitService.createVisit(patientId, input);
+        rabbitMQService.sendVisitChangeEvent(visitMapper.mapToMessage(v));
+
+        return v.getId();
     }
 
     public Optional<Visit> findById(UUID id) {

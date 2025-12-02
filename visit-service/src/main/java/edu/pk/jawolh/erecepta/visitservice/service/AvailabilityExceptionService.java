@@ -5,7 +5,7 @@ import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionCollis
 import edu.pk.jawolh.erecepta.visitservice.exception.AvailabilityExceptionNotFoundException;
 import edu.pk.jawolh.erecepta.visitservice.exception.EndBeforeStartException;
 import edu.pk.jawolh.erecepta.visitservice.exception.InThePastException;
-import edu.pk.jawolh.erecepta.visitservice.mapper.AvailabilityExceptionInputMapper;
+import edu.pk.jawolh.erecepta.visitservice.mapper.AvailabilityExceptionMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.repository.AvailabilityExceptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AvailabilityExceptionService {
     private final AvailabilityExceptionRepository repository;
-    private final AvailabilityExceptionInputMapper mapper;
+    private final AvailabilityExceptionMapper mapper;
 
     public UUID createAvailabilityException(UUID doctorId, CreateAvailabilityExceptionInput input) {
         AvailabilityException avex = mapper.mapFromInput(doctorId, input);

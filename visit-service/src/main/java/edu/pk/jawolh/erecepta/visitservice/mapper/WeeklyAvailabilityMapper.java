@@ -9,7 +9,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 @Component
-public class WeeklyAvailabilityInputMapper {
+public class WeeklyAvailabilityMapper {
     public WeeklyAvailability mapFromInput(UUID doctorId, CreateWeeklyAvailabilityInput input) {
         WeeklyAvailability av = new WeeklyAvailability(doctorId, DayOfWeek.valueOf(input.getDayOfWeek().name()));
         av.setStartTime(LocalTime.parse(input.getStartTime()));

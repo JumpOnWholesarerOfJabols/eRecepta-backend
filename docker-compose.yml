@@ -83,6 +83,11 @@ services:
       ERECEPTA_EUREKA_HOST: eureka
       ERECEPTA_USER_CHANNEL: identity-service:9090
 
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
   notification-service:
     build: ./notification-service
     container_name: notification-service
