@@ -1,22 +1,29 @@
-input CreateVisitInput{
-    doctorId: String!
-    specialization: Int!
-    visitTime: String
-}
-
-type Visit {
-    id: Int!
-    doctorId: String!
-    patientId: String!
-    specialization: Int!
-    visitTime: String
-}
-
 type Query {
-    findAll: [Visit]
-    findById(id: Int!): Visit
+    findAllVisits: [Visit]
+    findVisitById(id: String!): Visit
+
+    findAllWeeklyAvailabilities(doctorId: String!): [WeeklyAvailability]
+
+    findAllAvailabilityExceptions(doctorId: String!, startDate: String, endDate: String): [AvailabilityException]
+
+    findAllDoctors(specialization: Specialization!): [String]
+    findAllSpecializations(doctorId: String!): [Specialization]
+    findAllDoctorSpecializations: [DoctorSpecialization]
 }
 
 type Mutation {
-    createVisit(in: CreateVisitInput!): Int
+    createVisit(visitInput: CreateVisitInput!): String
+    updateVisitTime(visitId: String!, newVisitDateTime: String!): Boolean
+    updateVisitStatus(visitId: String!, newVisitStatus: VisitStatus!): Boolean
+    cancelVisit(visitId: String!): Boolean
+    deleteVisit(visitId: String!): Boolean
+
+    createWeeklyAvailability(waInput: CreateWeeklyAvailabilityInput!): Boolean
+    deleteWeeklyAvailability(dow: DayOfWeek!): Boolean
+
+    createAvailabilityException(avexInput: CreateAvailabilityExceptionInput!): String
+    deleteAvailabilityException(avexId: String!): Boolean
+
+    createSpecialization(specialization: Specialization!) : Boolean
+    deleteSpecialization(specialization: Specialization!): Boolean
 }

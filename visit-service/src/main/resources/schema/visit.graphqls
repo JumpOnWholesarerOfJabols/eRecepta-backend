@@ -1,6 +1,4 @@
-package edu.pk.jawolh.erecepta.visitservice.model;
-
-public enum Specialization {
+enum Specialization {
     CARDIOLOGY,
     DERMATOLOGY,
     ENDOCRINOLOGY,
@@ -23,3 +21,22 @@ public enum Specialization {
     EMERGENCY_MEDICINE
 }
 
+enum VisitStatus{
+    SCHEDULED, COMPLETED, CANCELLED
+}
+
+
+type Visit {
+    id: String!
+    doctorId: String!
+    patientId: String!
+    specialization: Specialization!
+    visitTime: String
+    visitStatus: VisitStatus
+}
+
+input CreateVisitInput{
+    doctorId: String!
+    specialization: Specialization!
+    visitTime: String
+}
