@@ -2,7 +2,7 @@ package edu.pk.jawolh.erecepta.notificationservice.consumer;
 
 import edu.pk.jawolh.erecepta.common.user.messages.ResetPasswordCodeMessage;
 import edu.pk.jawolh.erecepta.common.user.messages.VerificationCodeMessage;
-import edu.pk.jawolh.erecepta.notificationservice.configuration.RabbitMqProperties;
+import edu.pk.jawolh.erecepta.common.visit.messages.VisitMessage;
 import edu.pk.jawolh.erecepta.notificationservice.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,5 +28,12 @@ public class RabbitMqConsumer {
         log.info("Received reset password code message: {}", message);
 
         emailService.sendRestPasswordCode(message.getEmail(), message.getCode());
+    }
+
+    @RabbitListener(queues = "#{rabbitMqProperties.getVisitChangeEventTopic()}")
+    public void processVisitStatusMessage(VisitMessage message) {
+        log.info("Received visit status update message: {}", message);
+
+        emailService.sendPatientVisitStatusUpdate(message);
     }
 }

@@ -1,6 +1,8 @@
 package edu.pk.jawolh.erecepta.visitservice.mapper;
 
 import com.example.demo.codegen.types.CreateVisitInput;
+import edu.pk.jawolh.erecepta.common.visit.dtos.UserDataDTO;
+import edu.pk.jawolh.erecepta.common.visit.dtos.VisitDataDTO;
 import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.common.visit.messages.VisitMessage;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
@@ -19,8 +21,9 @@ public class VisitMapper {
         return v;
     }
 
-    public VisitMessage mapToMessage(Visit visit) {
-        return new VisitMessage(visit.getPatientId(), visit.getDoctorId(), visit.getVisitTime(), visit.getSpecialization(), visit.getVisitStatus());
+    public VisitMessage mapToMessage(UserDataDTO patientData, UserDataDTO doctorData, Visit visit) {
+        VisitDataDTO dto = new VisitDataDTO(visit.getVisitTime(), visit.getSpecialization(), visit.getVisitStatus());
+        return new VisitMessage(patientData, doctorData, dto);
     }
 
 }

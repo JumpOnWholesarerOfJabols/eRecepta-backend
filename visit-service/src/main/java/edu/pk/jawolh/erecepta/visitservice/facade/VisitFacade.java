@@ -1,6 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.facade;
 
 import com.example.demo.codegen.types.CreateVisitInput;
+import edu.pk.jawolh.erecepta.common.visit.dtos.UserDataDTO;
 import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.exception.*;
@@ -45,7 +46,10 @@ public class VisitFacade {
 
         checkTimeConstraints(doctorId, vdt);
         Visit v = visitService.createVisit(patientId, input);
-        rabbitMQService.sendVisitChangeEvent(visitMapper.mapToMessage(v));
+
+        UserDataDTO patientData = grpcUserService.getUserData(patientId.toString());
+        UserDataDTO doctorData = grpcUserService.getUserData(doctorId.toString());
+        rabbitMQService.sendVisitChangeEvent(visitMapper.mapToMessage(patientData, doctorData, v));
 
         return v.getId();
     }
@@ -71,16 +75,37 @@ public class VisitFacade {
     }
 
     public boolean updateVisitTime(UUID id, UUID userId, String newVisitTime) {
-        UUID doctorId = visitService.findById(id).orElseThrow(() -> new VisitNotFoundException(id)).getDoctorId();
+        Visit v = visitService.findById(id).orElseThrow(() -> new VisitNotFoundException(id));
+        UUID doctorId = v.getDoctorId();
 
         LocalDateTime vdt = LocalDateTime.parse(newVisitTime);
         checkTimeConstraints(doctorId, vdt);
 
-        return visitService.updateVisitTime(id, userId, vdt);
+        boolean success = visitService.updateVisitTime(id, userId, vdt);
+
+        if (success) {
+            v.setVisitTime(vdt);
+
+            UserDataDTO patientData = grpcUserService.getUserData(v.getPatientId().toString());
+            UserDataDTO doctorData = grpcUserService.getUserData(doctorId.toString());
+            rabbitMQService.sendVisitChangeEvent(visitMapper.mapToMessage(patientData, doctorData, v));
+        }
+        return success;
     }
 
     public boolean updateVisitStatus(UUID id, UUID userId, VisitStatus status) {
-        return visitService.updateVisitStatus(id, userId, status);
+        Visit v = visitService.findById(id).orElseThrow(() -> new VisitNotFoundException(id));
+        boolean success = visitService.updateVisitStatus(id, userId, status);
+
+        if (success) {
+            v.setVisitStatus(status);
+
+            UserDataDTO patientData = grpcUserService.getUserData(v.getPatientId().toString());
+            UserDataDTO doctorData = grpcUserService.getUserData(v.getDoctorId().toString());
+            rabbitMQService.sendVisitChangeEvent(visitMapper.mapToMessage(patientData, doctorData, v));
+        }
+
+        return success;
     }
 
     private void checkTimeConstraints(UUID doctorId, LocalDateTime vdt) {

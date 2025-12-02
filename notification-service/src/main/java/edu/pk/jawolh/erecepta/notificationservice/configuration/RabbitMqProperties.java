@@ -12,8 +12,10 @@ public class RabbitMqProperties {
     private String exchangeName;
     private String resetPasswordCodeEventTopic;
     private String verificationCodeEventTopic;
+    private String visitChangeEventTopic;
 
     private String resetPasswordCodeEventRoutingKey;
     private String verificationCodeEventRoutingKey;
+    private String visitChangeRoutingKey;
 
 }
