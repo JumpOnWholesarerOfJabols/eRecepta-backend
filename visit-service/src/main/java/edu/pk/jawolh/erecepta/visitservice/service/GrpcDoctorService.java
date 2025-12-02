@@ -1,19 +1,19 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
-import edu.pk.jawolh.erecepta.common.user.proto.DoctorExistsGrpc;
-import edu.pk.jawolh.erecepta.common.user.proto.DoctorExistsReply;
-import edu.pk.jawolh.erecepta.common.user.proto.DoctorExistsRequest;
+import edu.pk.jawolh.erecepta.common.user.proto.UserExistsGrpc;
+import edu.pk.jawolh.erecepta.common.user.proto.UserExistsReply;
+import edu.pk.jawolh.erecepta.common.user.proto.UserExistsRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class GrpcDoctorService {
-    private final DoctorExistsGrpc.DoctorExistsBlockingStub grpcDoctorExistsStub;
+    private final UserExistsGrpc.UserExistsBlockingStub grpcDoctorExistsStub;
 
     public boolean checkDoctorExists(String uuid) {
-        DoctorExistsRequest request = DoctorExistsRequest.newBuilder().setDoctorId(uuid).build();
-        DoctorExistsReply response = grpcDoctorExistsStub.checkDoctorExists(request);
-        return response.getDoctorExists();
+        UserExistsRequest request = UserExistsRequest.newBuilder().setUserId(uuid).build();
+        UserExistsReply response = grpcDoctorExistsStub.checkDoctorExists(request);
+        return response.getUserExists();
     }
 }

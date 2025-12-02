@@ -9,7 +9,7 @@ import org.springframework.grpc.client.GrpcChannelFactory;
 public class GrpcConfig {
     @Bean
     public UserExistsGrpc.UserExistsBlockingStub grpcDoctorExistsStub(GrpcChannelFactory channels) {
-        return UserExistsGrpc.newBlockingStub(channels.createChannel("patient-record-service"));
+        return UserExistsGrpc.newBlockingStub(channels.createChannel("user"));
     }
 
 }

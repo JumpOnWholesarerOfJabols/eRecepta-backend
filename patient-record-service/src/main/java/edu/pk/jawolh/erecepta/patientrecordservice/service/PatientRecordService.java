@@ -9,6 +9,7 @@ import edu.pk.jawolh.erecepta.patientrecordservice.repository.PatientRecordRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,8 @@ public class PatientRecordService {
                         return patientRecordRepository.save(
                                 PatientRecord.builder()
                                         .userId(patientId)
+                                        .allergies(new ArrayList<>())
+                                        .medications(new ArrayList<>())
                                         .build()
                         );
                     } else {
