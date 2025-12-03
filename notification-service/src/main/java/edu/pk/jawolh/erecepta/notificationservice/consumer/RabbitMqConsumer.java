@@ -35,5 +35,6 @@ public class RabbitMqConsumer {
         log.info("Received visit status update message: {}", message);
 
         emailService.sendPatientVisitStatusUpdate(message);
+        emailService.sendDoctorVisitStatusUpdate(message);
     }
 }

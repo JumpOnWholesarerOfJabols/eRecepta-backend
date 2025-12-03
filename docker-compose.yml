@@ -75,10 +75,17 @@ services:
     build: ./visit-service
     container_name: visit-service
     depends_on:
-      - eureka
+      rabbitmq:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    ports:
+      - "${VISIT_SERVICE_PORT}:${VISIT_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
     environment:
+      SERVER_PORT: ${VISIT_SERVICE_INTERNAL_PORT}
+
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
       ERECEPTA_USER_CHANNEL: identity-service:9090

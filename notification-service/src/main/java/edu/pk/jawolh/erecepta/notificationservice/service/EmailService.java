@@ -45,6 +45,25 @@ public class EmailService {
     }
 
     @Async
+    public void sendDoctorVisitStatusUpdate(VisitMessage msg) {
+        Object[] params = new String[]{msg.doctorData().firstName(),
+                msg.patientData().firstName(),
+                msg.patientData().lastName(),
+                msg.visitData().specialization().name(),
+                msg.visitData().visitDateTime().toString(),
+                msg.visitData().status().name()};
+
+        String subject = messageSource.getMessage(
+                "email.visit-status-doctor.subject", null, Locale.getDefault()
+        );
+        String body = messageSource.getMessage(
+                "email.visit-status-doctor.body", params, Locale.getDefault()
+        );
+
+        sendEmail(msg.doctorData().email(), subject, body);
+    }
+
+    @Async
     public void sendPatientVisitStatusUpdate(VisitMessage msg) {
         Object[] params = new String[]{msg.patientData().firstName(),
                 msg.doctorData().firstName(),
@@ -54,10 +73,10 @@ public class EmailService {
                 msg.visitData().status().name()};
 
         String subject = messageSource.getMessage(
-                "email.visit-status.subject", null, Locale.getDefault()
+                "email.visit-status-patient.subject", null, Locale.getDefault()
         );
         String body = messageSource.getMessage(
-                "email.visit-status.body", params, Locale.getDefault()
+                "email.visit-status-patient.body", params, Locale.getDefault()
         );
 
         sendEmail(msg.patientData().email(), subject, body);
