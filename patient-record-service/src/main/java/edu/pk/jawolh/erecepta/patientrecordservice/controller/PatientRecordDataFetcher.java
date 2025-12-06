@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.patientrecordservice.controller;
 
+import com.example.demo.codegen.types.PatientHistoryEntry;
 import com.example.demo.codegen.types.PatientInfo;
 import com.example.demo.codegen.types.UpdatePatientInfoInput;
 import com.netflix.graphql.dgs.DgsComponent;
@@ -9,6 +10,7 @@ import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.patientrecordservice.service.PatientRecordService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @DgsComponent
@@ -70,5 +72,10 @@ public class PatientRecordDataFetcher {
             @InputArgument String disease) {
 
         return patientRecordService.removeChronicDisease(userId, disease);
+    }
+
+    @DgsQuery
+    public List<PatientHistoryEntry> getPatientHistory(@InputArgument UUID userId) {
+        return patientRecordService.getPatientHistory(userId);
     }
 }

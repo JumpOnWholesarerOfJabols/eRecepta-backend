@@ -1,10 +1,12 @@
 package edu.pk.jawolh.erecepta.patientrecordservice.service;
 
+import com.example.demo.codegen.types.PatientHistoryEntry;
 import com.example.demo.codegen.types.PatientInfo;
 import com.example.demo.codegen.types.UpdatePatientInfoInput;
 import edu.pk.jawolh.erecepta.patientrecordservice.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.patientrecordservice.exception.*;
 import edu.pk.jawolh.erecepta.patientrecordservice.mapper.BloodTypeMapper;
+import edu.pk.jawolh.erecepta.patientrecordservice.mapper.PatientHistoryMapper;
 import edu.pk.jawolh.erecepta.patientrecordservice.mapper.PatientMapper;
 import edu.pk.jawolh.erecepta.patientrecordservice.model.BloodType;
 import edu.pk.jawolh.erecepta.patientrecordservice.model.PatientRecord;
@@ -12,6 +14,7 @@ import edu.pk.jawolh.erecepta.patientrecordservice.repository.PatientRecordRepos
 import edu.pk.jawolh.erecepta.patientrecordservice.validator.PatientDataValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -146,6 +150,17 @@ public class PatientRecordService {
         return PatientMapper.toDTO(saved);
     }
 
+    @Transactional(readOnly = true)
+    public List<PatientHistoryEntry> getPatientHistory(UUID userId) {
+        ensureUserExists(userId);
+
+        Revisions<Integer, PatientRecord> revisions = patientRecordRepository.findRevisions(userId);
+
+        return revisions.stream()
+                .map(PatientHistoryMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 
     private PatientRecord getOrCreatePatientRecord(UUID patientId) {
         ensureUserExists(patientId);
@@ -165,4 +180,6 @@ public class PatientRecordService {
         }
 
     }
+
+
 }

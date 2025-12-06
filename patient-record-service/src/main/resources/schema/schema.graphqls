@@ -9,8 +9,15 @@ enum BloodType {
     O_NEGATIVE
 }
 
+enum RevisionType {
+    ADD
+    MOD
+    DEL
+}
+
 type Query {
     getPatientRecordByUserId(userId: ID!): PatientInfo
+    getPatientHistory(userId: ID!): [PatientHistoryEntry]
 }
 
 type Mutation {
@@ -34,6 +41,13 @@ type PatientInfo {
     chronicDiseases: [String]
     medications: [String] #todo graphql federalization with meds service
     emergencyContact: String
+}
+
+type PatientHistoryEntry {
+    revisionNumber: Int
+    revisionDate: String
+    revisionType: RevisionType
+    patientState: PatientInfo
 }
 
 input UpdatePatientInfoInput {
