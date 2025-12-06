@@ -2,6 +2,19 @@ type Query {
     getPatientRecordByUserId(userId: ID!): PatientInfo
 }
 
+type Mutation {
+    updatePatientInfo(userId: ID!, input: UpdatePatientInfoInput!): PatientInfo
+
+    addAllergy(userId: ID!, allergy: String!): PatientInfo
+    removeAllergy(userId: ID!, allergy: String!): PatientInfo
+
+    addMedication(userId: ID!, medication: String!): PatientInfo
+    removeMedication(userId: ID!, medication: String!): PatientInfo
+
+    addChronicDisease(userId: ID!, disease: String!): PatientInfo
+    removeChronicDisease(userId: ID!, disease: String!): PatientInfo
+}
+
 type PatientInfo {
     userId: String #todo graphql federalization with identity service
     bloodType: String
@@ -13,6 +26,9 @@ type PatientInfo {
     emergencyContact: String
 }
 
-
-
-
+input UpdatePatientInfoInput {
+    bloodType: String
+    height: Float
+    weight: Float
+    emergencyContact: String
+}
