@@ -9,6 +9,7 @@ import edu.pk.jawolh.erecepta.patientrecordservice.mapper.PatientMapper;
 import edu.pk.jawolh.erecepta.patientrecordservice.model.BloodType;
 import edu.pk.jawolh.erecepta.patientrecordservice.model.PatientRecord;
 import edu.pk.jawolh.erecepta.patientrecordservice.repository.PatientRecordRepository;
+import edu.pk.jawolh.erecepta.patientrecordservice.validator.PatientDataValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class PatientRecordService {
     private final PatientRecordRepository patientRecordRepository;
     private final GrpcUserClient grpcUserClient;
+    private final PatientDataValidator patientDataValidator;
 
     public PatientInfo getPatientInfo(UUID patientId) {
         PatientRecord patientRecord = getOrCreatePatientRecord(patientId);
@@ -35,6 +37,8 @@ public class PatientRecordService {
 
     @Transactional
     public PatientInfo updatePatientInfo(UUID userId, UpdatePatientInfoInput input) {
+        patientDataValidator.validateUpdateInput(input);
+
         PatientRecord patient = getOrCreatePatientRecord(userId);
 
         Optional.ofNullable(BloodTypeMapper.fromDTO(input.getBloodType())).ifPresent(patient::setBloodType);
@@ -53,6 +57,8 @@ public class PatientRecordService {
 
     @Transactional
     public PatientInfo addAllergy(UUID userId, String allergy) {
+        patientDataValidator.validateAllergyName(allergy);
+
         PatientRecord patient = getOrCreatePatientRecord(userId);
 
         List<String> allergies = patient.getAllergies();
@@ -106,6 +112,8 @@ public class PatientRecordService {
 
     @Transactional
     public PatientInfo addChronicDisease(UUID userId, String disease) {
+        patientDataValidator.validateDiseaseName(disease);
+
         PatientRecord patient = getOrCreatePatientRecord(userId);
 
         List<String> diseases = patient.getChronicDiseases();
