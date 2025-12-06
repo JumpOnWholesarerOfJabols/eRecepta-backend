@@ -21,8 +21,9 @@ public class PatientRecord {
     @Column(nullable = false)
     private UUID userId;
 
-    @Column
-    private String bloodType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "blood_type")
+    private BloodType bloodType;
 
     @Column
     private double height; // cm

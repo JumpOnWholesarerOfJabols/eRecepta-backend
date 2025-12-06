@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.patientrecordservice.mapper;
 
+import com.example.demo.codegen.types.BloodType;
 import com.example.demo.codegen.types.PatientInfo;
 import edu.pk.jawolh.erecepta.patientrecordservice.model.PatientRecord;
 
@@ -9,7 +10,7 @@ public class PatientMapper {
     public static PatientInfo toDTO(PatientRecord record){
         return PatientInfo.newBuilder()
                 .userId(record.getUserId().toString())
-                .bloodType(record.getBloodType())
+                .bloodType(BloodTypeMapper.toDTO(record.getBloodType()))
                 .height(record.getHeight())
                 .weight(record.getWeight())
                 .allergies(record.getAllergies())

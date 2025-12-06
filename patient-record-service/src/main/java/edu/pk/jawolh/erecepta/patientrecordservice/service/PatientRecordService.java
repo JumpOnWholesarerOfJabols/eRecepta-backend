@@ -4,7 +4,9 @@ import com.example.demo.codegen.types.PatientInfo;
 import com.example.demo.codegen.types.UpdatePatientInfoInput;
 import edu.pk.jawolh.erecepta.patientrecordservice.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.patientrecordservice.exception.*;
+import edu.pk.jawolh.erecepta.patientrecordservice.mapper.BloodTypeMapper;
 import edu.pk.jawolh.erecepta.patientrecordservice.mapper.PatientMapper;
+import edu.pk.jawolh.erecepta.patientrecordservice.model.BloodType;
 import edu.pk.jawolh.erecepta.patientrecordservice.model.PatientRecord;
 import edu.pk.jawolh.erecepta.patientrecordservice.repository.PatientRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,7 @@ public class PatientRecordService {
     public PatientInfo updatePatientInfo(UUID userId, UpdatePatientInfoInput input) {
         PatientRecord patient = getOrCreatePatientRecord(userId);
 
-        Optional.ofNullable(input.getBloodType()).ifPresent(patient::setBloodType);
+        Optional.ofNullable(BloodTypeMapper.fromDTO(input.getBloodType())).ifPresent(patient::setBloodType);
         Optional.ofNullable(input.getHeight()).ifPresent(patient::setHeight);
         Optional.ofNullable(input.getWeight()).ifPresent(patient::setWeight);
         Optional.ofNullable(input.getEmergencyContact()).ifPresent(patient::setEmergencyContact);
