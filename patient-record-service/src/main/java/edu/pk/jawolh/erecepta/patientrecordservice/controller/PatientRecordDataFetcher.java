@@ -51,19 +51,10 @@ public class PatientRecordDataFetcher {
     @DgsMutation
     public PatientInfo addMedication(
             @InputArgument UUID userId,
-            @InputArgument String medication) {
+            @InputArgument UUID medicationId) {
 
-        return patientRecordService.addMedication(userId, medication);
+        return patientRecordService.addMedication(userId, medicationId);
     }
-
-    @DgsMutation
-    public PatientInfo removeMedication(
-            @InputArgument UUID userId,
-            @InputArgument String medication) {
-
-        return patientRecordService.removeMedication(userId, medication);
-    }
-
 
     @DgsMutation
     public PatientInfo addChronicDisease(
@@ -78,6 +69,6 @@ public class PatientRecordDataFetcher {
             @InputArgument UUID userId,
             @InputArgument String disease) {
 
-        return patientRecordService.addChronicDisease(userId, disease);
+        return patientRecordService.removeChronicDisease(userId, disease);
     }
 }

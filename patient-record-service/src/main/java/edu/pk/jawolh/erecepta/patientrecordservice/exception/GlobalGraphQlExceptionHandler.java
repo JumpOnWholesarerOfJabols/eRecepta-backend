@@ -23,7 +23,6 @@ public class GlobalGraphQlExceptionHandler {
     }
 
 
-
     private GraphQLError buildError(Throwable ex, DataFetchingEnvironment env, ErrorType errorType) {
         return buildError(ex, env, errorType, Collections.emptyMap());
     }
