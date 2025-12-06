@@ -1,0 +1,58 @@
+enum BloodType {
+    A_POSITIVE
+    A_NEGATIVE
+    B_POSITIVE
+    B_NEGATIVE
+    AB_POSITIVE
+    AB_NEGATIVE
+    O_POSITIVE
+    O_NEGATIVE
+}
+
+enum RevisionType {
+    ADD
+    MOD
+    DEL
+}
+
+type Query {
+    getPatientRecordByUserId(userId: ID!): PatientInfo
+    getPatientHistory(userId: ID!): [PatientHistoryEntry]
+}
+
+type Mutation {
+    updatePatientInfo(userId: ID!, input: UpdatePatientInfoInput!): PatientInfo
+
+    addAllergy(userId: ID!, allergy: String!): PatientInfo
+    removeAllergy(userId: ID!, allergy: String!): PatientInfo
+
+    addMedication(userId: ID!, medicationId: ID!): PatientInfo
+
+    addChronicDisease(userId: ID!, disease: String!): PatientInfo
+    removeChronicDisease(userId: ID!, disease: String!): PatientInfo
+}
+
+type PatientInfo {
+    userId: String #todo graphql federalization with identity service
+    bloodType: BloodType
+    height: Float
+    weight: Float
+    allergies: [String]
+    chronicDiseases: [String]
+    medications: [String] #todo graphql federalization with meds service
+    emergencyContact: String
+}
+
+type PatientHistoryEntry {
+    revisionNumber: Int
+    revisionDate: String
+    revisionType: RevisionType
+    patientState: PatientInfo
+}
+
+input UpdatePatientInfoInput {
+    bloodType: BloodType
+    height: Float
+    weight: Float
+    emergencyContact: String
+}
