@@ -5,6 +5,7 @@ import com.example.demo.codegen.types.UpdatePatientInfoInput;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
+import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.patientrecordservice.service.PatientRecordService;
 import lombok.RequiredArgsConstructor;
 
@@ -23,64 +24,60 @@ public class PatientRecordDataFetcher {
 
 
     @DgsMutation
-    public PatientInfo updatePatientInfo(UUID userId, UpdatePatientInfoInput input) {
+    public PatientInfo updatePatientInfo(
+            @InputArgument UUID userId,
+            @InputArgument UpdatePatientInfoInput input) {
 
-        System.out.println("Test");
-
-        return PatientInfo.newBuilder().build();
+        return patientRecordService.updatePatientInfo(userId, input);
     }
 
     @DgsMutation
-    public PatientInfo addAllergy(UUID userId, String allergy) {
-        System.out.println("Test");
+    public PatientInfo addAllergy(
+            @InputArgument UUID userId,
+            @InputArgument String allergy) {
 
-        return PatientInfo.newBuilder().build();
+        return patientRecordService.addAllergy(userId, allergy);
     }
 
     @DgsMutation
-    public PatientInfo removeAllergy(UUID userId, String allergy) {
-        System.out.println("Test");
+    public PatientInfo removeAllergy(
+            @InputArgument UUID userId,
+            @InputArgument String allergy) {
 
-        return PatientInfo.newBuilder().build();
-    }
-
-
-    @DgsMutation
-    public PatientInfo addMedication(UUID userId, String medication) {
-        System.out.println("Test");
-
-        return PatientInfo.newBuilder().build();
-    }
-
-    @DgsMutation
-    public PatientInfo removeMedication(UUID userId, String medication) {
-        System.out.println("Test");
-
-        return PatientInfo.newBuilder().build();
+        return patientRecordService.removeAllergy(userId, allergy);
     }
 
 
     @DgsMutation
-    public PatientInfo addChronicDisease(UUID userId, String medication) {
-        System.out.println("Test");
+    public PatientInfo addMedication(
+            @InputArgument UUID userId,
+            @InputArgument String medication) {
 
-        return PatientInfo.newBuilder().build();
+        return patientRecordService.addMedication(userId, medication);
     }
 
     @DgsMutation
-    public PatientInfo removeChronicDisease(UUID userId, String medication) {
-        System.out.println("Test");
+    public PatientInfo removeMedication(
+            @InputArgument UUID userId,
+            @InputArgument String medication) {
 
-        return PatientInfo.newBuilder().build();
+        return patientRecordService.removeMedication(userId, medication);
     }
 
 
+    @DgsMutation
+    public PatientInfo addChronicDisease(
+            @InputArgument UUID userId,
+            @InputArgument String disease) {
 
+        return patientRecordService.addChronicDisease(userId, disease);
+    }
 
+    @DgsMutation
+    public PatientInfo removeChronicDisease(
+            @InputArgument UUID userId,
+            @InputArgument String disease) {
 
-
-
-
-//    addChronicDisease(userId: ID!, disease: String!): PatientInfo
-//    removeChronicDisease(userId: ID!, disease: String!): PatientInfo
+        return patientRecordService.addChronicDisease(userId, disease);
+    }
 }
