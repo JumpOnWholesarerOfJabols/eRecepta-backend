@@ -25,8 +25,6 @@ enum RiskLevel {
     CONTRAINDICATED
 }
 
-
-
 type Ingredient {
     name: String!
     strength: String!
@@ -36,7 +34,6 @@ type Ingredient {
 type DrugInteraction {
     targetMedicationId: ID!
     riskLevel: RiskLevel!
-    description: String!
     effect: String
 }
 
@@ -58,9 +55,7 @@ type Medication {
     ingredients: [Ingredient!]!
 
     indications: [String!]
-    contraindications: [String!]
     sideEffects: [String!]
-    leafletUrl: String
 }
 
 input MedicationFilterInput {
@@ -71,8 +66,8 @@ input MedicationFilterInput {
 }
 
 input CreateMedicationInput {
-    ean: String
-    atcCode: String
+    ean: String!
+    atcCode: String!
     tradeName: String!
     genericName: String!
     manufacturer: String!
