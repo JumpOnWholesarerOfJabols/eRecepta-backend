@@ -57,9 +57,11 @@ public class VisitService {
         return visitRepository.updateVisitTime(id, vdt);
     }
 
-    public void cancelVisitsInBulk(UUID doctorId, LocalDateTime startTime, LocalDateTime endTime) {
-        findAllByDoctorIdAndVisitTimeBetween(doctorId, startTime, endTime)
-                .forEach(v -> visitRepository.updateVisitStatus(v.getId(), VisitStatus.CANCELLED));
+    public List<Visit> cancelVisitsInBulk(UUID doctorId, LocalDateTime startTime, LocalDateTime endTime) {
+        List<Visit> conflicts = findAllByDoctorIdAndVisitTimeBetween(doctorId, startTime, endTime);
+
+        conflicts.forEach(v -> visitRepository.updateVisitStatus(v.getId(), VisitStatus.CANCELLED));
+        return conflicts;
     }
 
     public boolean updateVisitStatus(UUID id, UUID userId, VisitStatus status) {
