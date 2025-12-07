@@ -71,6 +71,28 @@ services:
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
 
+      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL}
+
+  patient-record-service:
+    build: ./patient-record-service
+    container_name: patient-record-service
+    ports:
+      - "${PATIENT_RECORD_SERVICE_PORT}:${PATIENT_RECORD_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+#    depends_on:
+#      eureka:
+#        condition: service_started
+    environment:
+      SERVER_PORT: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT}
+
+      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL}
+
+#      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
+#      ERECEPTA_EUREKA_HOST: eureka
+
+
+
   visit-service:
     build: ./visit-service
     container_name: visit-service

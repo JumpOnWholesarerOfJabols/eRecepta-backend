@@ -38,6 +38,7 @@
         <module>eureka</module>
         <module>gateway</module>
         <module>visit-service</module>
+        <module>patient-record-service</module>
     </modules>
 
     <dependencyManagement>

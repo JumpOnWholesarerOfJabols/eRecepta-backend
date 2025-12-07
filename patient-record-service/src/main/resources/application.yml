@@ -1,0 +1,6 @@
+spring:
+  grpc:
+    client:
+      channels:
+        user:
+          address: ${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}
