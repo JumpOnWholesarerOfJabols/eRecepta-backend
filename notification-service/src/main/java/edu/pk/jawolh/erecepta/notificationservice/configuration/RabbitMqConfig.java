@@ -28,6 +28,11 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue visitChangeEventQueue() {
+        return new Queue(rabbitMqProperties.getVisitChangeEventTopic());
+    }
+
+    @Bean
     public TopicExchange  exchange() {
         return new TopicExchange (rabbitMqProperties.getExchangeName());
     }
@@ -50,6 +55,16 @@ public class RabbitMqConfig {
                 .bind(queue)
                 .to(exchange)
                 .with(rabbitMqProperties.getVerificationCodeEventRoutingKey());
+    }
+
+    @Bean
+    public Binding visitChangeEventBinding(
+            @Qualifier("visitChangeEventQueue") Queue queue,
+            TopicExchange exchange) {
+        return BindingBuilder
+                .bind(queue)
+                .to(exchange)
+                .with(rabbitMqProperties.getVisitChangeRoutingKey());
     }
 
     @Bean

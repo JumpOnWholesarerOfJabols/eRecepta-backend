@@ -1,10 +1,10 @@
 package edu.pk.jawolh.erecepta.visitservice.service;
 
 import com.example.demo.codegen.types.CreateVisitInput;
+import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.exception.VisitNotFoundException;
-import edu.pk.jawolh.erecepta.visitservice.mapper.VisitInputMapper;
+import edu.pk.jawolh.erecepta.visitservice.mapper.VisitMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
-import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,14 +18,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VisitService {
     private final VisitRepository visitRepository;
-    private final VisitInputMapper mapper;
+    private final VisitMapper mapper;
 
-    public UUID createVisit(UUID patientId, CreateVisitInput input) {
+    public Visit createVisit(UUID patientId, CreateVisitInput input) {
         Visit v = mapper.mapFromInput(patientId, input);
         v.setVisitStatus(VisitStatus.SCHEDULED);
         visitRepository.save(v);
 
-        return v.getId();
+        return v;
     }
 
     public Optional<Visit> findById(UUID id) {
@@ -57,9 +57,11 @@ public class VisitService {
         return visitRepository.updateVisitTime(id, vdt);
     }
 
-    public void cancelVisitsInBulk(UUID doctorId, LocalDateTime startTime, LocalDateTime endTime) {
-        findAllByDoctorIdAndVisitTimeBetween(doctorId, startTime, endTime)
-                .forEach(v -> visitRepository.updateVisitStatus(v.getId(), VisitStatus.CANCELLED));
+    public List<Visit> cancelVisitsInBulk(UUID doctorId, LocalDateTime startTime, LocalDateTime endTime) {
+        List<Visit> conflicts = findAllByDoctorIdAndVisitTimeBetween(doctorId, startTime, endTime);
+
+        conflicts.forEach(v -> visitRepository.updateVisitStatus(v.getId(), VisitStatus.CANCELLED));
+        return conflicts;
     }
 
     public boolean updateVisitStatus(UUID id, UUID userId, VisitStatus status) {

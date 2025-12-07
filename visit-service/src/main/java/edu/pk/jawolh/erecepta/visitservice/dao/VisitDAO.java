@@ -1,8 +1,8 @@
 package edu.pk.jawolh.erecepta.visitservice.dao;
 
-import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
+import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
-import edu.pk.jawolh.erecepta.visitservice.model.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
