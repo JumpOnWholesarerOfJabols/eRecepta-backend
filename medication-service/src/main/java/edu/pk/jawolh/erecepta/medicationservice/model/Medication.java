@@ -19,7 +19,7 @@ public class Medication {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String ean;
 
     @Column(nullable = false)
@@ -49,6 +49,7 @@ public class Medication {
     private boolean requiresPrescription;
 
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "medication_id")
     private List<Ingredient> ingredients;
 
     @ElementCollection

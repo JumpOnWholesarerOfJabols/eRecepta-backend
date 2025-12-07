@@ -1,6 +1,6 @@
 package edu.pk.jawolh.erecepta.medicationservice.service;
 
-import com.example.demo.codegen.types.MedicationFilterInput;
+import com.example.demo.codegen.types.*;
 import edu.pk.jawolh.erecepta.medicationservice.exception.MedicationNotFoundException;
 import edu.pk.jawolh.erecepta.medicationservice.mapper.DrugInteractionMapper;
 import edu.pk.jawolh.erecepta.medicationservice.mapper.MedicationMapper;
@@ -9,9 +9,11 @@ import edu.pk.jawolh.erecepta.medicationservice.model.Medication;
 import edu.pk.jawolh.erecepta.medicationservice.repository.DrugInteractionRepository;
 import edu.pk.jawolh.erecepta.medicationservice.repository.MedicationDAO;
 import edu.pk.jawolh.erecepta.medicationservice.repository.MedicationRepository;
+import edu.pk.jawolh.erecepta.medicationservice.validator.MedicationInputValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ public class DrugService {
     private final MedicationDAO medicationDAO;
     private final MedicationRepository medicationRepository;
     private final DrugInteractionRepository drugInteractionRepository;
+    private final MedicationInputValidator medicationInputValidator;
 
     public List<com.example.demo.codegen.types.Medication> getMedicationByFilter(
             MedicationFilterInput filter,
@@ -75,5 +78,23 @@ public class DrugService {
 
         return conflictingInteractions.stream().map(
                 interaction-> DrugInteractionMapper.toDTO(interaction, targetMedicationId)).toList();
+    }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication createMedication(CreateMedicationInput input) {
+        log.info("Attempting to create medication with EAN: {}", input.getEan());
+
+        medicationInputValidator.validateCreationInput(input);
+
+        if (medicationRepository.existsByEan(input.getEan())) {
+            log.warn("Creation failed. Medication with EAN {} already exists.", input.getEan());
+            throw new IllegalArgumentException("Medication with EAN " + input.getEan() + " already exists.");
+        }
+
+        Medication medication = MedicationMapper.fromCreateInputToDomain(input);
+
+        Medication saved = medicationRepository.save(medication);
+
+        return MedicationMapper.toDTO(saved);
     }
 }

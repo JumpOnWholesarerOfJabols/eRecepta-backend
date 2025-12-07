@@ -51,7 +51,7 @@ public class MedicationDataFetcher {
     public Medication createMedication(CreateMedicationInput input){
         log.info(input.toString());
 
-        return Medication.newBuilder().build();
+        return drugService.createMedication(input);
     }
 
     @DgsMutation

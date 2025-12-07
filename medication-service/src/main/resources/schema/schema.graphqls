@@ -66,16 +66,19 @@ input MedicationFilterInput {
 }
 
 input CreateMedicationInput {
-    ean: String!
-    atcCode: String!
-    tradeName: String!
-    genericName: String!
-    manufacturer: String!
-    form: MedicationForm!
-    route: RouteOfAdministration!
-    packageSize: String!
-    requiresPrescription: Boolean!
-    ingredients: [IngredientInput!]!
+    ean: String
+    atcCode: String
+    tradeName: String
+    genericName: String
+    manufacturer: String
+    form: MedicationForm
+    route: RouteOfAdministration
+    packageSize: String
+    requiresPrescription: Boolean
+    ingredients: [IngredientInput!]
+
+    indications: [String!]
+    sideEffects: [String!]
 }
 
 input IngredientInput {
