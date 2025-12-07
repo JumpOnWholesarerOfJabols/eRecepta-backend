@@ -44,7 +44,7 @@ public class MedicationDataFetcher {
         log.info(currentMedicationIds.toString());
         log.info(targetMedicationId.toString());
 
-        return new ArrayList<>();
+        return drugService.checkInteractions(targetMedicationId, currentMedicationIds);
     }
 
     @DgsMutation
