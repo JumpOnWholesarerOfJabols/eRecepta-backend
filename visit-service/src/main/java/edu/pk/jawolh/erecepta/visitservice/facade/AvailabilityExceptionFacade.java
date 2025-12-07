@@ -2,11 +2,11 @@ package edu.pk.jawolh.erecepta.visitservice.facade;
 
 import com.example.demo.codegen.types.CreateAvailabilityExceptionInput;
 import edu.pk.jawolh.erecepta.common.visit.dtos.UserDataDTO;
+import edu.pk.jawolh.erecepta.visitservice.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import edu.pk.jawolh.erecepta.visitservice.service.AvailabilityExceptionService;
-import edu.pk.jawolh.erecepta.visitservice.service.GrpcUserService;
 import edu.pk.jawolh.erecepta.visitservice.service.RabbitMQService;
 import edu.pk.jawolh.erecepta.visitservice.service.VisitService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class AvailabilityExceptionFacade {
     private final AvailabilityExceptionService service;
     private final VisitService visitService;
     private final RabbitMQService rabbitMQService;
-    private final GrpcUserService grpcUserService;
+    private final GrpcUserClient grpcUserService;
     private final VisitMapper visitMapper;
 
     public UUID createAvailabilityException(UUID doctorId, CreateAvailabilityExceptionInput input) {

@@ -19,6 +19,13 @@ spring:
               filters:
                 - StripPrefix=1
                 - Auth
+            - id: patient-record-service
+              uri: lb://patient-record-service
+              predicates:
+                - Path=/record/**
+              filters:
+                - StripPrefix=1
+                - Auth
 
 application:
   security:

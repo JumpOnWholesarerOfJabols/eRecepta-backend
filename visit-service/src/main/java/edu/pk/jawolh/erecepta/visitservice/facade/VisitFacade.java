@@ -4,6 +4,7 @@ import com.example.demo.codegen.types.CreateVisitInput;
 import edu.pk.jawolh.erecepta.common.visit.dtos.UserDataDTO;
 import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
+import edu.pk.jawolh.erecepta.visitservice.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.visitservice.exception.*;
 import edu.pk.jawolh.erecepta.visitservice.mapper.VisitMapper;
 import edu.pk.jawolh.erecepta.visitservice.model.AvailabilityException;
@@ -27,7 +28,7 @@ public class VisitFacade {
     private final AvailabilityExceptionService availabilityExceptionService;
     private final WeeklyAvailabilityService weeklyAvailabilityService;
     private final DoctorSpecializationService doctorSpecializationService;
-    private final GrpcUserService grpcUserService;
+    private final GrpcUserClient grpcUserService;
     private final RabbitMQService rabbitMQService;
     private final VisitMapper visitMapper;
 
