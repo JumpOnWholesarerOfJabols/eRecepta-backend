@@ -8,11 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Embeddable
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DrugInteractionId {
+public class DrugInteractionId implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "medication_a_id")
