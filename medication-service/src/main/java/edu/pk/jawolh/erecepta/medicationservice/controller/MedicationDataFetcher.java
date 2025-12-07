@@ -25,17 +25,18 @@ public class MedicationDataFetcher {
     @DgsQuery
     public List<Medication> medications(MedicationFilterInput filter, Integer limit, Integer offset) {
 
-        log.info(filter.toString());
-        log.info(limit + " " + offset);
+        log.info("filter: {}",filter.toString());
+        log.info("limit: {}",limit.toString());
+        log.info("offset: {}",offset.toString());
 
         return drugService.getMedicationByFilter(filter, limit, offset);
     }
 
     @DgsQuery
     public Medication medication(UUID id){
-        log.info(id.toString());
+        log.info("id: {}",id.toString());
 
-        return Medication.newBuilder().build();
+        return drugService.getMedicationById(id);
     }
 
     @DgsQuery
