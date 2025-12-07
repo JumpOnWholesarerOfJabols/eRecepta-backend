@@ -7,6 +7,7 @@ import com.example.demo.codegen.types.MedicationFilterInput;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
+import edu.pk.jawolh.erecepta.medicationservice.service.DrugService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,13 +20,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MedicationDataFetcher {
 
+    private final DrugService drugService;
+
     @DgsQuery
     public List<Medication> medications(MedicationFilterInput filter, Integer limit, Integer offset) {
 
         log.info(filter.toString());
         log.info(limit + " " + offset);
 
-        return new ArrayList<>();
+        return drugService.getMedicationByFilter(filter, limit, offset);
     }
 
     @DgsQuery
