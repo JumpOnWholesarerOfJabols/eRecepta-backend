@@ -2,6 +2,7 @@ package edu.pk.jawolh.erecepta.medicationservice.validator;
 
 import com.example.demo.codegen.types.CreateMedicationInput;
 import com.example.demo.codegen.types.IngredientInput;
+import com.example.demo.codegen.types.PatchMedicationInput;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -36,7 +37,37 @@ public class MedicationInputValidator {
         validateStringList(input.getSideEffects(), "Side Effects");
     }
 
-    private void validateEan(String ean) {
+    public void validatePatchInput(PatchMedicationInput input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Patch input data cannot be null");
+        }
+
+        if (input.getEan() != null) {
+            validateEan(input.getEan());
+        }
+
+        if (input.getAtcCode() != null) {
+            validateAtcCode(input.getAtcCode());
+        }
+
+        if (input.getTradeName() != null) {
+            validateRequiredString(input.getTradeName(), "Trade Name");
+        }
+
+        if (input.getGenericName() != null) {
+            validateRequiredString(input.getGenericName(), "Generic Name");
+        }
+
+        if (input.getManufacturer() != null) {
+            validateRequiredString(input.getManufacturer(), "Manufacturer");
+        }
+
+        if (input.getPackageSize() != null) {
+            validatePackageSize(input.getPackageSize());
+        }
+    }
+
+    public void validateEan(String ean) {
         if (ean == null || ean.trim().isEmpty()) {
             throw new IllegalArgumentException("EAN code is mandatory");
         }
@@ -45,7 +76,7 @@ public class MedicationInputValidator {
         }
     }
 
-    private void validateAtcCode(String atcCode) {
+    public void validateAtcCode(String atcCode) {
         if (atcCode == null || atcCode.trim().isEmpty()) {
             throw new IllegalArgumentException("ATC code is mandatory");
         }
@@ -55,7 +86,7 @@ public class MedicationInputValidator {
         }
     }
 
-    private void validatePackageSize(String packageSize) {
+    public void validatePackageSize(String packageSize) {
         if (packageSize == null || packageSize.trim().isEmpty()) {
             throw new IllegalArgumentException("Package size is mandatory");
         }
@@ -72,7 +103,7 @@ public class MedicationInputValidator {
         }
     }
 
-    private void validateIngredientInput(IngredientInput input, int index) {
+    public void validateIngredientInput(IngredientInput input, int index) {
         if (input == null) {
             throw new IllegalArgumentException(String.format("Ingredient at index %d cannot be null", index));
         }
@@ -86,13 +117,13 @@ public class MedicationInputValidator {
         }
     }
 
-    private void validateRequiredString(String value, String fieldName) {
+    public void validateRequiredString(String value, String fieldName) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(String.format("%s cannot be null or empty", fieldName));
         }
     }
 
-    private void validateRequiredObject(Object obj, String fieldName) {
+    public void validateRequiredObject(Object obj, String fieldName) {
         if (obj == null) {
             throw new IllegalArgumentException(String.format("%s is mandatory", fieldName));
         }

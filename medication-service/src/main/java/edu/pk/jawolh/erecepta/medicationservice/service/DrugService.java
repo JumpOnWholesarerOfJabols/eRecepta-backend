@@ -82,7 +82,7 @@ public class DrugService {
 
     @Transactional
     public com.example.demo.codegen.types.Medication createMedication(CreateMedicationInput input) {
-        log.info("Attempting to create medication with EAN: {}", input.getEan());
+        log.debug("Attempting to create medication with EAN: {}", input.getEan());
 
         medicationInputValidator.validateCreationInput(input);
 
@@ -96,5 +96,52 @@ public class DrugService {
         Medication saved = medicationRepository.save(medication);
 
         return MedicationMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication patchMedication(UUID id, PatchMedicationInput input) {
+        medicationInputValidator.validatePatchInput(input);
+
+        Medication medication = medicationRepository.findById(id)
+                .orElseThrow(() -> new MedicationNotFoundException("Medication with id " + id + " not found"));
+
+        if (input.getEan() != null && !input.getEan().equals(medication.getEan())) {
+            if (medicationRepository.existsByEan(input.getEan())) {
+                throw new IllegalArgumentException("Medication with EAN " + input.getEan() + " already exists.");
+            }
+            medication.setEan(input.getEan());
+        }
+
+        if (input.getAtcCode() != null) {
+            medication.setAtcCode(input.getAtcCode());
+        }
+        if (input.getTradeName() != null) {
+            medication.setTradeName(input.getTradeName());
+        }
+        if (input.getGenericName() != null) {
+            medication.setGenericName(input.getGenericName());
+        }
+        if (input.getManufacturer() != null) {
+            medication.setManufacturer(input.getManufacturer());
+        }
+        if (input.getPackageSize() != null) {
+            medication.setPackageSize(input.getPackageSize());
+        }
+        if (input.getRequiresPrescription() != null) {
+            medication.setRequiresPrescription(input.getRequiresPrescription());
+        }
+        if (input.getForm() != null) {
+            medication.setForm(edu.pk.jawolh.erecepta.medicationservice.mapper.MedicationFormMapper.fromDTO(input.getForm()));
+        }
+        if (input.getRoute() != null) {
+            medication.setRoute(edu.pk.jawolh.erecepta.medicationservice.mapper.RouteOfAdministrationMapper.fromDTO(input.getRoute()));
+        }
+
+        Medication saved = medicationRepository.save(medication);
+
+        log.info("Successfully patched medication with ID: {}", saved.getId());
+        return MedicationMapper.toDTO(saved);
+
+
     }
 }

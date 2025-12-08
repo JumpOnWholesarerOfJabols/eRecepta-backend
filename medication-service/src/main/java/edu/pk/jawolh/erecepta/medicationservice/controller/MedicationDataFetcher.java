@@ -1,9 +1,6 @@
 package edu.pk.jawolh.erecepta.medicationservice.controller;
 
-import com.example.demo.codegen.types.CreateMedicationInput;
-import com.example.demo.codegen.types.DrugInteraction;
-import com.example.demo.codegen.types.Medication;
-import com.example.demo.codegen.types.MedicationFilterInput;
+import com.example.demo.codegen.types.*;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
@@ -25,47 +22,41 @@ public class MedicationDataFetcher {
     @DgsQuery
     public List<Medication> medications(MedicationFilterInput filter, Integer limit, Integer offset) {
 
-        log.info("filter: {}",filter.toString());
-        log.info("limit: {}",limit.toString());
-        log.info("offset: {}",offset.toString());
+        log.debug("filter: {}",filter.toString());
+        log.debug("limit: {}",limit.toString());
+        log.debug("offset: {}",offset.toString());
 
         return drugService.getMedicationByFilter(filter, limit, offset);
     }
 
     @DgsQuery
     public Medication medication(UUID id){
-        log.info("id: {}",id.toString());
+        log.debug("id: {}",id.toString());
 
         return drugService.getMedicationById(id);
     }
 
     @DgsQuery
     public List<DrugInteraction> checkInteractions(UUID targetMedicationId, List<UUID> currentMedicationIds){
-        log.info(currentMedicationIds.toString());
-        log.info(targetMedicationId.toString());
+        log.debug("Current medication ids: {}",currentMedicationIds.toString());
+        log.debug("Target medication id: {}",targetMedicationId.toString());
 
         return drugService.checkInteractions(targetMedicationId, currentMedicationIds);
     }
 
     @DgsMutation
     public Medication createMedication(CreateMedicationInput input){
-        log.info(input.toString());
+        log.debug("CreateMedicationInput: {}",input.toString());
 
         return drugService.createMedication(input);
     }
 
     @DgsMutation
-    public Medication updateMedication(UUID id, CreateMedicationInput input){
-        log.info(input.toString());
+    public Medication patchMedication(UUID id, PatchMedicationInput input){
+        log.debug("PatchMedicationInput: {}",input.toString());
 
-        return Medication.newBuilder().id(id.toString()).build();
+        return drugService.patchMedication(id, input);
     }
 
-    @DgsMutation
-    public boolean archiveMedication(UUID id){
-        log.info(id.toString());
-
-        return true;
-    }
 
 }
