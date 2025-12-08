@@ -1,10 +1,14 @@
 package edu.pk.jawolh.erecepta.medicationservice.service;
 
+
 import com.example.demo.codegen.types.*;
+import edu.pk.jawolh.erecepta.medicationservice.exception.IngredientNotFoundException;
 import edu.pk.jawolh.erecepta.medicationservice.exception.MedicationNotFoundException;
 import edu.pk.jawolh.erecepta.medicationservice.mapper.DrugInteractionMapper;
+import edu.pk.jawolh.erecepta.medicationservice.mapper.IngredientMapper;
 import edu.pk.jawolh.erecepta.medicationservice.mapper.MedicationMapper;
 import edu.pk.jawolh.erecepta.medicationservice.model.DrugInteraction;
+import edu.pk.jawolh.erecepta.medicationservice.model.Ingredient;
 import edu.pk.jawolh.erecepta.medicationservice.model.Medication;
 import edu.pk.jawolh.erecepta.medicationservice.repository.DrugInteractionRepository;
 import edu.pk.jawolh.erecepta.medicationservice.repository.MedicationDAO;
@@ -17,8 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -143,5 +145,76 @@ public class DrugService {
         return MedicationMapper.toDTO(saved);
 
 
+    }
+
+    @Transactional
+    public Boolean deleteMedication(UUID id) {
+        Medication medication = medicationRepository.findById(id)
+                .orElseThrow(() -> new MedicationNotFoundException("Medication with id " + id + " not found"));
+
+        medicationRepository.delete(medication);
+        return true;
+    }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication addIngredient(UUID medicationId, IngredientInput input) {
+
+        medicationInputValidator.validateIngredientInput(input);
+
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new MedicationNotFoundException(
+                        "Medication with id " + medicationId + " not found"));
+
+        List<Ingredient> ingredients = medication.getIngredients();
+
+        boolean exists = ingredients.stream()
+                .anyMatch(ing -> ing.getName().equalsIgnoreCase(input.getName()));
+
+        if (exists) {
+            throw new IllegalArgumentException("Ingredient with name '" + input.getName() + "' already exists in this medication.");
+        }
+
+        ingredients.add(IngredientMapper.fromInputToDomain(input));
+        Medication saved = medicationRepository.save(medication);
+
+        return MedicationMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication updateIngredient(UUID medicationId, UUID ingredientId, UpdateIngredientInput input) {
+
+        medicationInputValidator.validateUpdateIngredientInput(input);
+
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new MedicationNotFoundException(
+                        "Medication with id " + medicationId + " not found"));
+
+        Ingredient ingredient = medication.getIngredients().stream()
+                .filter(m -> m.getId().equals(ingredientId))
+                .findFirst()
+                .orElseThrow(() -> new IngredientNotFoundException(
+                        "Ingredient with id " + ingredientId + " not found"));
+
+        if (input.getName() != null && !input.getName().equals(ingredient.getName())) {
+            boolean nameExists = medication.getIngredients().stream()
+                    .anyMatch(i -> !i.getId().equals(ingredientId) && i.getName().equalsIgnoreCase(input.getName()));
+
+            if (nameExists) {
+                throw new IllegalArgumentException("Ingredient with name '" + input.getName() + "' already exists in this medication.");
+            }
+            ingredient.setName(input.getName());
+        }
+
+        if (input.getStrength() != null) {
+            ingredient.setStrength(input.getStrength());
+        }
+
+        if (input.getIsActive() != null) {
+            ingredient.setActive(input.getIsActive());
+        }
+
+        Medication saved = medicationRepository.save(medication);
+
+        return MedicationMapper.toDTO(saved);
     }
 }

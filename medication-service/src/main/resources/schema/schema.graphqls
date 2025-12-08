@@ -132,5 +132,5 @@ type Mutation {
     addSideEffect(medicationId: ID!, sideEffect: String!): Medication!
     removeSideEffect(medicationId: ID!, sideEffect: String!): Medication!
 
-    archiveMedication(id: ID!): Boolean!
+    deleteMedication(id: ID!): Boolean!
 }

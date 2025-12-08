@@ -3,6 +3,7 @@ package edu.pk.jawolh.erecepta.medicationservice.validator;
 import com.example.demo.codegen.types.CreateMedicationInput;
 import com.example.demo.codegen.types.IngredientInput;
 import com.example.demo.codegen.types.PatchMedicationInput;
+import com.example.demo.codegen.types.UpdateIngredientInput;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -99,21 +100,39 @@ public class MedicationInputValidator {
 
         for (int i = 0; i < ingredients.size(); i++) {
             IngredientInput ingredient = ingredients.get(i);
-            validateIngredientInput(ingredient, i);
+            validateIngredientInput(ingredient);
         }
     }
 
-    public void validateIngredientInput(IngredientInput input, int index) {
+    public void validateIngredientInput(IngredientInput input) {
         if (input == null) {
-            throw new IllegalArgumentException(String.format("Ingredient at index %d cannot be null", index));
+            throw new IllegalArgumentException("Ingredient cannot be null");
         }
 
-        validateRequiredString(input.getName(), String.format("Ingredient Name at index %d", index));
+        validateRequiredString(input.getName(), "Ingredient Name");
 
         if (input.getStrength() == null || !STRENGTH_PATTERN.matcher(input.getStrength()).matches()) {
             throw new IllegalArgumentException(
-                    String.format("Invalid strength format at index %d. Expected format like '500mg', '10 ml', '2.5 g'", index)
+                    "Invalid strength format. Expected format like '500mg', '10 ml', '2.5 g'"
             );
+        }
+    }
+
+    public void validateUpdateIngredientInput(UpdateIngredientInput input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Update input cannot be null");
+        }
+
+        if (input.getName() != null) {
+            validateRequiredString(input.getName(), "Ingredient Name");
+        }
+
+        if (input.getStrength() != null) {
+            if (!STRENGTH_PATTERN.matcher(input.getStrength()).matches()) {
+                throw new IllegalArgumentException(
+                        "Invalid strength format. Expected format like '500mg', '10 ml', '2.5 g'"
+                );
+            }
         }
     }
 
