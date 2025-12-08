@@ -48,7 +48,7 @@ public class Medication {
     @Column(nullable = false)
     private boolean requiresPrescription;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "medication_id")
     private List<Ingredient> ingredients;
 

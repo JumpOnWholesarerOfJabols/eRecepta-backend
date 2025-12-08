@@ -26,6 +26,7 @@ enum RiskLevel {
 }
 
 type Ingredient {
+    id: ID!
     name: String!
     strength: String!
     isActive: Boolean!
@@ -66,6 +67,22 @@ input MedicationFilterInput {
 }
 
 input CreateMedicationInput {
+    ean: String!
+    atcCode: String!
+    tradeName: String!
+    genericName: String!
+    manufacturer: String!
+    form: MedicationForm!
+    route: RouteOfAdministration!
+    packageSize: String!
+    requiresPrescription: Boolean!
+    ingredients: [IngredientInput!]
+
+    indications: [String!]
+    sideEffects: [String!]
+}
+
+input PatchMedicationInput {
     ean: String
     atcCode: String
     tradeName: String
@@ -75,10 +92,12 @@ input CreateMedicationInput {
     route: RouteOfAdministration
     packageSize: String
     requiresPrescription: Boolean
-    ingredients: [IngredientInput!]
+}
 
-    indications: [String!]
-    sideEffects: [String!]
+input UpdateIngredientInput {
+    name: String
+    strength: String
+    isActive: Boolean
 }
 
 input IngredientInput {
@@ -101,6 +120,18 @@ type Query {
 type Mutation {
     createMedication(input: CreateMedicationInput!): Medication!
     updateMedication(id: ID!, input: CreateMedicationInput!): Medication!
+
+    patchMedication(id: ID!, input: PatchMedicationInput!): Medication!
+
+    addIngredient(medicationId: ID!, input: IngredientInput!): Medication!
+    updateIngredient(medicationId: ID!, ingredientId: ID!, input: UpdateIngredientInput!): Medication!
+    removeIngredient(medicationId: ID!, ingredientId: ID!): Medication!
+
+    addIndication(medicationId: ID!, indication: String!): Medication!
+    removeIndication(medicationId: ID!, indication: String!): Medication!
+
+    addSideEffect(medicationId: ID!, sideEffect: String!): Medication!
+    removeSideEffect(medicationId: ID!, sideEffect: String!): Medication!
 
     archiveMedication(id: ID!): Boolean!
 }

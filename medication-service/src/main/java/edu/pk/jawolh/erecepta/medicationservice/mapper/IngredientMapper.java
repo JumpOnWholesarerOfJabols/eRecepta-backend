@@ -10,6 +10,7 @@ public class IngredientMapper {
         }
 
         return Ingredient.newBuilder()
+                .id(domainIngredient.getId().toString())
                 .name(domainIngredient.getName())
                 .strength(domainIngredient.getStrength())
                 .isActive(domainIngredient.isActive())
