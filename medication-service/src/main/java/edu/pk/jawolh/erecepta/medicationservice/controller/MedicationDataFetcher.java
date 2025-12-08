@@ -76,13 +76,13 @@ public class MedicationDataFetcher {
         log.debug("Updating ingredient {} in medication {}: {}", ingredientId, medicationId, input);
         return drugService.updateIngredient(medicationId, ingredientId, input);
     }
-//
-//    @DgsMutation
-//    public Medication removeIngredient(@InputArgument UUID medicationId, @InputArgument UUID ingredientId) {
-//        log.debug("Removing ingredient {} from medication {}", ingredientId, medicationId);
-//        return drugService.removeIngredient(medicationId, ingredientId);
-//    }
-//
+
+    @DgsMutation
+    public Medication removeIngredient(@InputArgument UUID medicationId, @InputArgument UUID ingredientId) {
+        log.debug("Removing ingredient {} from medication {}", ingredientId, medicationId);
+        return drugService.removeIngredient(medicationId, ingredientId);
+    }
+
 //    // --- MUTATIONS: INDICATIONS ---
 //
 //    @DgsMutation

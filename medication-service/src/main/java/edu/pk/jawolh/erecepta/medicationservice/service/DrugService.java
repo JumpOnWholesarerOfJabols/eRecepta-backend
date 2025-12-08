@@ -217,4 +217,28 @@ public class DrugService {
 
         return MedicationMapper.toDTO(saved);
     }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication removeIngredient(UUID medicationId, UUID ingredientId) {
+
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new MedicationNotFoundException(
+                        "Medication with id " + medicationId + " not found"));
+
+        List<Ingredient> ingredients = medication.getIngredients();
+        if (ingredients == null || ingredients.isEmpty()) {
+            throw new IngredientNotFoundException(
+                    "Ingredient with id " + ingredientId + " not found (ingredient list is empty)");
+        }
+
+        boolean removed = ingredients.removeIf(ing -> ing.getId().equals(ingredientId));
+
+        if (!removed) {
+            throw new IngredientNotFoundException(
+                    "Ingredient with id " + ingredientId + " not found in medication " + medicationId);
+        }
+        Medication saved = medicationRepository.save(medication);
+
+        return MedicationMapper.toDTO(saved);
+    }
 }
