@@ -9,7 +9,6 @@ import edu.pk.jawolh.erecepta.medicationservice.service.DrugService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +30,8 @@ public class MedicationDataFetcher {
     }
 
     @DgsQuery
-    public Medication medication(@InputArgument UUID id){
+    public Medication medication(
+            @InputArgument UUID id){
 
         log.debug("Fetching medication with id: {}", id);
         return drugService.getMedicationById(id);
@@ -47,66 +47,91 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
-    public Medication createMedication(@InputArgument CreateMedicationInput input) {
+    public Medication createMedication(
+            @InputArgument CreateMedicationInput input) {
         log.debug("Creating medication: {}", input);
         return drugService.createMedication(input);
     }
 
     @DgsMutation
-    public Medication patchMedication(@InputArgument UUID id, @InputArgument PatchMedicationInput input) {
+    public Medication patchMedication(
+            @InputArgument UUID id,
+            @InputArgument PatchMedicationInput input) {
+
         log.debug("Patching medication id: {} with input: {}", id, input);
         return drugService.patchMedication(id, input);
     }
 
     @DgsMutation
-    public Boolean deleteMedication(@InputArgument UUID id) {
-        log.debug("Archiving medication id: {}", id);
+    public Boolean deleteMedication(
+            @InputArgument UUID id) {
 
+        log.debug("Archiving medication id: {}", id);
         return drugService.deleteMedication(id);
     }
 
     @DgsMutation
-    public Medication addIngredient(@InputArgument UUID medicationId, @InputArgument IngredientInput input) {
+    public Medication addIngredient(
+            @InputArgument UUID medicationId,
+            @InputArgument IngredientInput input) {
+
         log.debug("Adding ingredient to medication {}: {}", medicationId, input);
         return drugService.addIngredient(medicationId, input);
     }
 
     @DgsMutation
-    public Medication updateIngredient(@InputArgument UUID medicationId, @InputArgument UUID ingredientId, @InputArgument UpdateIngredientInput input) {
+    public Medication updateIngredient(
+            @InputArgument UUID medicationId,
+            @InputArgument UUID ingredientId,
+            @InputArgument UpdateIngredientInput input) {
+
         log.debug("Updating ingredient {} in medication {}: {}", ingredientId, medicationId, input);
         return drugService.updateIngredient(medicationId, ingredientId, input);
     }
 
     @DgsMutation
-    public Medication removeIngredient(@InputArgument UUID medicationId, @InputArgument UUID ingredientId) {
+    public Medication removeIngredient(
+            @InputArgument UUID medicationId,
+            @InputArgument UUID ingredientId) {
+
         log.debug("Removing ingredient {} from medication {}", ingredientId, medicationId);
         return drugService.removeIngredient(medicationId, ingredientId);
     }
 
 
     @DgsMutation
-    public Medication addIndication(@InputArgument UUID medicationId, @InputArgument String indication) {
+    public Medication addIndication(
+            @InputArgument UUID medicationId,
+            @InputArgument String indication) {
+
         log.debug("Adding indication to medication {}: {}", medicationId, indication);
         return drugService.addIndication(medicationId, indication);
     }
 
     @DgsMutation
-    public Medication removeIndication(@InputArgument UUID medicationId, @InputArgument String indication) {
+    public Medication removeIndication(
+            @InputArgument UUID medicationId,
+            @InputArgument String indication) {
+
         log.debug("Removing indication from medication {}: {}", medicationId, indication);
         return drugService.removeIndication(medicationId, indication);
     }
 
-//    // --- MUTATIONS: SIDE EFFECTS ---
-//
-//    @DgsMutation
-//    public Medication addSideEffect(@InputArgument UUID medicationId, @InputArgument String sideEffect) {
-//        log.debug("Adding side effect to medication {}: {}", medicationId, sideEffect);
-//        return drugService.addSideEffect(medicationId, sideEffect);
-//    }
-//
-//    @DgsMutation
-//    public Medication removeSideEffect(@InputArgument UUID medicationId, @InputArgument String sideEffect) {
-//        log.debug("Removing side effect from medication {}: {}", medicationId, sideEffect);
-//        return drugService.removeSideEffect(medicationId, sideEffect);
-//    }
+    @DgsMutation
+    public Medication addSideEffect(
+            @InputArgument UUID medicationId,
+            @InputArgument String sideEffect) {
+
+        log.debug("Adding side effect to medication {}: {}", medicationId, sideEffect);
+        return drugService.addSideEffect(medicationId, sideEffect);
+    }
+
+    @DgsMutation
+    public Medication removeSideEffect(
+            @InputArgument UUID medicationId,
+            @InputArgument String sideEffect) {
+
+        log.debug("Removing side effect from medication {}: {}", medicationId, sideEffect);
+        return drugService.removeSideEffect(medicationId, sideEffect);
+    }
 }
