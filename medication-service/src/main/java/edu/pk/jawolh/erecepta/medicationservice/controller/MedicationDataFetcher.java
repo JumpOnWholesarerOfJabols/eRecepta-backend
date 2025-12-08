@@ -83,20 +83,19 @@ public class MedicationDataFetcher {
         return drugService.removeIngredient(medicationId, ingredientId);
     }
 
-//    // --- MUTATIONS: INDICATIONS ---
-//
-//    @DgsMutation
-//    public Medication addIndication(@InputArgument UUID medicationId, @InputArgument String indication) {
-//        log.debug("Adding indication to medication {}: {}", medicationId, indication);
-//        return drugService.addIndication(medicationId, indication);
-//    }
-//
-//    @DgsMutation
-//    public Medication removeIndication(@InputArgument UUID medicationId, @InputArgument String indication) {
-//        log.debug("Removing indication from medication {}: {}", medicationId, indication);
-//        return drugService.removeIndication(medicationId, indication);
-//    }
-//
+
+    @DgsMutation
+    public Medication addIndication(@InputArgument UUID medicationId, @InputArgument String indication) {
+        log.debug("Adding indication to medication {}: {}", medicationId, indication);
+        return drugService.addIndication(medicationId, indication);
+    }
+
+    @DgsMutation
+    public Medication removeIndication(@InputArgument UUID medicationId, @InputArgument String indication) {
+        log.debug("Removing indication from medication {}: {}", medicationId, indication);
+        return drugService.removeIndication(medicationId, indication);
+    }
+
 //    // --- MUTATIONS: SIDE EFFECTS ---
 //
 //    @DgsMutation

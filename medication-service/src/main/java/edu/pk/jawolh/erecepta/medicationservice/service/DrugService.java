@@ -241,4 +241,57 @@ public class DrugService {
 
         return MedicationMapper.toDTO(saved);
     }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication addIndication(UUID medicationId, String indication) {
+
+        medicationInputValidator.validateRequiredString(indication, "Indication");
+
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new MedicationNotFoundException("Medication with id " + medicationId + " not found"));
+
+        List<String> indications = medication.getIndications();
+
+        if (indications == null) {
+            indications = new java.util.ArrayList<>();
+            medication.setIndications(indications);
+        }
+
+        boolean exists = indications.stream()
+                .anyMatch(i -> i.equalsIgnoreCase(indication));
+
+        if (exists) {
+            throw new IllegalArgumentException("Indication '" + indication + "' already exists in this medication.");
+        }
+
+        indications.add(indication);
+        Medication saved = medicationRepository.save(medication);
+
+        return MedicationMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public com.example.demo.codegen.types.Medication removeIndication(UUID medicationId, String indication) {
+
+        medicationInputValidator.validateRequiredString(indication, "Indication");
+
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new MedicationNotFoundException("Medication with id " + medicationId + " not found"));
+
+        List<String> indications = medication.getIndications();
+
+        if (indications == null || indications.isEmpty()) {
+            throw new IllegalArgumentException("Indication list is empty, cannot remove '" + indication + "'");
+        }
+
+        boolean removed = indications.removeIf(i -> i.equalsIgnoreCase(indication));
+
+        if (!removed) {
+            throw new IllegalArgumentException("Indication '" + indication + "' not found in medication " + medicationId);
+        }
+
+        Medication saved = medicationRepository.save(medication);
+
+        return MedicationMapper.toDTO(saved);
+    }
 }
