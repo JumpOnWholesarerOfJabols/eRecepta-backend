@@ -1,6 +1,7 @@
 package edu.pk.jawolh.erecepta.patientrecordservice;
 
 import com.example.demo.codegen.types.*;
+import edu.pk.jawolh.erecepta.patientrecordservice.client.GrpcMedicationClient;
 import edu.pk.jawolh.erecepta.patientrecordservice.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.patientrecordservice.exception.*;
 import edu.pk.jawolh.erecepta.patientrecordservice.repository.PatientRecordRepository;
@@ -34,6 +35,9 @@ public class PatientRecordServiceIntegrationTest {
 
     @MockitoBean
     private GrpcUserClient grpcUserClient;
+
+    @MockitoBean
+    GrpcMedicationClient grpcMedicationClient;
 
     private UUID userId;
 
@@ -219,6 +223,7 @@ public class PatientRecordServiceIntegrationTest {
         void shouldAddMedication_whenNew() {
             patientRecordService.getPatientInfo(userId);
             UUID medId = Instancio.create(UUID.class);
+            when(grpcMedicationClient.isMedication(anyString())).thenReturn(true);
 
             PatientInfo result = patientRecordService.addMedication(userId, medId);
 
@@ -228,6 +233,8 @@ public class PatientRecordServiceIntegrationTest {
         @Test
         void shouldThrowException_whenMedicationExists() {
             UUID medId = Instancio.create(UUID.class);
+            when(grpcMedicationClient.isMedication(anyString())).thenReturn(true);
+
             patientRecordService.addMedication(userId, medId);
 
             assertThrows(MedicationAlreadyExistsException.class, () ->

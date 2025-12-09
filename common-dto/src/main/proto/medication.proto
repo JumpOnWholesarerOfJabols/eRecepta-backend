@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.pk.jawolh.erecepta.common.medication.proto";
+option java_outer_classname = "MedicationProto";
+
+message MedicationExistsRequest {
+  string medicationId = 1;
+}
+message MedicationExistsReply {
+  bool medicationExists = 1;
+}
+
+service MedicationService {
+  rpc MedicationExists (MedicationExistsRequest) returns (MedicationExistsReply) {}
+}
