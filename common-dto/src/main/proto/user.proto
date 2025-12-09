@@ -21,8 +21,24 @@ message GetUserDataReply {
   string email = 3;
 }
 
+message CreateUserRequest {
+  string email = 1;
+  string pesel = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string phoneNumber = 5;
+  uint32 gender = 6;
+  string dateOfBirth = 7;
+  string password = 8;
+}
+
+message CreateUserReply {
+  string userid = 1;
+}
+
 service UserService {
   rpc CheckDoctorExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc CheckPatientExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc GetUserData (GetUserDataRequest) returns (GetUserDataReply){}
+  rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {}
 }
