@@ -58,6 +58,7 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
                     .setPesel(acc.getPesel())
                     .setRole(acc.getRole().ordinal())
                     .setGender(acc.getUserGender().ordinal())
+                    .setDateOfBirth(acc.getDateOfBirth().toString())
                     .build();
 
             responseObserver.onNext(reply);
@@ -105,6 +106,7 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
             reply.setPesel(user.getPesel());
             reply.setRole(user.getRole().ordinal());
             reply.setGender(user.getUserGender().ordinal());
+            reply.setDateOfBirth(user.getDateOfBirth().toString());
 
             responseObserver.onNext(reply.build());
         });

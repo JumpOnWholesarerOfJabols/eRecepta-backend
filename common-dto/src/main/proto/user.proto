@@ -25,6 +25,7 @@ message GetUserDataReply {
   string phoneNumber = 6;
   uint32 role = 7;
   uint32 gender = 8;
+  string dateOfBirth = 9;
 }
 
 message CreateUserRequest {

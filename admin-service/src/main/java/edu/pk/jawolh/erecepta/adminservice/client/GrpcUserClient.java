@@ -1,24 +1,34 @@
 package edu.pk.jawolh.erecepta.adminservice.client;
 
-import edu.pk.jawolh.erecepta.common.user.proto.*;
-import edu.pk.jawolh.erecepta.common.visit.dtos.UserDataDTO;
+import com.example.demo.codegen.types.CreateUserInput;
+import com.example.demo.codegen.types.CreateUserResult;
+import com.example.demo.codegen.types.User;
+import com.google.protobuf.Empty;
+import edu.pk.jawolh.erecepta.adminservice.mapper.UserMapper;
+import edu.pk.jawolh.erecepta.common.user.proto.CreateUserReply;
+import edu.pk.jawolh.erecepta.common.user.proto.UserServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class GrpcUserClient {
     private final UserServiceGrpc.UserServiceBlockingStub grpcUserServiceStub;
+    private final UserMapper userMapper;
 
-    public boolean checkDoctorExists(String uuid) {
-        UserExistsRequest request = UserExistsRequest.newBuilder().setUserId(uuid).build();
-        UserExistsReply response = grpcUserServiceStub.checkDoctorExists(request);
-        return response.getUserExists();
+    public CreateUserResult createUser(CreateUserInput input) {
+        CreateUserReply r = grpcUserServiceStub.createUser(userMapper.createUserFromGraphQL(input));
+        return userMapper.createUserResultFromGRPC(r);
     }
 
-    public UserDataDTO getUserData(String uuid) {
-        GetUserDataRequest request = GetUserDataRequest.newBuilder().setUserId(uuid).build();
-        GetUserDataReply response = grpcUserServiceStub.getUserData(request);
-        return new UserDataDTO(response.getFirstName(), response.getLastName(), response.getEmail());
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        grpcUserServiceStub.getAllUsers(Empty.getDefaultInstance())
+                .forEachRemaining(u -> users.add(userMapper.userFromGRPC(u)));
+        return users;
     }
+
 }
