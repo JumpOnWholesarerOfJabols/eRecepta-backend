@@ -1,6 +1,6 @@
 package edu.pk.jawolh.erecepta.visitservice.config;
 
-import edu.pk.jawolh.erecepta.common.user.proto.UserExistsGrpc;
+import edu.pk.jawolh.erecepta.common.user.proto.UserServiceGrpc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.client.GrpcChannelFactory;
@@ -8,8 +8,7 @@ import org.springframework.grpc.client.GrpcChannelFactory;
 @Configuration
 public class GrpcConfig {
     @Bean
-    public UserExistsGrpc.UserExistsBlockingStub grpcDoctorExistsStub(GrpcChannelFactory channels) {
-        return UserExistsGrpc.newBlockingStub(channels.createChannel("visit-service"));
+    public UserServiceGrpc.UserServiceBlockingStub grpcUserServiceStub(GrpcChannelFactory channels) {
+        return UserServiceGrpc.newBlockingStub(channels.createChannel("user"));
     }
-
 }

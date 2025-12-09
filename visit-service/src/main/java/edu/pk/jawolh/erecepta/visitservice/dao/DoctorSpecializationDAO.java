@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.dao;
 
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.model.DoctorSpecialization;
-import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
 import edu.pk.jawolh.erecepta.visitservice.repository.DoctorSpecializationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

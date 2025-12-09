@@ -9,7 +9,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 @Component
-public class AvailabilityExceptionInputMapper {
+public class AvailabilityExceptionMapper {
     public AvailabilityException mapFromInput(UUID doctorId, CreateAvailabilityExceptionInput input) {
         AvailabilityException avex = new AvailabilityException(UUID.randomUUID(), doctorId);
         avex.setExceptionDate(LocalDate.parse(input.getExceptionDate()));

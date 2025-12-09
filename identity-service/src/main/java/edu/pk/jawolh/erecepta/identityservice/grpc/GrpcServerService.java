@@ -1,8 +1,6 @@
 package edu.pk.jawolh.erecepta.identityservice.grpc;
 
-import edu.pk.jawolh.erecepta.common.user.proto.UserExistsGrpc;
-import edu.pk.jawolh.erecepta.common.user.proto.UserExistsReply;
-import edu.pk.jawolh.erecepta.common.user.proto.UserExistsRequest;
+import edu.pk.jawolh.erecepta.common.user.proto.*;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
@@ -15,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class GrpcServerService extends UserExistsGrpc.UserExistsImplBase {
+public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
     private final UserRepository userRepository;
 
     @Override
@@ -35,6 +33,27 @@ public class GrpcServerService extends UserExistsGrpc.UserExistsImplBase {
 
         UserExistsReply reply = UserExistsReply.newBuilder().setUserExists(result).build();
         responseObserver.onNext(reply);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getUserData(GetUserDataRequest request, StreamObserver<GetUserDataReply> responseObserver) {
+        String userId = request.getUserId();
+        Optional<UserAccount> opt = userRepository.findById(UUID.fromString(userId));
+
+        if (opt.isEmpty())
+            responseObserver.onNext(GetUserDataReply.newBuilder().build());
+        else {
+            UserAccount acc = opt.get();
+            GetUserDataReply reply = GetUserDataReply.newBuilder()
+                    .setEmail(acc.getEmail())
+                    .setFirstName(acc.getFirstName())
+                    .setLastName(acc.getLastName())
+                    .build();
+
+            responseObserver.onNext(reply);
+        }
+
         responseObserver.onCompleted();
     }
 

@@ -1,5 +1,7 @@
 package edu.pk.jawolh.erecepta.visitservice.model;
 
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
+import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;

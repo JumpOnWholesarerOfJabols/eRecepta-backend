@@ -71,7 +71,7 @@ services:
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
 
-      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL}
+      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL:identity-service:9090}
 
   patient-record-service:
     build: ./patient-record-service
@@ -80,13 +80,13 @@ services:
       - "${PATIENT_RECORD_SERVICE_PORT}:${PATIENT_RECORD_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
-#    depends_on:
-#      eureka:
-#        condition: service_started
+    depends_on:
+      eureka:
+        condition: service_started
     environment:
       SERVER_PORT: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT}
 
-      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL}
+      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL:identity-service:9090}
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
 
 #      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
@@ -105,8 +105,8 @@ services:
     environment:
       SERVER_PORT: ${MEDICATION_SERVICE_INTERNAL_PORT}
 
-  #      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
-  #      ERECEPTA_EUREKA_HOST: eureka
+      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
+      ERECEPTA_EUREKA_HOST: eureka
 
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
 
@@ -116,12 +116,25 @@ services:
     build: ./visit-service
     container_name: visit-service
     depends_on:
-      - eureka
+      rabbitmq:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    ports:
+      - "${VISIT_SERVICE_PORT}:${VISIT_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
     environment:
+      SERVER_PORT: ${VISIT_SERVICE_INTERNAL_PORT}
+
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
+      ERECEPTA_USER_CHANNEL: identity-service:9090
+
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
   notification-service:
     build: ./notification-service

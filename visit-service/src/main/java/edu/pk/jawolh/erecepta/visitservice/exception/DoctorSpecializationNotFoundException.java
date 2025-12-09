@@ -1,6 +1,6 @@
 package edu.pk.jawolh.erecepta.visitservice.exception;
 
-import edu.pk.jawolh.erecepta.visitservice.model.Specialization;
+import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 
 import java.util.UUID;
 

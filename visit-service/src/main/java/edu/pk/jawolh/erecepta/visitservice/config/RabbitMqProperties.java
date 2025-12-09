@@ -1,5 +1,4 @@
-package edu.pk.jawolh.erecepta.notificationservice.configuration;
-
+package edu.pk.jawolh.erecepta.visitservice.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,12 +9,5 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitMqProperties {
     private String exchangeName;
-    private String resetPasswordCodeEventTopic;
-    private String verificationCodeEventTopic;
-    private String visitChangeEventTopic;
-
-    private String resetPasswordCodeEventRoutingKey;
-    private String verificationCodeEventRoutingKey;
     private String visitChangeRoutingKey;
-
 }

@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.notificationservice.service;
 
+import edu.pk.jawolh.erecepta.common.visit.messages.VisitMessage;
 import edu.pk.jawolh.erecepta.notificationservice.configuration.EmailProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,44 @@ public class EmailService {
         );
 
         sendEmail(to, subject, body);
+    }
+
+    @Async
+    public void sendDoctorVisitStatusUpdate(VisitMessage msg) {
+        Object[] params = new String[]{msg.doctorData().firstName(),
+                msg.patientData().firstName(),
+                msg.patientData().lastName(),
+                msg.visitData().specialization().name(),
+                msg.visitData().visitDateTime().toString(),
+                msg.visitData().status().name()};
+
+        String subject = messageSource.getMessage(
+                "email.visit-status-doctor.subject", null, Locale.getDefault()
+        );
+        String body = messageSource.getMessage(
+                "email.visit-status-doctor.body", params, Locale.getDefault()
+        );
+
+        sendEmail(msg.doctorData().email(), subject, body);
+    }
+
+    @Async
+    public void sendPatientVisitStatusUpdate(VisitMessage msg) {
+        Object[] params = new String[]{msg.patientData().firstName(),
+                msg.doctorData().firstName(),
+                msg.doctorData().lastName(),
+                msg.visitData().specialization().name(),
+                msg.visitData().visitDateTime().toString(),
+                msg.visitData().status().name()};
+
+        String subject = messageSource.getMessage(
+                "email.visit-status-patient.subject", null, Locale.getDefault()
+        );
+        String body = messageSource.getMessage(
+                "email.visit-status-patient.body", params, Locale.getDefault()
+        );
+
+        sendEmail(msg.patientData().email(), subject, body);
     }
 
     private void sendEmail(String to, String subject, String body) {

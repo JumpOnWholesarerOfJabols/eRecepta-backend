@@ -1,4 +1,4 @@
-package edu.pk.jawolh.erecepta.visitservice.model;
+package edu.pk.jawolh.erecepta.common.visit.enums;
 
 public enum Specialization {
     CARDIOLOGY,

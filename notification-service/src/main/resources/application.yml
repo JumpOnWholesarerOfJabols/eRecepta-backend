@@ -22,12 +22,20 @@ spring:
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
+  grpc:
+    client:
+      channels:
+        user:
+          address: ${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}
+
 rabbitmq:
   exchange-name: user-exchange
   verification-code-event-routing-key: verification-code-event
   reset-password-code-event-routing-key: reset-password-code-event
+  visit-change-routing-key: visit-change-event
   verification-code-event-topic: verification-code-queue
   reset-password-code-event-topic: reset-password-code-queue
+  visit-change-event-topic: visit-change-event
 
 server:
   port: ${SERVER_PORT:12001}
