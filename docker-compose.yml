@@ -91,6 +91,22 @@ services:
 #      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
 #      ERECEPTA_EUREKA_HOST: eureka
 
+  medication-service:
+    build: ./medication-service
+    container_name: medication-service
+    ports:
+      - "${MEDICATION_SERVICE_PORT}:${MEDICATION_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    #    depends_on:
+    #      eureka:
+    #        condition: service_started
+    environment:
+      SERVER_PORT: ${MEDICATION_SERVICE_INTERNAL_PORT}
+
+  #      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
+  #      ERECEPTA_EUREKA_HOST: eureka
+
 
 
   visit-service:
