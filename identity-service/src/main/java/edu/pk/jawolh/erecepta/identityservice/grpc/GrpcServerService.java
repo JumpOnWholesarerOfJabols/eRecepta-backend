@@ -113,6 +113,23 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void deleteUser(DeleteUserRequest request, StreamObserver<DeleteUserReply> responseObserver) {
+        UUID id = UUID.fromString(request.getId());
+        DeleteUserReply.Builder reply = DeleteUserReply.newBuilder();
+        if (!userRepository.existsById(id)) {
+            reply.setSuccess(false);
+            reply.setMessage("User does not exist");
+        } else {
+            userRepository.deleteById(id);
+            reply.setSuccess(true);
+            reply.setMessage("User deleted");
+        }
+
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
+    }
+
     private boolean existsByIdAndRole(UUID id, UserRole role) {
         Optional<UserAccount> user = userRepository.findById(id);
 

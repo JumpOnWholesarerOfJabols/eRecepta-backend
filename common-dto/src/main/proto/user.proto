@@ -45,10 +45,20 @@ message CreateUserReply {
   string message = 2;
 }
 
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserReply {
+  bool success = 1;
+  string message = 2;
+}
+
 service UserService {
   rpc CheckDoctorExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc CheckPatientExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc GetUserData (GetUserDataRequest) returns (GetUserDataReply){}
   rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {}
   rpc GetAllUsers(google.protobuf.Empty) returns (stream GetUserDataReply){}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserReply){}
 }

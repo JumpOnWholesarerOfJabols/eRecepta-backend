@@ -3,6 +3,7 @@ package edu.pk.jawolh.erecepta.adminservice.mapper;
 import com.example.demo.codegen.types.*;
 import edu.pk.jawolh.erecepta.common.user.proto.CreateUserReply;
 import edu.pk.jawolh.erecepta.common.user.proto.CreateUserRequest;
+import edu.pk.jawolh.erecepta.common.user.proto.DeleteUserReply;
 import edu.pk.jawolh.erecepta.common.user.proto.GetUserDataReply;
 import org.springframework.stereotype.Component;
 
@@ -38,5 +39,9 @@ public class UserMapper {
 
     public CreateUserResult createUserResultFromGRPC(CreateUserReply input) {
         return CreateUserResult.newBuilder().success(input.getSuccess()).message(input.getMessage()).build();
+    }
+
+    public DeleteUserResult deleteUserResultFromGRPC(DeleteUserReply input) {
+        return DeleteUserResult.newBuilder().success(input.getSuccess()).message(input.getMessage()).build();
     }
 }
