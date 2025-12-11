@@ -1,0 +1,65 @@
+enum PrescriptionStatus {
+    ISSUED
+    PARTIALLY_FILLED
+    FILLED
+    CANCELLED
+    EXPIRED
+}
+
+type Query {
+    verifyPrescription(
+        accessCode: String!
+        patientIdentifier: String!
+    ): Prescription
+}
+
+type Mutation {
+    issuePrescription(input: IssuePrescriptionInput!): Prescription
+
+    fulfillPrescription(input: FulfillPrescriptionInput!): FulfillResult
+
+    cancelPrescription(prescriptionId: ID!, reason: String!): Prescription
+}
+
+type Prescription {
+    id: ID!
+    createdAt: String!
+    expiresAt: String!
+    accessCode: String!
+    status: PrescriptionStatus!
+
+    doctorId: ID!
+    patientId: ID!
+
+    medicationId: String!
+
+    totalPackages: Int!
+    filledPackages: Int!
+    remainingPackages: Int!
+}
+
+type IssuedPrescriptionsResult {
+    prescription: Prescription
+}
+
+type FulfillResult {
+    success: Boolean!
+    updatedPrescription: Prescription
+    isFullyCompleted: Boolean
+}
+
+input IssuePrescriptionInput {
+    doctorId: ID!
+    patientId: ID!
+
+    medicationId: String!
+    quantity: Int!
+
+    expiration: String!
+}
+
+input FulfillPrescriptionInput {
+    prescriptionId: ID!
+    pharmacistId: ID!
+    quantity: Int!
+}
