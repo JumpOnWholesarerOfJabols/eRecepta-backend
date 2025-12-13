@@ -33,7 +33,6 @@ services:
     container_name: gateway
     depends_on:
       - eureka
-
     networks:
       - erecepta-network
     ports:
@@ -71,7 +70,7 @@ services:
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
 
-      ERECEPTA_USER_CHANNEL: identity-service:9090
+      ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
 
   patient-record-service:
     build: ./patient-record-service
@@ -86,12 +85,23 @@ services:
     environment:
       SERVER_PORT: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT}
 
-      ERECEPTA_USER_CHANNEL: identity-service:9090
+      ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
+      ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
+
+  medication-service:
+    build: ./medication-service
+    container_name: medication-service
+    ports:
+      - "${MEDICATION_SERVICE_PORT}:${MEDICATION_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    environment:
+      SERVER_PORT: ${MEDICATION_SERVICE_INTERNAL_PORT}
 
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
 
-
+      ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
 
   visit-service:
     build: ./visit-service
@@ -137,8 +147,6 @@ services:
   notification-service:
     build: ./notification-service
     container_name: notification-service
-    ports:
-      - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
     depends_on:

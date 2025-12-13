@@ -3,6 +3,7 @@ package edu.pk.jawolh.erecepta.patientrecordservice.service;
 import com.example.demo.codegen.types.PatientHistoryEntry;
 import com.example.demo.codegen.types.PatientInfo;
 import com.example.demo.codegen.types.UpdatePatientInfoInput;
+import edu.pk.jawolh.erecepta.patientrecordservice.client.GrpcMedicationClient;
 import edu.pk.jawolh.erecepta.patientrecordservice.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.patientrecordservice.exception.*;
 import edu.pk.jawolh.erecepta.patientrecordservice.mapper.BloodTypeMapper;
@@ -31,6 +32,7 @@ public class PatientRecordService {
     private final PatientRecordRepository patientRecordRepository;
     private final GrpcUserClient grpcUserClient;
     private final PatientDataValidator patientDataValidator;
+    private final GrpcMedicationClient grpcMedicationClient;
 
     public PatientInfo getPatientInfo(UUID patientId) {
         PatientRecord patientRecord = getOrCreatePatientRecord(patientId);
@@ -97,7 +99,9 @@ public class PatientRecordService {
 
     @Transactional
     public PatientInfo addMedication(UUID userId, UUID medicationId) {
-        //todo communication with medication service to check if medication exists
+        if (!grpcMedicationClient.isMedication(medicationId.toString())) {
+            throw new MedicationNotFoundException("Medication not found");
+        }
 
         PatientRecord patient = getOrCreatePatientRecord(userId);
 

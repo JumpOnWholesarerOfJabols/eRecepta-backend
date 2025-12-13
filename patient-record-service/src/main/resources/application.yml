@@ -1,11 +1,11 @@
 spring:
-  application:
-    name: patient-record-service
   grpc:
     client:
       channels:
         user:
           address: ${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}
+        medication:
+          address: ${ERECEPTA_MEDICATION_CHANNEL:0.0.0.0:9090}
 
 eureka:
   client:

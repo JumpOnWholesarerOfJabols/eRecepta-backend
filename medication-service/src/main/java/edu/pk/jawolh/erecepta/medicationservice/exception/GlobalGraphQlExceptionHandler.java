@@ -1,4 +1,4 @@
-package edu.pk.jawolh.erecepta.patientrecordservice.exception;
+package edu.pk.jawolh.erecepta.medicationservice.exception;
 
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
@@ -17,37 +17,13 @@ import java.util.Map;
 public class GlobalGraphQlExceptionHandler {
 
     @GraphQlExceptionHandler
-    public GraphQLError handle(UserDoesNotExistException ex, DataFetchingEnvironment env) {
+    public GraphQLError handle(IngredientNotFoundException ex, DataFetchingEnvironment env) {
         log.warn("Exception: {}", ex.getMessage());
         return buildError(ex, env, ErrorType.NOT_FOUND);
     }
 
     @GraphQlExceptionHandler
-    public GraphQLError handle(AllergyAlreadyExistsException ex, DataFetchingEnvironment env) {
-        log.warn("Exception: {}", ex.getMessage());
-        return buildError(ex, env, ErrorType.BAD_REQUEST);
-    }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(AllergyNotFoundException ex, DataFetchingEnvironment env) {
-        log.warn("Exception: {}", ex.getMessage());
-        return buildError(ex, env, ErrorType.NOT_FOUND);
-    }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(DisaeseAlreadyExistsException ex, DataFetchingEnvironment env) {
-        log.warn("Exception: {}", ex.getMessage());
-        return buildError(ex, env, ErrorType.BAD_REQUEST);
-    }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(DisaeseNotFoundException ex, DataFetchingEnvironment env) {
-        log.warn("Exception: {}", ex.getMessage());
-        return buildError(ex, env, ErrorType.NOT_FOUND);
-    }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(MedicationAlreadyExistsException ex, DataFetchingEnvironment env) {
+    public GraphQLError handle(InvalidMedicationDataException ex, DataFetchingEnvironment env) {
         log.warn("Exception: {}", ex.getMessage());
         return buildError(ex, env, ErrorType.BAD_REQUEST);
     }
@@ -57,19 +33,6 @@ public class GlobalGraphQlExceptionHandler {
         log.warn("Exception: {}", ex.getMessage());
         return buildError(ex, env, ErrorType.NOT_FOUND);
     }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(IllegalArgumentException ex, DataFetchingEnvironment env) {
-        log.warn("Validation Error: {}", ex.getMessage());
-        return buildError(ex, env, ErrorType.BAD_REQUEST);
-    }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(Exception ex, DataFetchingEnvironment env) {
-        log.error("Unexpected error", ex);
-        return buildError(new Exception("Internal Server Error"), env, ErrorType.INTERNAL_ERROR);
-    }
-
 
     private GraphQLError buildError(Throwable ex, DataFetchingEnvironment env, ErrorType errorType) {
         return buildError(ex, env, errorType, Collections.emptyMap());

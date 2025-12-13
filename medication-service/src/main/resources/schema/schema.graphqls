@@ -1,0 +1,136 @@
+enum MedicationForm {
+    TABLET
+    CAPSULE
+    SYRUP
+    SOLUTION_FOR_INJECTION
+    OINTMENT
+    GEL
+    INHALER
+    PATCH
+}
+
+enum RouteOfAdministration {
+    ORAL
+    INTRAVENOUS
+    INTRAMUSCULAR
+    TOPICAL
+    INHALATION
+    RECTAL
+}
+
+enum RiskLevel {
+    LOW
+    MODERATE
+    HIGH
+    CONTRAINDICATED
+}
+
+type Ingredient {
+    id: ID!
+    name: String!
+    strength: String!
+    isActive: Boolean!
+}
+
+type DrugInteraction {
+    targetMedicationId: ID!
+    riskLevel: RiskLevel!
+    effect: String
+}
+
+type Medication {
+    id: ID!
+    ean: String
+    atcCode: String
+
+    tradeName: String!
+    genericName: String!
+
+    manufacturer: String!
+    form: MedicationForm!
+    route: RouteOfAdministration!
+
+    packageSize: String!
+    requiresPrescription: Boolean!
+
+    ingredients: [Ingredient!]!
+
+    indications: [String!]
+    sideEffects: [String!]
+}
+
+input MedicationFilterInput {
+    search: String
+    requiresPrescription: Boolean
+    manufacturer: String
+    atcCode: String
+}
+
+input CreateMedicationInput {
+    ean: String!
+    atcCode: String!
+    tradeName: String!
+    genericName: String!
+    manufacturer: String!
+    form: MedicationForm!
+    route: RouteOfAdministration!
+    packageSize: String!
+    requiresPrescription: Boolean!
+    ingredients: [IngredientInput!]
+
+    indications: [String!]
+    sideEffects: [String!]
+}
+
+input PatchMedicationInput {
+    ean: String
+    atcCode: String
+    tradeName: String
+    genericName: String
+    manufacturer: String
+    form: MedicationForm
+    route: RouteOfAdministration
+    packageSize: String
+    requiresPrescription: Boolean
+}
+
+input UpdateIngredientInput {
+    name: String
+    strength: String
+    isActive: Boolean
+}
+
+input IngredientInput {
+    name: String!
+    strength: String!
+    isActive: Boolean!
+}
+
+type Query {
+    medications(filter: MedicationFilterInput, limit: Int = 20, offset: Int = 0): [Medication!]!
+
+    medication(id: ID!): Medication
+
+    checkInteractions(
+        targetMedicationId: ID!,
+        currentMedicationIds: [ID!]!
+    ): [DrugInteraction!]!
+}
+
+type Mutation {
+    createMedication(input: CreateMedicationInput!): Medication!
+
+    patchMedication(id: ID!, input: PatchMedicationInput!): Medication!
+
+    addIngredient(medicationId: ID!, input: IngredientInput!): Medication!
+    updateIngredient(medicationId: ID!, ingredientId: ID!, input: UpdateIngredientInput!): Medication!
+    removeIngredient(medicationId: ID!, ingredientId: ID!): Medication!
+
+    addIndication(medicationId: ID!, indication: String!): Medication!
+    removeIndication(medicationId: ID!, indication: String!): Medication!
+
+    addSideEffect(medicationId: ID!, sideEffect: String!): Medication!
+    removeSideEffect(medicationId: ID!, sideEffect: String!): Medication!
+
+    deleteMedication(id: ID!): Boolean!
+}
