@@ -117,6 +117,23 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
+  admin-service:
+    build: ./admin-service
+    container_name: admin-service
+    depends_on:
+      eureka:
+        condition: service_started
+    ports:
+      - "${ADMIN_SERVICE_PORT}:${ADMIN_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    environment:
+      SERVER_PORT: ${ADMIN_SERVICE_INTERNAL_PORT}
+
+      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
+      ERECEPTA_EUREKA_HOST: eureka
+      ERECEPTA_USER_CHANNEL: identity-service:9090
+
   notification-service:
     build: ./notification-service
     container_name: notification-service

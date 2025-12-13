@@ -29,7 +29,7 @@ public class AdminDataFetcher {
     }
 
     @DgsMutation
-    public DeleteUserResult deleteUser(@InputArgument String id) {
-        return client.deleteUser(id);
+    public DeleteUserResult deleteUser(@InputArgument String userId) {
+        return client.deleteUser(userId);
     }
 }

@@ -26,6 +26,13 @@ spring:
               filters:
                 - StripPrefix=1
                 - Auth
+            - id: admin-service
+              uri: lb://admin-service
+              predicates:
+                - Path=/admin/**
+              filters:
+                - StripPrefix=1
+                - Auth
 
 application:
   security:
