@@ -1,12 +1,12 @@
 package edu.pk.jawolh.erecepta.identityservice;
 
 import com.example.demo.codegen.types.Gender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.client.RabbitMQClient;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.exception.*;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
 import edu.pk.jawolh.erecepta.identityservice.service.JwtService;

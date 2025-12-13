@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.adminservice.security;
 
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(requests -> requests.anyRequest().hasRole("ADMIN"))
+                .authorizeHttpRequests(requests -> requests.anyRequest().hasRole(UserRole.ADMINISTRATOR.name()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

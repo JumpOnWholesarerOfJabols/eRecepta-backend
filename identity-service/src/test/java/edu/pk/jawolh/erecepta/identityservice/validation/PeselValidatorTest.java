@@ -1,9 +1,8 @@
 package edu.pk.jawolh.erecepta.identityservice.validation;
 
-import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

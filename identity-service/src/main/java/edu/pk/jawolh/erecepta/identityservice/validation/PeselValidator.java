@@ -1,8 +1,7 @@
 package edu.pk.jawolh.erecepta.identityservice.validation;
 
-import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
 import jakarta.validation.ValidationException;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

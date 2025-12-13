@@ -1,6 +1,7 @@
 package edu.pk.jawolh.erecepta.identityservice.model;
 
-import com.example.demo.codegen.types.Gender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

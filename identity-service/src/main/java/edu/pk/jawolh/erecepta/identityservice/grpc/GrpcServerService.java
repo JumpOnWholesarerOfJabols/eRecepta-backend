@@ -2,9 +2,9 @@ package edu.pk.jawolh.erecepta.identityservice.grpc;
 
 import com.example.demo.codegen.types.Gender;
 import com.google.protobuf.Empty;
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.common.user.proto.*;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
 import io.grpc.stub.StreamObserver;

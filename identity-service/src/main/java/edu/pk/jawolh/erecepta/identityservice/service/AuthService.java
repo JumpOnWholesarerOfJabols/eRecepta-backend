@@ -1,6 +1,8 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.client.RabbitMQClient;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.exception.AccountVerificationException;
@@ -9,8 +11,6 @@ import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsExcepti
 import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistException;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
-import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.validation.RegisterValidator;
 import lombok.RequiredArgsConstructor;

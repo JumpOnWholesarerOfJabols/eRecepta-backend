@@ -1,7 +1,6 @@
 package edu.pk.jawolh.erecepta.identityservice.repository;
 
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

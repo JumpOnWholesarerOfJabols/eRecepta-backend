@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.identityservice.mapper;
 
 import com.example.demo.codegen.types.Gender;
-import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
 
 public class GenderMapper {
 
