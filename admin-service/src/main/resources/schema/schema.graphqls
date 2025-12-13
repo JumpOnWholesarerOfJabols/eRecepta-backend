@@ -1,0 +1,51 @@
+enum Gender {
+    MALE, FEMALE
+}
+
+enum Role {
+    PATIENT, DOCTOR, ADMINISTRATOR
+}
+
+type CreateUserResult {
+    success: Boolean!
+    message: String!
+}
+
+type DeleteUserResult {
+    success: Boolean!
+    message: String!
+}
+
+type User {
+    id: String!
+    firstName: String!
+    lastName: String!
+    email: String!
+    dateOfBirth: String!
+    pesel: String!
+    phoneNumber: String!
+    gender: Gender!
+    role: Role!
+
+}
+
+input CreateUserInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    dateOfBirth: String!
+    pesel: String!
+    phoneNumber: String!
+    gender: Gender!
+    role: Role!
+    password: String!
+}
+
+type Query {
+    getAllUsers: [User]
+}
+
+type Mutation {
+    createUser(input: CreateUserInput!): CreateUserResult
+    deleteUser(userId: String!): DeleteUserResult
+}

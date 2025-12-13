@@ -39,6 +39,7 @@
         <module>gateway</module>
         <module>visit-service</module>
         <module>patient-record-service</module>
+        <module>admin-service</module>
         <module>medication-service</module>
     </modules>
 

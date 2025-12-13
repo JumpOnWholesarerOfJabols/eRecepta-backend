@@ -43,6 +43,20 @@ public class AuthService {
             String dateOfBirth,
             String password
     ) {
+        return registerUser(email, pesel, firstName, lastName, phoneNumber, gender, dateOfBirth, password, UserRole.PATIENT);
+    }
+
+    public String registerUser(
+            String email,
+            String pesel,
+            String firstName,
+            String lastName,
+            String phoneNumber,
+            Gender gender,
+            String dateOfBirth,
+            String password,
+            UserRole role
+    ) {
         if (userRepository.existsByPeselOrEmail(pesel, email)) {
             throw new UserAlreadyExistsException("User with given PESEL or email already exists");
         }
@@ -70,7 +84,7 @@ public class AuthService {
                 .userGender(userGender)
                 .dateOfBirth(dateOfBirthParsed)
                 .hashedPassword(passwordEncoder.encode(password))
-                .role(UserRole.PATIENT)
+                .role(role)
                 .verified(false)
                 .build();
 

@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
 option java_package = "edu.pk.jawolh.erecepta.common.user.proto";
@@ -16,13 +17,48 @@ message GetUserDataRequest{
 }
 
 message GetUserDataReply {
-  string firstName = 1;
-  string lastName = 2;
-  string email = 3;
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string pesel = 5;
+  string phoneNumber = 6;
+  uint32 role = 7;
+  uint32 gender = 8;
+  string dateOfBirth = 9;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string pesel = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string phoneNumber = 5;
+  uint32 gender = 6;
+  string dateOfBirth = 7;
+  string password = 8;
+  uint32 role = 9;
+}
+
+message CreateUserReply {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserReply {
+  bool success = 1;
+  string message = 2;
 }
 
 service UserService {
   rpc CheckDoctorExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc CheckPatientExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc GetUserData (GetUserDataRequest) returns (GetUserDataReply){}
+  rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {}
+  rpc GetAllUsers(google.protobuf.Empty) returns (stream GetUserDataReply){}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserReply){}
 }
