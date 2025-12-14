@@ -32,6 +32,16 @@ rabbitmq:
 
 
 application:
+  admin:
+    email: ${ERECEPTA_ADMIN_EMAIL}
+    password: ${ERECEPTA_ADMIN_PASSWORD}
+    phone: ${ERECEPTA_ADMIN_PHONE}
+    first-name: ${ERECEPTA_ADMIN_FIRST_NAME}
+    last-name: ${ERECEPTA_ADMIN_LAST_NAME}
+    date-of-birth: ${ERECEPTA_ADMIN_DATE_OF_BIRTH}
+    pesel: ${ERECEPTA_ADMIN_PESEL}
+    gender: ${ERECEPTA_ADMIN_GENDER}
+
   security:
     jwt:
       secret-key: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
