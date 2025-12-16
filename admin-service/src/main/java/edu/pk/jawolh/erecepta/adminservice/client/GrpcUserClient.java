@@ -5,6 +5,7 @@ import com.example.demo.codegen.types.CreateUserResult;
 import com.example.demo.codegen.types.DeleteUserResult;
 import com.example.demo.codegen.types.User;
 import com.google.protobuf.Empty;
+import edu.pk.jawolh.erecepta.adminservice.exception.MultiFieldValidationException;
 import edu.pk.jawolh.erecepta.adminservice.mapper.UserMapper;
 import edu.pk.jawolh.erecepta.common.user.proto.CreateUserReply;
 import edu.pk.jawolh.erecepta.common.user.proto.DeleteUserReply;
@@ -24,6 +25,8 @@ public class GrpcUserClient {
 
     public CreateUserResult createUser(CreateUserInput input) {
         CreateUserReply r = grpcUserServiceStub.createUser(userMapper.createUserFromGraphQL(input));
+        if (!r.getErrorsMap().isEmpty())
+            throw new MultiFieldValidationException(r.getErrorsMap());
         return userMapper.createUserResultFromGRPC(r);
     }
 

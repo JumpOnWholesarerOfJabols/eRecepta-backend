@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: mediation-service
+    name: medication-service
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}
@@ -24,3 +24,10 @@ spring:
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka

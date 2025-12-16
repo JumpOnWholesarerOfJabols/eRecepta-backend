@@ -38,7 +38,10 @@ public class UserMapper {
     }
 
     public CreateUserResult createUserResultFromGRPC(CreateUserReply input) {
-        return CreateUserResult.newBuilder().success(input.getSuccess()).message(input.getMessage()).build();
+        return CreateUserResult.newBuilder()
+                .success(input.getSuccess())
+                .message(input.getMessage())
+                .build();
     }
 
     public DeleteUserResult deleteUserResultFromGRPC(DeleteUserReply input) {

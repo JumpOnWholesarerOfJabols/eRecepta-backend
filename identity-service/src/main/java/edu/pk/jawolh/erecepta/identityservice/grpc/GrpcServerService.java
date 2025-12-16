@@ -4,6 +4,7 @@ import com.example.demo.codegen.types.Gender;
 import com.google.protobuf.Empty;
 import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.common.user.proto.*;
+import edu.pk.jawolh.erecepta.identityservice.exception.MultiFieldValidationException;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
@@ -85,9 +86,10 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
 
             reply.setSuccess(true);
             reply.setMessage(msg);
-        } catch (Exception e) {
+        } catch (MultiFieldValidationException e) {
             reply.setSuccess(false);
             reply.setMessage(e.getMessage());
+            reply.putAllErrors(e.getErrors());
         }
 
         responseObserver.onNext(reply.build());

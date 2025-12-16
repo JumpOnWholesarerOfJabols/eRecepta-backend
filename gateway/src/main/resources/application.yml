@@ -44,6 +44,14 @@ spring:
               filters:
                 - StripPrefix=1
                 - Auth
+            - id: medication-service
+              uri: lb://medication-service
+              predicates:
+                - Path=/medication/**
+              filters:
+                - StripPrefix=1
+                - Auth
+
 
 application:
   security:
