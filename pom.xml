@@ -40,6 +40,7 @@
         <module>visit-service</module>
         <module>patient-record-service</module>
         <module>medication-service</module>
+        <module>medical-documents-service</module>
     </modules>
 
     <dependencyManagement>
