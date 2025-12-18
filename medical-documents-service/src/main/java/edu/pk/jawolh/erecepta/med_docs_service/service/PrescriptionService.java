@@ -4,6 +4,7 @@ package edu.pk.jawolh.erecepta.med_docs_service.service;
 import com.example.demo.codegen.types.FulfillPrescriptionInput;
 import com.example.demo.codegen.types.FulfillResult;
 import com.example.demo.codegen.types.IssuePrescriptionInput;
+import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcMedicationClient;
 import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.med_docs_service.exceptions.*;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionMapper;
@@ -30,12 +31,14 @@ public class PrescriptionService {
     private final CodeGenerator codeGenerator;
     private final PrescriptionDAO prescriptionDAO;
     private final GrpcUserClient grpcUserClient;
+    private final GrpcMedicationClient grpcMedicationClient;
 
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient, GrpcMedicationClient grpcMedicationClient) {
         this.prescriptionRepository = prescriptionRepository;
         this.codeGenerator = codeGenerator;
         this.prescriptionDAO = prescriptionDAO;
         this.grpcUserClient = grpcUserClient;
+        this.grpcMedicationClient = grpcMedicationClient;
     }
 
     public com.example.demo.codegen.types.Prescription verifyPrescription(String accessCode, UUID patientIdentifier) {
@@ -83,6 +86,9 @@ public class PrescriptionService {
 
         if (!grpcUserClient.isPatient(patientId.toString()))
             throw new UserNotFoundException("Patient not found");
+
+        if (!grpcMedicationClient.isMedication(medicationId.toString()))
+            throw new MedicationNotFoundException("Medication not found");
 
         LocalDate expiresAt = LocalDate.parse(input.getExpiration());
 

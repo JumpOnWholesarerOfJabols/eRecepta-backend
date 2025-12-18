@@ -13,9 +13,9 @@ public class GrpcConfig {
         return UserServiceGrpc.newBlockingStub(channels.createChannel("user"));
     }
 
-//    @Bean
-//    public MedicationServiceGrpc.MedicationServiceBlockingStub grpcMedicationServiceStub(GrpcChannelFactory channels) {
-//        return MedicationServiceGrpc.newBlockingStub(channels.createChannel("medication"));
-//    }
+    @Bean
+    public MedicationServiceGrpc.MedicationServiceBlockingStub grpcMedicationServiceStub(GrpcChannelFactory channels) {
+        return MedicationServiceGrpc.newBlockingStub(channels.createChannel("medication"));
+    }
 
 }
