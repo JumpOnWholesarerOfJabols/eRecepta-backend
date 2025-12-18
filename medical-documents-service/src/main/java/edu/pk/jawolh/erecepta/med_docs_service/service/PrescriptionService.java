@@ -1,8 +1,13 @@
 package edu.pk.jawolh.erecepta.med_docs_service.service;
 
 
+import com.example.demo.codegen.types.FulfillPrescriptionInput;
+import com.example.demo.codegen.types.FulfillResult;
 import com.example.demo.codegen.types.IssuePrescriptionInput;
+import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionCancelledException;
+import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionExpiredException;
 import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionNotFoundException;
+import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionOverfulfillmentException;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.model.Prescription;
 import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionFulfillment;
@@ -11,7 +16,9 @@ import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionRepository
 import edu.pk.jawolh.erecepta.med_docs_service.utils.CodeGenerator;
 import jakarta.persistence.*;
 import lombok.Builder;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -65,5 +72,55 @@ public class PrescriptionService {
         Prescription saved = prescriptionRepository.save(prescription);
 
         return PrescriptionMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public FulfillResult fulfillPrescription(FulfillPrescriptionInput input) {
+
+        //todo pharmacist verification
+        UUID pharmacistId = UUID.fromString(input.getPharmacistId());
+        UUID prescriptionId = UUID.fromString(input.getPrescriptionId());
+
+        Prescription fromDb = prescriptionRepository.findById(prescriptionId).orElseThrow(
+                        () -> new PrescriptionNotFoundException("Prescription not found"));
+
+        PrescriptionStatus status = fromDb.getStatus();
+
+        if (status == PrescriptionStatus.CANCELLED) {
+            throw new PrescriptionCancelledException("Prescription is cancelled");
+        }
+
+        if (status == PrescriptionStatus.EXPIRED || fromDb.isExpired())
+            throw new PrescriptionExpiredException("Prescription is expired");
+
+        if (status == PrescriptionStatus.FILLED || input.getQuantity() > fromDb.getRemainingPackages()) {
+            throw new PrescriptionOverfulfillmentException("Requested quantity exceeds remaining packages");
+        }
+
+        Integer filledQuantity = fromDb.getTotalPackages();
+        Integer newQuantity = input.getQuantity() + filledQuantity;
+
+        fromDb.setFilledPackages(newQuantity);
+        boolean isFilled = fromDb.getRemainingPackages() <= 0;
+
+        if (isFilled)
+            fromDb.setStatus(PrescriptionStatus.FILLED);
+        else
+            fromDb.setStatus(PrescriptionStatus.PARTIALLY_FILLED);
+
+        PrescriptionFulfillment fulfillment = PrescriptionFulfillment.builder()
+                .pharmacistId(pharmacistId)
+                .quantitySold(input.getQuantity())
+                .fulfilledAt(LocalDateTime.now())
+                .build();
+
+        fromDb.addFulfillment(fulfillment);
+
+        Prescription saved = prescriptionRepository.save(fromDb);
+
+        return FulfillResult.newBuilder()
+                .isFullyCompleted(isFilled)
+                .updatedPrescription(PrescriptionMapper.toDTO(saved))
+                .build();
     }
 }

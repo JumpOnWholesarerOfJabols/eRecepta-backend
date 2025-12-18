@@ -1,5 +1,7 @@
 package edu.pk.jawolh.erecepta.med_docs_service.controller;
 
+import com.example.demo.codegen.types.FulfillPrescriptionInput;
+import com.example.demo.codegen.types.FulfillResult;
 import com.example.demo.codegen.types.IssuePrescriptionInput;
 import com.example.demo.codegen.types.Prescription;
 import com.netflix.graphql.dgs.DgsComponent;
@@ -27,10 +29,17 @@ public class PrescriptionDataFetcher {
         return prescriptionService.verifyPrescription(accessCode, patientIdentifier);
     }
 
-    //issuePrescription(input: IssuePrescriptionInput!): Prescription
     @DgsMutation
-    public Prescription issuePrescription(IssuePrescriptionInput input){
+    public Prescription issuePrescription(
+            @InputArgument IssuePrescriptionInput input){
 
         return prescriptionService.issuePrescription(input);
+    }
+
+    @DgsMutation
+    public FulfillResult fulfillPrescription(
+            @InputArgument FulfillPrescriptionInput input){
+
+        return prescriptionService.fulfillPrescription(input);
     }
 }

@@ -43,7 +43,6 @@ type IssuedPrescriptionsResult {
 }
 
 type FulfillResult {
-    success: Boolean!
     updatedPrescription: Prescription
     isFullyCompleted: Boolean
 }
