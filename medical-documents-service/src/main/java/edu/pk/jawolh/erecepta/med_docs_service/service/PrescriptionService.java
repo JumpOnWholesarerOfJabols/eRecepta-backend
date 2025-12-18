@@ -9,9 +9,11 @@ import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionExpiredExc
 import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionNotFoundException;
 import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionOverfulfillmentException;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionMapper;
+import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionStatusMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.model.Prescription;
 import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionFulfillment;
 import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus;
+import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionDAO;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionRepository;
 import edu.pk.jawolh.erecepta.med_docs_service.utils.CodeGenerator;
 import jakarta.persistence.*;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,10 +30,12 @@ public class PrescriptionService {
 
     private final PrescriptionRepository prescriptionRepository;
     private final CodeGenerator codeGenerator;
+    private final PrescriptionDAO prescriptionDAO;
 
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO) {
         this.prescriptionRepository = prescriptionRepository;
         this.codeGenerator = codeGenerator;
+        this.prescriptionDAO = prescriptionDAO;
     }
 
     public com.example.demo.codegen.types.Prescription verifyPrescription(String accessCode, UUID patientIdentifier) {
@@ -40,6 +45,29 @@ public class PrescriptionService {
                 .orElseThrow(()-> new PrescriptionNotFoundException("Prescription not found"));
 
         return PrescriptionMapper.toDTO(prescription);
+    }
+
+    public List<com.example.demo.codegen.types.Prescription> findPrescriptions(
+            UUID patientId,
+            com.example.demo.codegen.types.PrescriptionStatus status,
+            Integer limit,
+            Integer offset) {
+
+        //todo user validation
+
+        edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus mappedStatus =
+                (status != null) ? PrescriptionStatusMapper.fromDTO(status) : null;
+
+        List<Prescription> entities = prescriptionDAO.findPrescriptions(
+                patientId,
+                mappedStatus,
+                limit,
+                offset
+        );
+
+        return entities.stream()
+                .map(PrescriptionMapper::toDTO)
+                .toList();
     }
 
     @Transient
@@ -135,4 +163,6 @@ public class PrescriptionService {
         Prescription saved = prescriptionRepository.save(fromDb);
         return PrescriptionMapper.toDTO(saved);
     }
+
+
 }

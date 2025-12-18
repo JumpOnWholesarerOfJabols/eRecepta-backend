@@ -11,6 +11,13 @@ type Query {
         accessCode: String!
         patientIdentifier: String!
     ): Prescription
+
+    prescriptions(
+        patientId: ID!
+        status: PrescriptionStatus
+        limit: Int
+        offset: Int
+    ): [Prescription!]!
 }
 
 type Mutation {
