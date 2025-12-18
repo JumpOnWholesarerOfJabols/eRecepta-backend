@@ -4,10 +4,8 @@ package edu.pk.jawolh.erecepta.med_docs_service.service;
 import com.example.demo.codegen.types.FulfillPrescriptionInput;
 import com.example.demo.codegen.types.FulfillResult;
 import com.example.demo.codegen.types.IssuePrescriptionInput;
-import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionCancelledException;
-import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionExpiredException;
-import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionNotFoundException;
-import edu.pk.jawolh.erecepta.med_docs_service.exceptions.PrescriptionOverfulfillmentException;
+import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcUserClient;
+import edu.pk.jawolh.erecepta.med_docs_service.exceptions.*;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionStatusMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.model.Prescription;
@@ -31,11 +29,13 @@ public class PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final CodeGenerator codeGenerator;
     private final PrescriptionDAO prescriptionDAO;
+    private final GrpcUserClient grpcUserClient;
 
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient) {
         this.prescriptionRepository = prescriptionRepository;
         this.codeGenerator = codeGenerator;
         this.prescriptionDAO = prescriptionDAO;
+        this.grpcUserClient = grpcUserClient;
     }
 
     public com.example.demo.codegen.types.Prescription verifyPrescription(String accessCode, UUID patientIdentifier) {
@@ -72,11 +72,17 @@ public class PrescriptionService {
 
     @Transient
     public com.example.demo.codegen.types.Prescription issuePrescription(IssuePrescriptionInput input) {
-        //TODO communication with identity and medication service to verify if patient and medicine exists
+        //TODO communication with medication service to verify if medicine exists
 
         UUID doctorId = UUID.fromString(input.getDoctorId());
         UUID patientId = UUID.fromString(input.getPatientId());
         UUID medicationId = UUID.fromString(input.getMedicationId());
+
+        if (!grpcUserClient.isDoctor(doctorId.toString()))
+            throw new UserNotFoundException("Doctor not found");
+
+        if (!grpcUserClient.isPatient(patientId.toString()))
+            throw new UserNotFoundException("Patient not found");
 
         LocalDate expiresAt = LocalDate.parse(input.getExpiration());
 
@@ -101,9 +107,11 @@ public class PrescriptionService {
     @Transactional
     public FulfillResult fulfillPrescription(FulfillPrescriptionInput input) {
 
-        //todo pharmacist verification
         UUID pharmacistId = UUID.fromString(input.getPharmacistId());
         UUID prescriptionId = UUID.fromString(input.getPrescriptionId());
+
+        if(!grpcUserClient.isPharmacist(pharmacistId.toString()))
+            throw new UserNotFoundException("Pharmacist not found");
 
         Prescription fromDb = prescriptionRepository.findById(prescriptionId).orElseThrow(
                         () -> new PrescriptionNotFoundException("Prescription not found"));

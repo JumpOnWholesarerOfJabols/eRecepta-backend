@@ -24,5 +24,6 @@ message GetUserDataReply {
 service UserService {
   rpc CheckDoctorExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc CheckPatientExists (UserExistsRequest) returns (UserExistsReply) {}
+  rpc CheckPharmacistExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc GetUserData (GetUserDataRequest) returns (GetUserDataReply){}
 }

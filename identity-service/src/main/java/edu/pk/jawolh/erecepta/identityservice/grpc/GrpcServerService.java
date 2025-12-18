@@ -37,6 +37,16 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
     }
 
     @Override
+    public void checkPharmacistExists(UserExistsRequest request, StreamObserver<UserExistsReply> responseObserver) {
+        UUID userId = UUID.fromString(request.getUserId());
+        boolean result = existsByIdAndRole(userId, UserRole.PHARMACIST);
+
+        UserExistsReply reply = UserExistsReply.newBuilder().setUserExists(result).build();
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void getUserData(GetUserDataRequest request, StreamObserver<GetUserDataReply> responseObserver) {
         String userId = request.getUserId();
         Optional<UserAccount> opt = userRepository.findById(UUID.fromString(userId));
