@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class Prescription {
     private LocalDateTime created = LocalDateTime.now();
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private LocalDate expiresAt;
 
     @Transient
     public Integer getRemainingPackages() {
@@ -69,7 +70,7 @@ public class Prescription {
 
     @Transient
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(this.expiresAt);
+        return LocalDate.now().isAfter(this.expiresAt);
     }
 
     public void addFulfillment(PrescriptionFulfillment fulfillment) {

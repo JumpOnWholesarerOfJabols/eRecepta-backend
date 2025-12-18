@@ -1,7 +1,9 @@
 package edu.pk.jawolh.erecepta.med_docs_service.controller;
 
+import com.example.demo.codegen.types.IssuePrescriptionInput;
 import com.example.demo.codegen.types.Prescription;
 import com.netflix.graphql.dgs.DgsComponent;
+import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.med_docs_service.service.PrescriptionService;
@@ -23,5 +25,12 @@ public class PrescriptionDataFetcher {
             @InputArgument UUID patientIdentifier){
 
         return prescriptionService.verifyPrescription(accessCode, patientIdentifier);
+    }
+
+    //issuePrescription(input: IssuePrescriptionInput!): Prescription
+    @DgsMutation
+    public Prescription issuePrescription(IssuePrescriptionInput input){
+
+        return prescriptionService.issuePrescription(input);
     }
 }
