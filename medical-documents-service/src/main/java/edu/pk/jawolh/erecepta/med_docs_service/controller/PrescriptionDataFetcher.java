@@ -42,4 +42,14 @@ public class PrescriptionDataFetcher {
 
         return prescriptionService.fulfillPrescription(input);
     }
+
+//    cancelPrescription(prescriptionId: ID!, reason: String!): Prescription
+    @DgsMutation
+    public Prescription cancelPrescription(
+            @InputArgument UUID prescriptionId,
+            @InputArgument String reason
+    ){
+
+        return prescriptionService.cancelPrescription(prescriptionId, reason);
+    }
 }

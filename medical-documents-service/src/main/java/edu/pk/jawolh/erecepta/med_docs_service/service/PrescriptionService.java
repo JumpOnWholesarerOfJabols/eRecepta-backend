@@ -15,15 +15,11 @@ import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionRepository;
 import edu.pk.jawolh.erecepta.med_docs_service.utils.CodeGenerator;
 import jakarta.persistence.*;
-import lombok.Builder;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -122,5 +118,21 @@ public class PrescriptionService {
                 .isFullyCompleted(isFilled)
                 .updatedPrescription(PrescriptionMapper.toDTO(saved))
                 .build();
+    }
+
+    @Transactional
+    public com.example.demo.codegen.types.Prescription cancelPrescription(UUID prescriptionId, String reason) {
+
+        Prescription fromDb = prescriptionRepository.findById(prescriptionId).orElseThrow(
+                () -> new PrescriptionNotFoundException("Prescription not found"));
+
+        if (fromDb.getStatus() == PrescriptionStatus.CANCELLED)
+            throw new PrescriptionCancelledException("Prescription already cancelled");
+
+        fromDb.setStatus(PrescriptionStatus.CANCELLED);
+        fromDb.setCancellationReason(reason);
+
+        Prescription saved = prescriptionRepository.save(fromDb);
+        return PrescriptionMapper.toDTO(saved);
     }
 }
