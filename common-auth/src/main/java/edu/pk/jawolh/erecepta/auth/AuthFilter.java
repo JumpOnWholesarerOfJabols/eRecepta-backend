@@ -1,4 +1,4 @@
-package edu.pk.jawolh.erecepta.visitservice.security;
+package edu.pk.jawolh.erecepta.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,13 +9,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
 
-@Component
 public class AuthFilter extends OncePerRequestFilter {
     private static final String ROLE = "ROLE_%s";
     private static final String ID_HEADER = "X-UserId";

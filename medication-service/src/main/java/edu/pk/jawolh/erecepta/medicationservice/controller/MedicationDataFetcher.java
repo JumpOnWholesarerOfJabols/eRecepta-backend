@@ -8,6 +8,7 @@ import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.medicationservice.service.DrugService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication createMedication(
             @InputArgument CreateMedicationInput input) {
         log.debug("Creating medication: {}", input);
@@ -54,6 +56,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication patchMedication(
             @InputArgument UUID id,
             @InputArgument PatchMedicationInput input) {
@@ -63,6 +66,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Boolean deleteMedication(
             @InputArgument UUID id) {
 
@@ -71,6 +75,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication addIngredient(
             @InputArgument UUID medicationId,
             @InputArgument IngredientInput input) {
@@ -80,6 +85,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication updateIngredient(
             @InputArgument UUID medicationId,
             @InputArgument UUID ingredientId,
@@ -90,6 +96,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication removeIngredient(
             @InputArgument UUID medicationId,
             @InputArgument UUID ingredientId) {
@@ -100,6 +107,7 @@ public class MedicationDataFetcher {
 
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication addIndication(
             @InputArgument UUID medicationId,
             @InputArgument String indication) {
@@ -109,6 +117,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication removeIndication(
             @InputArgument UUID medicationId,
             @InputArgument String indication) {
@@ -118,6 +127,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication addSideEffect(
             @InputArgument UUID medicationId,
             @InputArgument String sideEffect) {
@@ -127,6 +137,7 @@ public class MedicationDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Medication removeSideEffect(
             @InputArgument UUID medicationId,
             @InputArgument String sideEffect) {

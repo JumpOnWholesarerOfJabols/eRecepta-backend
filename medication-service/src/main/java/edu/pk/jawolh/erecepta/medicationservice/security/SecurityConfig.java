@@ -1,4 +1,4 @@
-package edu.pk.jawolh.erecepta.visitservice.security;
+package edu.pk.jawolh.erecepta.medicationservice.security;
 
 import edu.pk.jawolh.erecepta.auth.AuthFilter;
 import lombok.RequiredArgsConstructor;
