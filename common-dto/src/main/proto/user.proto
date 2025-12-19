@@ -26,6 +26,7 @@ message GetUserDataReply {
   uint32 role = 7;
   uint32 gender = 8;
   string dateOfBirth = 9;
+  bool verified = 10;
 }
 
 message CreateUserRequest {

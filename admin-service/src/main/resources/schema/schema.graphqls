@@ -26,6 +26,7 @@ type User {
     phoneNumber: String!
     gender: Gender!
     role: Role!
+    verified: Boolean!
 
 }
 

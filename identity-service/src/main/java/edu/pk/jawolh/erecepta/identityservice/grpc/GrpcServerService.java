@@ -60,6 +60,7 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
                     .setRole(acc.getRole().ordinal())
                     .setGender(acc.getUserGender().ordinal())
                     .setDateOfBirth(acc.getDateOfBirth().toString())
+                    .setVerified(acc.isVerified())
                     .build();
 
             responseObserver.onNext(reply);
@@ -109,6 +110,7 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
             reply.setRole(user.getRole().ordinal());
             reply.setGender(user.getUserGender().ordinal());
             reply.setDateOfBirth(user.getDateOfBirth().toString());
+            reply.setVerified(user.isVerified());
 
             responseObserver.onNext(reply.build());
         });

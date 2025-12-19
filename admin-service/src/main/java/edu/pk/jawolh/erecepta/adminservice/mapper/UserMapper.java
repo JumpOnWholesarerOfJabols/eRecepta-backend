@@ -20,6 +20,7 @@ public class UserMapper {
                 .role(Role.values()[input.getRole()])
                 .gender(Gender.values()[input.getGender()])
                 .dateOfBirth(input.getDateOfBirth())
+                .verified(input.getVerified())
                 .build();
     }
 
