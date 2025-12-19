@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.adminservice.security;
 
+import edu.pk.jawolh.erecepta.auth.AuthFilter;
 import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final AuthFilter authFilter;
+    private final AuthFilter authFilter = new AuthFilter();
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

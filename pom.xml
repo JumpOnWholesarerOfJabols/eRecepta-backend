@@ -33,6 +33,7 @@
 
     <modules>
         <module>common-dto</module>
+        <module>common-auth</module>
         <module>identity-service</module>
         <module>notification-service</module>
         <module>eureka</module>
@@ -48,6 +49,11 @@
             <dependency>
                 <groupId>edu.pk.jawolh.erecepta</groupId>
                 <artifactId>common-dto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.pk.jawolh.erecepta</groupId>
+                <artifactId>common-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
