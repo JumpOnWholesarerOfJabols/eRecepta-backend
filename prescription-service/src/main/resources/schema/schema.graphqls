@@ -25,8 +25,9 @@ input CreatePrescriptionInput {
 
 type Query {
     getPrescriptions: [Prescription]!
+    getPrescriptionByVisitId(visitId: String!): Prescription
 }
 
 type Mutation {
-    createPrescription(input: CreatePrescriptionInput!): Boolean
+    createPrescription(input: CreatePrescriptionInput!): Prescription
 }

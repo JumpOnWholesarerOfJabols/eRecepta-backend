@@ -21,7 +21,6 @@ public class Prescription {
     @Column(unique = true, nullable = false)
     private UUID id;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, length = 4)
     private String code;
 

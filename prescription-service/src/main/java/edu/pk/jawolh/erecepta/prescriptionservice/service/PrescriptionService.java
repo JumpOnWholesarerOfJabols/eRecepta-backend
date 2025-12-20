@@ -9,6 +9,7 @@ import edu.pk.jawolh.erecepta.prescriptionservice.client.GrpcVisitClient;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.MedicationDetailsDTO;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.PatientRecordDTO;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.VisitDTO;
+import edu.pk.jawolh.erecepta.prescriptionservice.mapper.PrescriptionMapper;
 import edu.pk.jawolh.erecepta.prescriptionservice.model.PrescribedMedication;
 import edu.pk.jawolh.erecepta.prescriptionservice.model.Prescription;
 import edu.pk.jawolh.erecepta.prescriptionservice.repository.PrescriptionRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,8 +29,17 @@ public class PrescriptionService {
     private final GrpcVisitClient visitClient;
     private final GrpcPatientRecordClient recordClient;
     private final GrpcMedicationClient medicationClient;
+    private final PrescriptionMapper mapper;
 
-    public void createPrescription(UUID doctorId, CreatePrescriptionInput input) {
+    public List<com.example.demo.codegen.types.Prescription> getPrescriptions(UUID patientId) {
+        return repository.findAllByPatientId(patientId).stream().map(mapper::fromEntity).toList();
+    }
+
+    public Optional<com.example.demo.codegen.types.Prescription> getPrescriptionByVisitId(UUID userId, UUID visitId) {
+        return repository.findByVisitIdAndDoctorIdOrPatientId(visitId, userId, userId).map(mapper::fromEntity);
+    }
+
+    public com.example.demo.codegen.types.Prescription createPrescription(UUID doctorId, CreatePrescriptionInput input) {
         if (!visitClient.checkVisitExists(UUID.fromString(input.getVisitId()), doctorId))
             throw new IllegalArgumentException("Visit does not exist");
 
@@ -70,6 +81,6 @@ public class PrescriptionService {
                         .build()).collect(Collectors.toSet()))
                 .build();
 
-        repository.save(prescription);
+        return mapper.fromEntity(repository.save(prescription));
     }
 }
