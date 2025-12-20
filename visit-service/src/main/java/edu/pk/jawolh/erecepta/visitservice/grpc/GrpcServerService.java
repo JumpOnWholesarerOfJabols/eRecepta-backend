@@ -1,8 +1,6 @@
 package edu.pk.jawolh.erecepta.visitservice.grpc;
 
-import edu.pk.jawolh.erecepta.common.visit.proto.GetVisitReply;
-import edu.pk.jawolh.erecepta.common.visit.proto.GetVisitRequest;
-import edu.pk.jawolh.erecepta.common.visit.proto.VisitServiceGrpc;
+import edu.pk.jawolh.erecepta.common.visit.proto.*;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import edu.pk.jawolh.erecepta.visitservice.service.VisitService;
 import io.grpc.stub.StreamObserver;
@@ -30,6 +28,21 @@ public class GrpcServerService extends VisitServiceGrpc.VisitServiceImplBase {
                 .setVisitStatus(v.getVisitStatus().ordinal())
                 .setVisitTime(v.getVisitTime().toString())
                 .build());
+
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void checkVisitExists(CheckVisitExistsRequest request, StreamObserver<CheckVisitExistsReply> responseObserver) {
+        Optional<Visit> vOpt = visitService.findById(UUID.fromString(request.getVisitId()));
+        CheckVisitExistsReply.Builder reply = CheckVisitExistsReply.newBuilder();
+
+        if (vOpt.isPresent()) {
+            Visit visit = vOpt.get();
+            reply.setExists(visit.getDoctorId().equals(UUID.fromString(request.getDoctorId())));
+        } else
+            reply.setExists(false);
 
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();

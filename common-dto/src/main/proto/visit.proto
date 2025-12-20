@@ -8,6 +8,11 @@ message GetVisitRequest {
   string visitId = 1;
 }
 
+message CheckVisitExistsRequest {
+  string visitId = 1;
+  string doctorId = 2;
+}
+
 message GetVisitReply {
   string id = 1;
   string patientId = 2;
@@ -17,6 +22,11 @@ message GetVisitReply {
   uint32 visitStatus = 6;
 }
 
+message CheckVisitExistsReply {
+  bool exists = 1;
+}
+
 service VisitService {
   rpc GetVisit (GetVisitRequest) returns (GetVisitReply) {}
+  rpc CheckVisitExists (CheckVisitExistsRequest) returns (CheckVisitExistsReply) {}
 }
