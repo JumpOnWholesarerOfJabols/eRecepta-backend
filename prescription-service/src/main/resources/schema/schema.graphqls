@@ -1,0 +1,15 @@
+type Prescription {
+    id: String!
+    patientId: String!
+    doctorId: String!
+    visitId: String!
+
+}
+
+type Query {
+
+}
+
+type Mutation {
+
+}
