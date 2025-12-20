@@ -1,19 +1,21 @@
 package edu.pk.jawolh.erecepta.prescriptionservice.client;
 
-import edu.pk.jawolh.erecepta.common.record.proto.GetAllergiesRequest;
+import edu.pk.jawolh.erecepta.common.record.proto.GetPatientRecordReply;
+import edu.pk.jawolh.erecepta.common.record.proto.GetPatientRecordRequest;
 import edu.pk.jawolh.erecepta.common.record.proto.PatientRecordServiceGrpc;
+import edu.pk.jawolh.erecepta.prescriptionservice.dto.PatientRecordDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class GrpcPatientRecordClient {
     private final PatientRecordServiceGrpc.PatientRecordServiceBlockingStub stub;
 
-    List<String> getPatientAllergies(UUID patientId) {
-        return stub.getAllergies(GetAllergiesRequest.newBuilder().setPatientId(patientId.toString()).build()).getAllergiesList();
+    public PatientRecordDTO getPatientRecord(String patientId) {
+        GetPatientRecordRequest getPatientRecordRequest = GetPatientRecordRequest.newBuilder().setPatientId(patientId).build();
+        GetPatientRecordReply response = stub.getPatientRecord(getPatientRecordRequest);
+
+        return new PatientRecordDTO(response.getAllergiesList(), response.getMedicationsList());
     }
 }

@@ -11,6 +11,17 @@ message MedicationExistsReply {
   bool medicationExists = 1;
 }
 
+message GetMedicationDetailsRequest {
+  string medicationId = 1;
+}
+
+message GetMedicationDetailsReply {
+  repeated string ingredients = 1;
+  repeated string interactions = 2;
+}
+
 service MedicationService {
   rpc MedicationExists (MedicationExistsRequest) returns (MedicationExistsReply) {}
+  rpc GetMedicationDetails (GetMedicationDetailsRequest) returns (GetMedicationDetailsReply) {}
+
 }

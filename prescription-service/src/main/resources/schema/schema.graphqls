@@ -1,15 +1,32 @@
+type PrescribedMedication {
+    medicationId: String!
+    usageNotes: String!
+}
+
 type Prescription {
     id: String!
     patientId: String!
     doctorId: String!
     visitId: String!
+    medications: [PrescribedMedication]!
+}
 
+input PrescribedMedicationInput {
+    medicationId: String!
+    usageNotes: String!
+}
+
+input CreatePrescriptionInput {
+    visitId: String!
+    medications: [PrescribedMedicationInput]!
+    ignoreAllergies: Boolean!
+    ignoreInteractions: Boolean!
 }
 
 type Query {
-
+    getPrescriptions: [Prescription]!
 }
 
 type Mutation {
-
+    createPrescription(input: CreatePrescriptionInput!): Boolean
 }

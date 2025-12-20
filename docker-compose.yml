@@ -98,7 +98,7 @@ services:
       ERECEPTA_EUREKA_HOST: eureka
 
       ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
-      ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
+      ERECEPTA_MEDICATION_CHANNEL: "${ERECEPTA_MEDICATION_CHANNEL}"
 
   medication-service:
     build: ./medication-service
@@ -138,6 +138,27 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+  prescription-service:
+    build: ./prescription-service
+    container_name: prescription-service
+    ports:
+      - "${PRESCRIPTION_SERVICE_PORT}:${PRESCRIPTION_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    depends_on:
+      eureka:
+        condition: service_started
+    environment:
+      SERVER_PORT: ${PRESCRIPTION_SERVICE_INTERNAL_PORT}
+
+      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
+      ERECEPTA_EUREKA_HOST: eureka
+
+      ERECEPTA_USER_CHANNEL: identity-service:9090
+      ERECEPTA_MEDICATION_CHANNEL: medication-service:9090
+      ERECEPTA_VISIT_CHANNEL: visit-service:9090
+      ERECEPTA_RECORD_CHANNEL: patient-record-service:9090
 
   admin-service:
     build: ./admin-service

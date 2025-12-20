@@ -8,10 +8,6 @@ message GetPatientRecordRequest {
   string patientId = 1;
 }
 
-message GetAllergiesRequest {
-  string patientId = 1;
-}
-
 message GetPatientRecordReply {
   string bloodType = 1;
   double height = 2;
@@ -21,11 +17,6 @@ message GetPatientRecordReply {
   repeated string medications = 6;
 }
 
-message GetAllergiesReply {
-  repeated string allergies = 1;
-}
-
 service PatientRecordService {
   rpc GetPatientRecord (GetPatientRecordRequest) returns (GetPatientRecordReply){}
-  rpc GetAllergies (GetAllergiesRequest) returns (GetAllergiesReply) {}
 }
