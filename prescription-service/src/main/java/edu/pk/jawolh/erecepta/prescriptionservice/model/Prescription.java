@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,7 +23,6 @@ public class Prescription {
     @Column(unique = true, nullable = false)
     private UUID id;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, length = 4)
     private String code;
 
@@ -36,4 +37,8 @@ public class Prescription {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PrescribedMedication> medications;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

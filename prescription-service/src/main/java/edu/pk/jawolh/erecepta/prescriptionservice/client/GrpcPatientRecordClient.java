@@ -13,7 +13,7 @@ import java.util.UUID;
 public class GrpcPatientRecordClient {
     private final PatientRecordServiceGrpc.PatientRecordServiceBlockingStub stub;
 
-    List<String> getPatientAllergies(UUID patientId) {
+    public List<String> getPatientAllergies(UUID patientId) {
         return stub.getAllergies(GetAllergiesRequest.newBuilder().setPatientId(patientId.toString()).build()).getAllergiesList();
     }
 }
