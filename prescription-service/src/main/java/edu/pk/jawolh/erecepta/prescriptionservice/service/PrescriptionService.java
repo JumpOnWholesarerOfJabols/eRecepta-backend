@@ -51,13 +51,11 @@ public class PrescriptionService {
         
         UUID visitId = UUID.fromString(input.getVisitId());
         
-        // Check for duplicate prescription
         if (repository.existsByVisitId(visitId)) {
             log.warn("Prescription already exists for visit {}", visitId);
             throw new DuplicatePrescriptionException("Prescription already exists for visit " + visitId);
         }
         
-        // Validate visit exists and belongs to doctor
         if (!visitClient.checkVisitExists(visitId, doctorId)) {
             log.warn("Visit {} does not exist or does not belong to doctor {}", visitId, doctorId);
             throw new VisitNotFoundException("Visit does not exist or does not belong to doctor");
