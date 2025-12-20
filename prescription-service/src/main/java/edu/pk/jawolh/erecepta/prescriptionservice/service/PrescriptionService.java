@@ -9,21 +9,27 @@ import edu.pk.jawolh.erecepta.prescriptionservice.client.GrpcVisitClient;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.MedicationDetailsDTO;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.PatientRecordDTO;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.VisitDTO;
+import edu.pk.jawolh.erecepta.prescriptionservice.exception.*;
 import edu.pk.jawolh.erecepta.prescriptionservice.mapper.PrescriptionMapper;
 import edu.pk.jawolh.erecepta.prescriptionservice.model.PrescribedMedication;
 import edu.pk.jawolh.erecepta.prescriptionservice.model.Prescription;
 import edu.pk.jawolh.erecepta.prescriptionservice.repository.PrescriptionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PrescriptionService {
     private final PrescriptionRepository repository;
     private final GrpcVisitClient visitClient;
@@ -39,48 +45,108 @@ public class PrescriptionService {
         return repository.findByVisitIdAndDoctorIdOrPatientId(visitId, userId, userId).map(mapper::fromEntity);
     }
 
+    @Transactional
     public com.example.demo.codegen.types.Prescription createPrescription(UUID doctorId, CreatePrescriptionInput input) {
-        if (!visitClient.checkVisitExists(UUID.fromString(input.getVisitId()), doctorId))
-            throw new IllegalArgumentException("Visit does not exist");
+        log.info("Creating prescription for doctor {} and visit {}", doctorId, input.getVisitId());
+        
+        UUID visitId = UUID.fromString(input.getVisitId());
+        
+        // Check for duplicate prescription
+        if (repository.existsByVisitId(visitId)) {
+            log.warn("Prescription already exists for visit {}", visitId);
+            throw new DuplicatePrescriptionException("Prescription already exists for visit " + visitId);
+        }
+        
+        // Validate visit exists and belongs to doctor
+        if (!visitClient.checkVisitExists(visitId, doctorId)) {
+            log.warn("Visit {} does not exist or does not belong to doctor {}", visitId, doctorId);
+            throw new VisitNotFoundException("Visit does not exist or does not belong to doctor");
+        }
 
-        VisitDTO visitDTO = visitClient.getVisit(UUID.fromString(input.getVisitId()));
-
-        if (visitDTO.visitStatus().equals(VisitStatus.CANCELLED))
-            throw new IllegalArgumentException("Visit status is CANCELLED");
-
-        if (visitDTO.visitTime().isAfter(LocalDateTime.now()))
-            throw new IllegalArgumentException("Visit has not happened yet");
+        VisitDTO visitDTO = visitClient.getVisit(visitId);
+        validateVisit(visitDTO);
 
         PatientRecordDTO recordDTO = recordClient.getPatientRecord(visitDTO.patientId().toString());
-        List<String> medIds = input.getMedications().stream().map(PrescribedMedicationInput::getMedicationId).toList();
+        
+        List<UUID> medicationIds = input.getMedications().stream()
+                .map(m -> UUID.fromString(m.getMedicationId()))
+                .toList();
+        
+        validateMedications(medicationIds, recordDTO, input.getIgnoreAllergies(), input.getIgnoreInteractions());
 
-        medIds.forEach(medication -> {
-            if (!medicationClient.isMedication(medication))
-                throw new IllegalArgumentException("Medication does not exist");
+        Prescription prescription = buildPrescription(doctorId, visitDTO, input);
+        
+        Prescription saved = repository.save(prescription);
+        log.info("Successfully created prescription with ID: {}", saved.getId());
+        
+        return mapper.fromEntity(saved);
+    }
 
-            MedicationDetailsDTO details = medicationClient.getMedicationDetails(medication);
+    private void validateVisit(VisitDTO visitDTO) {
+        if (visitDTO.visitStatus().equals(VisitStatus.CANCELLED)) {
+            log.warn("Cannot create prescription for cancelled visit {}", visitDTO.id());
+            throw new VisitCancelledException("Cannot create prescription for cancelled visit");
+        }
 
-            for (String ingredient : details.ingredients()) {
-                if (recordDTO.allergies().contains(ingredient) && !input.getIgnoreAllergies())
-                    throw new IllegalArgumentException("Patient allergic to ingredient");
+        if (visitDTO.visitTime().isAfter(LocalDateTime.now())) {
+            log.warn("Cannot create prescription for future visit {}", visitDTO.id());
+            throw new FutureVisitException("Visit has not happened yet");
+        }
+    }
+
+    private void validateMedications(List<UUID> medicationIds, PatientRecordDTO recordDTO, 
+                                      boolean ignoreAllergies, boolean ignoreInteractions) {
+        Set<String> currentMedicationIds = new HashSet<>(recordDTO.medications());
+        Set<String> prescribedMedicationIds = medicationIds.stream()
+                .map(UUID::toString)
+                .collect(Collectors.toSet());
+        
+        for (UUID medicationId : medicationIds) {
+            String medIdStr = medicationId.toString();
+            
+            if (!medicationClient.isMedication(medIdStr)) {
+                log.warn("Medication {} does not exist", medIdStr);
+                throw new MedicationNotFoundException("Medication with ID " + medIdStr + " does not exist");
             }
 
-            for (String interaction : details.interactions()) {
-                if ((medIds.contains(interaction) || recordDTO.medications().contains(interaction)) && !input.getIgnoreInteractions())
-                    throw new IllegalArgumentException("Medicines interact");
-            }
-        });
+            MedicationDetailsDTO details = medicationClient.getMedicationDetails(medIdStr);
 
-        Prescription prescription = Prescription.builder()
+            if (!ignoreAllergies) {
+                for (String ingredient : details.ingredients()) {
+                    if (recordDTO.allergies().contains(ingredient)) {
+                        log.warn("Patient is allergic to ingredient {} in medication {}", ingredient, medIdStr);
+                        throw new PatientAllergyException(
+                            String.format("Patient is allergic to %s in medication %s", ingredient, medIdStr)
+                        );
+                    }
+                }
+            }
+
+            if (!ignoreInteractions) {
+                for (String interactingMedId : details.interactions()) {
+                    if (prescribedMedicationIds.contains(interactingMedId) || 
+                        currentMedicationIds.contains(interactingMedId)) {
+                        log.warn("Medication {} interacts with {}", medIdStr, interactingMedId);
+                        throw new DrugInteractionException(
+                            String.format("Medication %s interacts with medication %s", medIdStr, interactingMedId)
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    private Prescription buildPrescription(UUID doctorId, VisitDTO visitDTO, CreatePrescriptionInput input) {
+        return Prescription.builder()
                 .doctorId(doctorId)
                 .patientId(visitDTO.patientId())
                 .visitId(visitDTO.id())
-                .medications(input.getMedications().stream().map(im -> PrescribedMedication.builder()
-                        .medicationId(UUID.fromString(im.getMedicationId()))
-                        .usageNotes(im.getUsageNotes())
-                        .build()).collect(Collectors.toSet()))
+                .medications(input.getMedications().stream()
+                        .map(im -> PrescribedMedication.builder()
+                                .medicationId(UUID.fromString(im.getMedicationId()))
+                                .usageNotes(im.getUsageNotes())
+                                .build())
+                        .collect(Collectors.toSet()))
                 .build();
-
-        return mapper.fromEntity(repository.save(prescription));
     }
 }
