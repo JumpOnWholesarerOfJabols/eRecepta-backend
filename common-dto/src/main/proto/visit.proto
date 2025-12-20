@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.pk.jawolh.erecepta.common.visit.proto";
+option java_outer_classname = "VisitProto";
+
+message GetVisitRequest {
+  string visitId = 1;
+}
+
+message GetVisitReply {
+  string id = 1;
+  string patientId = 2;
+  string doctorId = 3;
+  string visitTime = 4;
+  uint32 specialization = 5;
+  uint32 visitStatus = 6;
+}
+
+service VisitService {
+  rpc GetVisit (GetVisitRequest) returns (GetVisitReply) {}
+}
