@@ -1,6 +1,5 @@
 package edu.pk.jawolh.erecepta.prescriptionservice.service;
 
-import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.prescriptionservice.client.GrpcMedicationClient;
 import edu.pk.jawolh.erecepta.prescriptionservice.client.GrpcPatientRecordClient;
@@ -17,9 +16,11 @@ import edu.pk.jawolh.erecepta.prescriptionservice.model.Prescription;
 import edu.pk.jawolh.erecepta.prescriptionservice.repository.PrescriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ public class PrescriptionService {
     private final GrpcVisitClient visitClient;
     private final GrpcPatientRecordClient patientRecordClient;
     private final GrpcMedicationClient medicationClient;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
     public Prescription createPrescription(PrescriptionRequest request, UUID doctorId) {
@@ -83,12 +85,13 @@ public class PrescriptionService {
             );
         }
 
-        // 7. Create prescription
+        // 7. Create prescription with unique code
+        String code = generateUniquePrescriptionCode();
         Prescription prescription = Prescription.builder()
                 .patientId(visit.patientId())
                 .doctorId(visit.doctorId())
                 .visitId(visit.id())
-                .code(generatePrescriptionCode())
+                .code(code)
                 .build();
 
         // 8. Create prescribed medications
@@ -122,13 +125,8 @@ public class PrescriptionService {
     }
 
     @Transactional
-    public void deletePrescription(UUID prescriptionId, UUID userId, UserRole userRole) {
-        log.debug("Deleting prescription {} by user {} with role {}", prescriptionId, userId, userRole);
-
-        // Validate that user is admin
-        if (userRole != UserRole.ADMINISTRATOR) {
-            throw new UnauthorizedAccessException("Only administrators can delete prescriptions");
-        }
+    public void deletePrescription(UUID prescriptionId) {
+        log.debug("Deleting prescription {}", prescriptionId);
 
         if (!prescriptionRepository.existsById(prescriptionId)) {
             throw new PrescriptionNotFoundException("Prescription not found with id: " + prescriptionId);
@@ -138,14 +136,30 @@ public class PrescriptionService {
         log.info("Deleted prescription {}", prescriptionId);
     }
 
-    private String generatePrescriptionCode() {
-        // Generate a random 4-character alphanumeric code
+    private String generateUniquePrescriptionCode() {
+        // Generate a unique 6-character alphanumeric code with retry logic
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random = new Random();
-        StringBuilder code = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            code.append(chars.charAt(random.nextInt(chars.length())));
+        int maxRetries = 10;
+        
+        for (int retry = 0; retry < maxRetries; retry++) {
+            StringBuilder code = new StringBuilder(6);
+            for (int i = 0; i < 6; i++) {
+                code.append(chars.charAt(secureRandom.nextInt(chars.length())));
+            }
+            
+            String generatedCode = code.toString();
+            try {
+                // Check if code exists - this is safe because code is unique in DB
+                if (!prescriptionRepository.existsByCode(generatedCode)) {
+                    return generatedCode;
+                }
+            } catch (Exception e) {
+                // Continue to retry
+                log.debug("Code collision detected, retrying...");
+            }
         }
-        return code.toString();
+        
+        // Fallback: Use UUID-based code if retries exhausted
+        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 }

@@ -23,7 +23,7 @@ public class Prescription {
     @Column(unique = true, nullable = false)
     private UUID id;
 
-    @Column(nullable = false, length = 4)
+    @Column(nullable = false, unique = true, length = 4)
     private String code;
 
     @Column(nullable = false)
@@ -35,7 +35,7 @@ public class Prescription {
     @Column(nullable = false)
     private UUID visitId;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PrescribedMedication> medications;
 
     @CreationTimestamp

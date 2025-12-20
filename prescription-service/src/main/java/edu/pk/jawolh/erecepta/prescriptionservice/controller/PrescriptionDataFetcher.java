@@ -6,7 +6,6 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
-import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.PrescribedMedicationRequest;
 import edu.pk.jawolh.erecepta.prescriptionservice.dto.PrescriptionRequest;
 import edu.pk.jawolh.erecepta.prescriptionservice.service.PrescriptionService;
@@ -70,13 +69,7 @@ public class PrescriptionDataFetcher extends AbstractDataFetcher {
     @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public Boolean deletePrescription(@InputArgument String id) {
         log.debug("Deleting prescription {} by user {}", id, getCurrentUserId());
-
-        prescriptionService.deletePrescription(
-                UUID.fromString(id),
-                getCurrentUserId(),
-                UserRole.ADMINISTRATOR
-        );
-
+        prescriptionService.deletePrescription(UUID.fromString(id));
         return true;
     }
 }
