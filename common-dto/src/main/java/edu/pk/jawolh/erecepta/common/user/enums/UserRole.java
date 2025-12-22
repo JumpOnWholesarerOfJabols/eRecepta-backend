@@ -1,5 +1,5 @@
 package edu.pk.jawolh.erecepta.common.user.enums;
 
 public enum UserRole {
-    PATIENT, DOCTOR, ADMINISTRATOR
+    PATIENT, DOCTOR, PHARMACIST, ADMINISTRATOR
 }

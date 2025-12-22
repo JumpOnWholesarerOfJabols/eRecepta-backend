@@ -177,6 +177,23 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
+
+  medical-documents-service:
+    build: ./medical-documents-service
+    container_name: medical-documents-service
+    ports:
+      - "${MEDICAL_DOCUMENTS_SERVICE_PORT}:${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    environment:
+      SERVER_PORT: ${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}
+
+#      ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
+#      ERECEPTA_EUREKA_HOST: eureka
+
+      ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
+      ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
+
 networks:
   erecepta-network:
     driver: bridge

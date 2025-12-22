@@ -59,6 +59,7 @@ message DeleteUserReply {
 service UserService {
   rpc CheckDoctorExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc CheckPatientExists (UserExistsRequest) returns (UserExistsReply) {}
+  rpc CheckPharmacistExists (UserExistsRequest) returns (UserExistsReply) {}
   rpc GetUserData (GetUserDataRequest) returns (GetUserDataReply){}
   rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {}
   rpc GetAllUsers(google.protobuf.Empty) returns (stream GetUserDataReply){}
