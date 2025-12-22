@@ -15,7 +15,6 @@ import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionDAO;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionRepository;
 import edu.pk.jawolh.erecepta.med_docs_service.utils.CodeGenerator;
-import jakarta.persistence.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,8 +55,6 @@ public class PrescriptionService {
             Integer limit,
             Integer offset) {
 
-        //todo user validation
-
         edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus mappedStatus =
                 (status != null) ? PrescriptionStatusMapper.fromDTO(status) : null;
 
@@ -73,16 +70,14 @@ public class PrescriptionService {
                 .toList();
     }
 
-    @Transient
-    public com.example.demo.codegen.types.Prescription issuePrescription(IssuePrescriptionInput input) {
-        //TODO communication with medication service to verify if medicine exists
+    @Transactional
+    public com.example.demo.codegen.types.Prescription issuePrescription(UUID userId, IssuePrescriptionInput input) {
 
-        UUID doctorId = UUID.fromString(input.getDoctorId());
         UUID patientId = UUID.fromString(input.getPatientId());
         UUID medicationId = UUID.fromString(input.getMedicationId());
 
-        if (!grpcUserClient.isDoctor(doctorId.toString()))
-            throw new UserNotFoundException("Doctor not found");
+        if(!grpcUserClient.isDoctor(userId.toString()))
+            throw new UnauthorizedException("Only a doctor is allowed to issue a prescription");
 
         if (!grpcUserClient.isPatient(patientId.toString()))
             throw new UserNotFoundException("Patient not found");
@@ -98,7 +93,7 @@ public class PrescriptionService {
                 .builder()
                 .accessCode(prescriptionCode)
                 .status(PrescriptionStatus.ISSUED)
-                .doctorId(doctorId)
+                .doctorId(userId)
                 .patientId(patientId)
                 .medicationId(medicationId)
                 .totalPackages(input.getQuantity())
@@ -111,13 +106,12 @@ public class PrescriptionService {
     }
 
     @Transactional
-    public FulfillResult fulfillPrescription(FulfillPrescriptionInput input) {
+    public FulfillResult fulfillPrescription(UUID userId, FulfillPrescriptionInput input) {
 
-        UUID pharmacistId = UUID.fromString(input.getPharmacistId());
         UUID prescriptionId = UUID.fromString(input.getPrescriptionId());
 
-        if(!grpcUserClient.isPharmacist(pharmacistId.toString()))
-            throw new UserNotFoundException("Pharmacist not found");
+        if(!grpcUserClient.isPharmacist(userId.toString()))
+            throw new UnauthorizedException("Only a pharmacist is allowed to fulfill a prescription");
 
         Prescription fromDb = prescriptionRepository.findById(prescriptionId).orElseThrow(
                         () -> new PrescriptionNotFoundException("Prescription not found"));
@@ -147,7 +141,7 @@ public class PrescriptionService {
             fromDb.setStatus(PrescriptionStatus.PARTIALLY_FILLED);
 
         PrescriptionFulfillment fulfillment = PrescriptionFulfillment.builder()
-                .pharmacistId(pharmacistId)
+                .pharmacistId(userId)
                 .quantitySold(input.getQuantity())
                 .fulfilledAt(LocalDateTime.now())
                 .build();
@@ -163,7 +157,10 @@ public class PrescriptionService {
     }
 
     @Transactional
-    public com.example.demo.codegen.types.Prescription cancelPrescription(UUID prescriptionId, String reason) {
+    public com.example.demo.codegen.types.Prescription cancelPrescription(UUID userId, UUID prescriptionId, String reason) {
+
+        if(!grpcUserClient.isDoctor(userId.toString()))
+            throw new UnauthorizedException("Only a doctor is allowed to cancel a prescription");
 
         Prescription fromDb = prescriptionRepository.findById(prescriptionId).orElseThrow(
                 () -> new PrescriptionNotFoundException("Prescription not found"));
