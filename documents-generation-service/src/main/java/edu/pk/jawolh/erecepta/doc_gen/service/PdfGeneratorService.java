@@ -2,6 +2,7 @@ package edu.pk.jawolh.erecepta.doc_gen.service;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import edu.pk.jawolh.erecepta.doc_gen.model.PrescriptionPdfData;
+import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -10,6 +11,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+@Service
 public class PdfGeneratorService {
 
     private final TemplateEngine templateEngine;

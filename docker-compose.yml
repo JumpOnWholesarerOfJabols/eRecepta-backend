@@ -185,6 +185,12 @@ services:
       - "${MEDICAL_DOCUMENTS_SERVICE_PORT}:${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      eureka:
+        condition: service_started
     environment:
       SERVER_PORT: ${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}
 
@@ -193,6 +199,11 @@ services:
 
       ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
+
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
   documents-generation-service:
     build: ./documents-generation-service

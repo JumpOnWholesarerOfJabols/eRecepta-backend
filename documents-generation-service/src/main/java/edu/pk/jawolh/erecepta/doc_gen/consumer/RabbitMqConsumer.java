@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RabbitMqConsumer {
 
-    PdfGeneratorService pdfGeneratorService;
+    private final PdfGeneratorService pdfGeneratorService;
 
     @RabbitListener(queues = "#{@rabbitMqProperties.getGeneratePrescriptionEventTopic()}")
     public void receiveGeneratePrescriptionMessage(GeneratePrescriptionMessage message) {
