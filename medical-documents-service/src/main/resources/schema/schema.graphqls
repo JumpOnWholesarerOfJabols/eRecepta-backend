@@ -55,9 +55,7 @@ type FulfillResult {
 }
 
 input IssuePrescriptionInput {
-    doctorId: ID!
     patientId: ID!
-
     medicationId: String!
     quantity: Int!
 
@@ -66,6 +64,5 @@ input IssuePrescriptionInput {
 
 input FulfillPrescriptionInput {
     prescriptionId: ID!
-    pharmacistId: ID!
     quantity: Int!
 }

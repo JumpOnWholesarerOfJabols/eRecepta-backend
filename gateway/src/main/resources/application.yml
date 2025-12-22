@@ -51,6 +51,13 @@ spring:
               filters:
                 - StripPrefix=1
                 - Auth
+            - id: medical-documents-service
+              uri: lb://medical-documents-service
+              predicates:
+                - Path=/prescriptions/**
+              filters:
+                - StripPrefix=1
+                - Auth
 
 
 application:

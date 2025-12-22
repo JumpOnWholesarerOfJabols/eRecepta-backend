@@ -18,6 +18,10 @@
             <groupId>edu.pk.jawolh.erecepta</groupId>
             <artifactId>common-dto</artifactId>
         </dependency>
+        <dependency>
+            <groupId>edu.pk.jawolh.erecepta</groupId>
+            <artifactId>common-auth</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -101,10 +105,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>edu.pk.jawolh.erecepta</groupId>
-            <artifactId>common-auth</artifactId>
         </dependency>
     </dependencies>
 
