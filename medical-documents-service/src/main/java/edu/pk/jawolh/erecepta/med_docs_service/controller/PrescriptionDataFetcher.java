@@ -39,7 +39,11 @@ public class PrescriptionDataFetcher {
     ){
         UUID userId = getCurrentUserId();
 
-        if (hasRole("DOCTOR") || hasRole("ADMINISTRATOR") || hasRole("PHARMACIST"))
+        log.info("Logged in user: " + userId);
+        log.info("Patient id: {}", patientId);
+        logCurrentUserRoles();
+
+        if (hasRole("ROLE_DOCTOR") || hasRole("ROLE_ADMINISTRATOR") || hasRole("ROLE_PHARMACIST"))
             return prescriptionService.findPrescriptions(patientId, status, limit, offset);
 
         return prescriptionService.findPrescriptions(userId, status, limit, offset);
@@ -81,5 +85,13 @@ public class PrescriptionDataFetcher {
     protected final boolean hasRole(String role) {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals(role));
+    }
+
+    protected void logCurrentUserRoles() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        authentication.getAuthorities().forEach(auth ->
+                log.info("User role: {}", auth.getAuthority())
+        );
     }
 }

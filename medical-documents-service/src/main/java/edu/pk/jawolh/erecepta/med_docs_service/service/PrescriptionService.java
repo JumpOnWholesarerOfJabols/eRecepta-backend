@@ -15,6 +15,7 @@ import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionDAO;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionRepository;
 import edu.pk.jawolh.erecepta.med_docs_service.utils.CodeGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PrescriptionService {
 
@@ -54,6 +56,8 @@ public class PrescriptionService {
             com.example.demo.codegen.types.PrescriptionStatus status,
             Integer limit,
             Integer offset) {
+
+        log.info("Patient id: {}",patientId);
 
         edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus mappedStatus =
                 (status != null) ? PrescriptionStatusMapper.fromDTO(status) : null;

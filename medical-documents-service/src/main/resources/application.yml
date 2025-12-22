@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: medical-documents-service
   grpc:
     client:
       channels:
@@ -7,12 +9,12 @@ spring:
         medication:
           address: ${ERECEPTA_MEDICATION_CHANNEL:0.0.0.0:9090}
 
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka
 
 server:
   port: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT:12005}
