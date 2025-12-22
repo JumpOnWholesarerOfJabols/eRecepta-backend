@@ -8,6 +8,7 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.prescriptionservice.service.PrescriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -22,6 +23,7 @@ public class PrescriptionDataFetcher {
 
 
     @DgsQuery
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).PATIENT.name())")
     public List<Prescription> getPrescriptions() {
         return service.getPrescriptions(getCurrentUserId());
     }
@@ -31,7 +33,13 @@ public class PrescriptionDataFetcher {
         return service.getPrescriptionByVisitId(visitId, getCurrentUserId());
     }
 
+    @DgsQuery
+    public Optional<Prescription> getPrescriptionByCode(@InputArgument String code) {
+        return service.getPrescriptionByCode(code);
+    }
+
     @DgsMutation
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).DOCTOR.name())")
     public Prescription createPrescription(@InputArgument CreatePrescriptionInput input) {
         return service.createPrescription(getCurrentUserId(), input);
     }

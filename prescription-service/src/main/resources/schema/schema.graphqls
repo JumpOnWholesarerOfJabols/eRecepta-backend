@@ -5,6 +5,7 @@ type PrescribedMedication {
 
 type Prescription {
     id: String!
+    code: String!
     patientId: String!
     doctorId: String!
     visitId: String!

@@ -10,7 +10,9 @@ import java.util.UUID;
 public interface PrescriptionRepository extends JpaRepository<Prescription, UUID> {
     List<Prescription> findAllByPatientId(UUID patientId);
 
-    Optional<Prescription> findByVisitIdAndDoctorIdOrPatientId(UUID visitId, UUID doctorId, UUID patientId);
+    Optional<Prescription> findByVisitId(UUID visitId);
+
+    Optional<Prescription> findByCode(String code);
 
     boolean existsByVisitId(UUID visitId);
 }

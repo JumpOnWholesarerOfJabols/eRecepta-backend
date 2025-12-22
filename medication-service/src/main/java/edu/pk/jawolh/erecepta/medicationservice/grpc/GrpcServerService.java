@@ -8,13 +8,14 @@ import edu.pk.jawolh.erecepta.medicationservice.repository.MedicationRepository;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class GrpcService extends MedicationServiceGrpc.MedicationServiceImplBase {
+public class GrpcServerService extends MedicationServiceGrpc.MedicationServiceImplBase {
 
     private final MedicationRepository medicationRepository;
     private final DrugInteractionRepository interactionRepository;
@@ -35,6 +36,7 @@ public class GrpcService extends MedicationServiceGrpc.MedicationServiceImplBase
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void getMedicationDetails(GetMedicationDetailsRequest request, StreamObserver<GetMedicationDetailsReply> responseObserver) {
         Optional<Medication> medOpt = medicationRepository.findById(UUID.fromString(request.getMedicationId()));
         GetMedicationDetailsReply.Builder builder = GetMedicationDetailsReply.newBuilder();

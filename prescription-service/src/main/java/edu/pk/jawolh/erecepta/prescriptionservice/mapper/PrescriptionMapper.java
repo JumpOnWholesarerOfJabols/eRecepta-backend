@@ -12,6 +12,7 @@ public class PrescriptionMapper {
     public Prescription fromEntity(edu.pk.jawolh.erecepta.prescriptionservice.model.Prescription pr) {
         return Prescription.newBuilder()
                 .id(pr.getId().toString())
+                .code(pr.getCode())
                 .medications(pr.getMedications().stream().map(mdMapper::fromEntity).toList())
                 .visitId(pr.getVisitId().toString())
                 .doctorId(pr.getDoctorId().toString())
