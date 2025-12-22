@@ -129,7 +129,7 @@ public class PrescriptionService {
             throw new PrescriptionOverfulfillmentException("Requested quantity exceeds remaining packages");
         }
 
-        Integer filledQuantity = fromDb.getTotalPackages();
+        Integer filledQuantity = fromDb.getFilledPackages();
         Integer newQuantity = input.getQuantity() + filledQuantity;
 
         fromDb.setFilledPackages(newQuantity);
