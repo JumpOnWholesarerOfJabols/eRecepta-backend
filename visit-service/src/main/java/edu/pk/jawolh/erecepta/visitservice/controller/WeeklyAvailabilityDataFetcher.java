@@ -25,13 +25,13 @@ public class WeeklyAvailabilityDataFetcher extends AbstractDataFetcher {
     }
 
     @DgsMutation
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).DOCTOR.name())")
     public boolean createWeeklyAvailability(@InputArgument CreateWeeklyAvailabilityInput waInput) {
         return service.createWeeklyAvailability(getCurrentUserId(), waInput);
     }
 
     @DgsMutation
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).DOCTOR.name())")
     public boolean deleteWeeklyAvailability(@InputArgument DayOfWeek dow) {
         return service.deleteWeeklyAvailability(getCurrentUserId(), dow);
     }

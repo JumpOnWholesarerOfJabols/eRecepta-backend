@@ -31,13 +31,13 @@ public class AvailabilityExceptionDataFetcher extends AbstractDataFetcher {
     }
 
     @DgsMutation
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).ADMINISTRATOR.name())")
     public UUID createAvailabilityException(@InputArgument CreateAvailabilityExceptionInput avexInput) {
         return facade.createAvailabilityException(getCurrentUserId(), avexInput);
     }
 
     @DgsMutation
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).DOCTOR.name())")
     public boolean deleteAvailabilityException(@InputArgument UUID avexId) {
         return facade.deleteById(getCurrentUserId(), avexId);
     }

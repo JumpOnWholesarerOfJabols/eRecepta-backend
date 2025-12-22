@@ -1,7 +1,7 @@
 package edu.pk.jawolh.erecepta.identityservice.validation;
 
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
 import edu.pk.jawolh.erecepta.identityservice.exception.MultiFieldValidationException;
-import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

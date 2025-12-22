@@ -1,9 +1,9 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.config.JwtProperties;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.util.TimeFormatter;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

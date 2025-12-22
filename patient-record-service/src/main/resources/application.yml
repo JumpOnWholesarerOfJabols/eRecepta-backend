@@ -6,6 +6,8 @@ spring:
           address: ${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}
         medication:
           address: ${ERECEPTA_MEDICATION_CHANNEL:0.0.0.0:9090}
+  application:
+    name: patient-record-service
 
 eureka:
   client:

@@ -3,6 +3,17 @@ spring:
     name: gateway
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
       server:
         webflux:
           routes:
@@ -26,6 +37,21 @@ spring:
               filters:
                 - StripPrefix=1
                 - Auth
+            - id: admin-service
+              uri: lb://admin-service
+              predicates:
+                - Path=/admin/**
+              filters:
+                - StripPrefix=1
+                - Auth
+            - id: medication-service
+              uri: lb://medication-service
+              predicates:
+                - Path=/medication/**
+              filters:
+                - StripPrefix=1
+                - Auth
+
 
 application:
   security:

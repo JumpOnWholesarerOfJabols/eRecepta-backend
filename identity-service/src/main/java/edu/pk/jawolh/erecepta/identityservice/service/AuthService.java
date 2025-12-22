@@ -1,6 +1,8 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
 import com.example.demo.codegen.types.Gender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.client.RabbitMQClient;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.exception.AccountVerificationException;
@@ -9,8 +11,6 @@ import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsExcepti
 import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistException;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
-import edu.pk.jawolh.erecepta.identityservice.model.UserGender;
-import edu.pk.jawolh.erecepta.identityservice.model.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.validation.RegisterValidator;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +43,20 @@ public class AuthService {
             String dateOfBirth,
             String password
     ) {
+        return registerUser(email, pesel, firstName, lastName, phoneNumber, gender, dateOfBirth, password, UserRole.PATIENT);
+    }
+
+    public String registerUser(
+            String email,
+            String pesel,
+            String firstName,
+            String lastName,
+            String phoneNumber,
+            Gender gender,
+            String dateOfBirth,
+            String password,
+            UserRole role
+    ) {
         if (userRepository.existsByPeselOrEmail(pesel, email)) {
             throw new UserAlreadyExistsException("User with given PESEL or email already exists");
         }
@@ -70,7 +84,7 @@ public class AuthService {
                 .userGender(userGender)
                 .dateOfBirth(dateOfBirthParsed)
                 .hashedPassword(passwordEncoder.encode(password))
-                .role(UserRole.PATIENT)
+                .role(role)
                 .verified(false)
                 .build();
 

@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -14,11 +15,16 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class AuthGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
+    private static final String ID_HEADER = "X-UserId";
+    private static final String ROLE_HEADER = "X-UserRole";
+    private static final String BEARER = "Bearer ";
+    private static final String ROLE = "role";
+
     private final JwtService jwtService;
 
     private String getToken(ServerHttpRequest request) {
-        String authHeader = request.getHeaders().getFirst("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith(BEARER)) {
             return authHeader.substring(7);
         }
         return null;
@@ -45,8 +51,8 @@ public class AuthGatewayFilterFactory extends AbstractGatewayFilterFactory<Objec
 
             ServerHttpRequest request = exchange.getRequest()
                     .mutate()
-                    .header("X-UserID", claims.getSubject())
-                    .header("X-UserRole", claims.get("role", String.class))
+                    .header(ID_HEADER, claims.getSubject())
+                    .header(ROLE_HEADER, claims.get(ROLE, String.class))
                     .build();
 
             ServerWebExchange exchange1 = exchange.mutate().request(request).build();

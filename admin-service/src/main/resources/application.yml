@@ -1,0 +1,18 @@
+server:
+  port: ${ADMIN_SERVICE_INTERNAL_PORT:15000}
+
+spring:
+  application:
+    name: admin-service
+  grpc:
+    client:
+      channels:
+        user:
+          address: '${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}'
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka
