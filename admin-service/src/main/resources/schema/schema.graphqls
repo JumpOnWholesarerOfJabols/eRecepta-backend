@@ -3,7 +3,7 @@ enum Gender {
 }
 
 enum Role {
-    PATIENT, DOCTOR, ADMINISTRATOR
+    PATIENT, DOCTOR, PHARMACIST, ADMINISTRATOR
 }
 
 type CreateUserResult {
