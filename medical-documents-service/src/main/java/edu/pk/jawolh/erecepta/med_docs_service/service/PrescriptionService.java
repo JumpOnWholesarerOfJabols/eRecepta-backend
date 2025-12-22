@@ -133,16 +133,6 @@ public class PrescriptionService {
             throw new PrescriptionOverfulfillmentException("Requested quantity exceeds remaining packages");
         }
 
-        Integer filledQuantity = fromDb.getFilledPackages();
-        Integer newQuantity = input.getQuantity() + filledQuantity;
-
-        fromDb.setFilledPackages(newQuantity);
-        boolean isFilled = fromDb.getRemainingPackages() <= 0;
-
-        if (isFilled)
-            fromDb.setStatus(PrescriptionStatus.FILLED);
-        else
-            fromDb.setStatus(PrescriptionStatus.PARTIALLY_FILLED);
 
         PrescriptionFulfillment fulfillment = PrescriptionFulfillment.builder()
                 .pharmacistId(userId)
@@ -155,7 +145,7 @@ public class PrescriptionService {
         Prescription saved = prescriptionRepository.save(fromDb);
 
         return FulfillResult.newBuilder()
-                .isFullyCompleted(isFilled)
+                .isFullyCompleted(saved.getRemainingPackages()<=0)
                 .updatedPrescription(PrescriptionMapper.toDTO(saved))
                 .build();
     }
