@@ -43,6 +43,7 @@
         <module>admin-service</module>
         <module>medication-service</module>
         <module>medical-documents-service</module>
+        <module>documents-generation-service</module>
     </modules>
 
     <dependencyManagement>

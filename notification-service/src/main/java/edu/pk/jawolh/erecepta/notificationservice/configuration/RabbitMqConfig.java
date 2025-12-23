@@ -33,9 +33,22 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue prescriptionEmailQueue() {
+        return new Queue(rabbitMqProperties.getPrescriptionEmailEventTopic());
+    }
+
+
+
+    @Bean
     public TopicExchange  exchange() {
         return new TopicExchange (rabbitMqProperties.getExchangeName());
     }
+
+    @Bean
+    public TopicExchange prescriptionExchange() {
+        return new TopicExchange(rabbitMqProperties.getPrescriptionExchangeName());
+    }
+
 
     @Bean
     public Binding resetPasswordCodeEventBinding(
@@ -65,6 +78,16 @@ public class RabbitMqConfig {
                 .bind(queue)
                 .to(exchange)
                 .with(rabbitMqProperties.getVisitChangeRoutingKey());
+    }
+
+    @Bean
+    public Binding prescriptionEmailBinding(
+            @Qualifier("prescriptionEmailQueue") Queue queue,
+            @Qualifier("prescriptionExchange") TopicExchange exchange) {
+        return BindingBuilder
+                .bind(queue)
+                .to(exchange)
+                .with(rabbitMqProperties.getPrescriptionEmailEventRoutingKey());
     }
 
     @Bean

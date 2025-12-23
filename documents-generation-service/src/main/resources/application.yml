@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: documents-generator-service
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:user}
+    password: ${SPRING_RABBITMQ_PASSWORD:password}
+
+rabbitmq:
+  exchange-name: prescription-exchange
+
+  generate-prescription-event-routing-key: generate-prescription-event
+  prescription-email-routing-key: prescription.email.event
+
+  generate-prescription-event-topic: prescription-generation-queue
+
+server:
+  port: ${SERVER_PORT:12006}

@@ -4,14 +4,17 @@ package edu.pk.jawolh.erecepta.med_docs_service.service;
 import com.example.demo.codegen.types.FulfillPrescriptionInput;
 import com.example.demo.codegen.types.FulfillResult;
 import com.example.demo.codegen.types.IssuePrescriptionInput;
+import edu.pk.jawolh.erecepta.common.prescription.messeges.GeneratePrescriptionMessage;
 import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcMedicationClient;
 import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.med_docs_service.exceptions.*;
+import edu.pk.jawolh.erecepta.med_docs_service.factory.PrescriptionMessageFactory;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionStatusMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.model.Prescription;
 import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionFulfillment;
 import edu.pk.jawolh.erecepta.med_docs_service.model.PrescriptionStatus;
+import edu.pk.jawolh.erecepta.med_docs_service.rabbitMq.RabbitMqPrescriptionMessageSender;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionDAO;
 import edu.pk.jawolh.erecepta.med_docs_service.repository.PrescriptionRepository;
 import edu.pk.jawolh.erecepta.med_docs_service.utils.CodeGenerator;
@@ -33,13 +36,17 @@ public class PrescriptionService {
     private final PrescriptionDAO prescriptionDAO;
     private final GrpcUserClient grpcUserClient;
     private final GrpcMedicationClient grpcMedicationClient;
+    private final RabbitMqPrescriptionMessageSender rabbitMqPrescriptionMessageSender;
+    private final PrescriptionMessageFactory prescriptionMessageFactory;
 
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient, GrpcMedicationClient grpcMedicationClient) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient, GrpcMedicationClient grpcMedicationClient, RabbitMqPrescriptionMessageSender rabbitMqPrescriptionMessageSender, PrescriptionMessageFactory prescriptionMessageFactory) {
         this.prescriptionRepository = prescriptionRepository;
         this.codeGenerator = codeGenerator;
         this.prescriptionDAO = prescriptionDAO;
         this.grpcUserClient = grpcUserClient;
         this.grpcMedicationClient = grpcMedicationClient;
+        this.rabbitMqPrescriptionMessageSender = rabbitMqPrescriptionMessageSender;
+        this.prescriptionMessageFactory = prescriptionMessageFactory;
     }
 
     public com.example.demo.codegen.types.Prescription verifyPrescription(String accessCode, UUID patientIdentifier) {
@@ -106,6 +113,9 @@ public class PrescriptionService {
 
         Prescription saved = prescriptionRepository.save(prescription);
 
+        GeneratePrescriptionMessage message = prescriptionMessageFactory.createMessage(saved);
+        rabbitMqPrescriptionMessageSender.sendPrescriptionGenerationRequest(message);
+
         return PrescriptionMapper.toDTO(saved);
     }
 
@@ -168,6 +178,4 @@ public class PrescriptionService {
         Prescription saved = prescriptionRepository.save(fromDb);
         return PrescriptionMapper.toDTO(saved);
     }
-
-
 }

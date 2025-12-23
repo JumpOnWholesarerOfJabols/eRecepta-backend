@@ -1,6 +1,11 @@
 spring:
   application:
     name: medical-documents-service
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
   grpc:
     client:
       channels:
@@ -15,6 +20,10 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://${ERECEPTA_EUREKA_HOST:localhost}:${ERECEPTA_EUREKA_PORT:8761}/eureka
+
+rabbitmq:
+  exchange-name: prescription-exchange
+  generate-prescription-event-routing-key: generate-prescription-event
 
 server:
   port: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT:12005}

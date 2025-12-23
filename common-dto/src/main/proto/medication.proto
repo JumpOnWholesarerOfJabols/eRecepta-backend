@@ -4,6 +4,28 @@ option java_multiple_files = true;
 option java_package = "edu.pk.jawolh.erecepta.common.medication.proto";
 option java_outer_classname = "MedicationProto";
 
+enum ProtoMedicationForm {
+  FORM_UNSPECIFIED = 0;
+  FORM_TABLET = 1;
+  FORM_CAPSULE = 2;
+  FORM_SYRUP = 3;
+  FORM_SOLUTION_FOR_INJECTION = 4;
+  FORM_OINTMENT = 5;
+  FORM_GEL = 6;
+  FORM_INHALER = 7;
+  FORM_PATCH = 8;
+}
+
+enum ProtoRouteOfAdministration {
+  ROUTE_UNSPECIFIED = 0;
+  ROUTE_ORAL = 1;
+  ROUTE_INTRAVENOUS = 2;
+  ROUTE_INTRAMUSCULAR = 3;
+  ROUTE_TOPICAL = 4;
+  ROUTE_INHALATION = 5;
+  ROUTE_RECTAL = 6;
+}
+
 message MedicationExistsRequest {
   string medicationId = 1;
 }
@@ -11,6 +33,37 @@ message MedicationExistsReply {
   bool medicationExists = 1;
 }
 
+message GetMedicationDataRequest {
+  string medicationId = 1;
+}
+
+message MedicationIngredient {
+  string id = 1;
+  string name = 2;
+  string strength = 3;
+  bool isActive = 4;
+}
+
+message GetMedicationDataReply {
+  string id = 1;
+  string ean = 2;
+  string atcCode = 3;
+  string tradeName = 4;
+  string genericName = 5;
+  string manufacturer = 6;
+
+  ProtoMedicationForm form = 7;
+  ProtoRouteOfAdministration route = 8;
+
+  string packageSize = 9;
+  bool requiresPrescription = 10;
+
+  repeated MedicationIngredient ingredients = 11;
+  repeated string indications = 12;
+  repeated string sideEffects = 13;
+}
+
 service MedicationService {
   rpc MedicationExists (MedicationExistsRequest) returns (MedicationExistsReply) {}
+  rpc GetMedicationData (GetMedicationDataRequest) returns (GetMedicationDataReply) {}
 }

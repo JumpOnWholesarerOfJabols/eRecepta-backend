@@ -1,8 +1,6 @@
 package edu.pk.jawolh.erecepta.med_docs_service.client;
 
-import edu.pk.jawolh.erecepta.common.user.proto.UserExistsReply;
-import edu.pk.jawolh.erecepta.common.user.proto.UserExistsRequest;
-import edu.pk.jawolh.erecepta.common.user.proto.UserServiceGrpc;
+import edu.pk.jawolh.erecepta.common.user.proto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +25,10 @@ public class GrpcUserClient {
         UserExistsRequest request = UserExistsRequest.newBuilder().setUserId(UUID).build();
         UserExistsReply response = stub.checkDoctorExists(request);
         return response.getUserExists();
+    }
+
+    public GetUserDataReply getUserData(String UUID) {
+        GetUserDataRequest request = GetUserDataRequest.newBuilder().setUserId(UUID).build();
+        return stub.getUserData(request);
     }
 }

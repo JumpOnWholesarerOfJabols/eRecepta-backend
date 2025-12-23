@@ -37,4 +37,16 @@ public class RabbitMqConsumer {
         emailService.sendPatientVisitStatusUpdate(message);
         emailService.sendDoctorVisitStatusUpdate(message);
     }
+
+    @RabbitListener(queues = "#{rabbitMqProperties.getPrescriptionEmailEventTopic()}")
+    public void processPrescriptionEmail(edu.pk.jawolh.erecepta.common.prescription.messeges.PrescriptionEmailMessage message) {
+        log.info("Received prescription email request for: {}", message.getRecipientEmail());
+
+        emailService.sendPrescriptionEmail(
+                message.getRecipientEmail(),
+                message.getPatientName(),
+                message.getPrescriptionId(),
+                message.getPdfContent()
+        );
+    }
 }

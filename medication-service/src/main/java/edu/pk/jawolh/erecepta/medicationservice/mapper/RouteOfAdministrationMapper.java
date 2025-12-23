@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.medicationservice.mapper;
 
+import edu.pk.jawolh.erecepta.common.medication.proto.ProtoRouteOfAdministration;
 import edu.pk.jawolh.erecepta.medicationservice.model.RouteOfAdministration;
 
 public class RouteOfAdministrationMapper {
@@ -31,6 +32,21 @@ public class RouteOfAdministrationMapper {
             case TOPICAL -> RouteOfAdministration.TOPICAL;
             case INHALATION -> RouteOfAdministration.INHALATION;
             case RECTAL -> RouteOfAdministration.RECTAL;
+        };
+    }
+
+    public static ProtoRouteOfAdministration toProto(RouteOfAdministration domainType) {
+        if (domainType == null) {
+            return ProtoRouteOfAdministration.ROUTE_UNSPECIFIED;
+        }
+
+        return switch (domainType) {
+            case ORAL -> ProtoRouteOfAdministration.ROUTE_ORAL;
+            case INTRAVENOUS -> ProtoRouteOfAdministration.ROUTE_INTRAVENOUS;
+            case INTRAMUSCULAR -> ProtoRouteOfAdministration.ROUTE_INTRAMUSCULAR;
+            case TOPICAL -> ProtoRouteOfAdministration.ROUTE_TOPICAL;
+            case INHALATION -> ProtoRouteOfAdministration.ROUTE_INHALATION;
+            case RECTAL -> ProtoRouteOfAdministration.ROUTE_RECTAL;
         };
     }
 }

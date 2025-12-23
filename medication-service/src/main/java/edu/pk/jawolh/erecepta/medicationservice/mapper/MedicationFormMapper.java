@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.medicationservice.mapper;
 
+import edu.pk.jawolh.erecepta.common.medication.proto.ProtoMedicationForm;
 import edu.pk.jawolh.erecepta.medicationservice.model.MedicationForm;
 
 public class MedicationFormMapper {
@@ -35,6 +36,23 @@ public class MedicationFormMapper {
             case GEL -> MedicationForm.GEL;
             case INHALER -> MedicationForm.INHALER;
             case PATCH -> MedicationForm.PATCH;
+        };
+    }
+
+    public static ProtoMedicationForm toProto(MedicationForm domainType) {
+        if (domainType == null) {
+            return ProtoMedicationForm.FORM_UNSPECIFIED;
+        }
+
+        return switch (domainType) {
+            case TABLET -> ProtoMedicationForm.FORM_TABLET;
+            case CAPSULE -> ProtoMedicationForm.FORM_CAPSULE;
+            case SYRUP -> ProtoMedicationForm.FORM_SYRUP;
+            case SOLUTION_FOR_INJECTION -> ProtoMedicationForm.FORM_SOLUTION_FOR_INJECTION;
+            case OINTMENT -> ProtoMedicationForm.FORM_OINTMENT;
+            case GEL -> ProtoMedicationForm.FORM_GEL;
+            case INHALER -> ProtoMedicationForm.FORM_INHALER;
+            case PATCH -> ProtoMedicationForm.FORM_PATCH;
         };
     }
 }
