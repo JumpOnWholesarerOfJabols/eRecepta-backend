@@ -2,11 +2,15 @@ package edu.pk.jawolh.erecepta.notificationservice.service;
 
 import edu.pk.jawolh.erecepta.common.visit.messages.VisitMessage;
 import edu.pk.jawolh.erecepta.notificationservice.configuration.EmailProperties;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +84,38 @@ public class EmailService {
         );
 
         sendEmail(msg.patientData().email(), subject, body);
+    }
+
+    @Async
+    public void sendPrescriptionEmail(String to, String patientName, String prescriptionId, byte[] pdfContent) {
+        String subject = messageSource.getMessage(
+                "email.prescription.subject",
+                new Object[]{prescriptionId},
+                Locale.getDefault()
+        );
+
+        String body = messageSource.getMessage(
+                "email.prescription.body",
+                new Object[]{patientName},
+                Locale.getDefault()
+        );
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(emailProperties.getSenderAddress());
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body);
+
+            helper.addAttachment("Recepta_" + prescriptionId + ".pdf", new ByteArrayResource(pdfContent));
+
+            mailSender.send(message);
+            log.info("Email with prescription sent to {}", to);
+        } catch (MessagingException e) {
+            log.error("Failed to send email with prescription to {}", to, e);
+        }
     }
 
     private void sendEmail(String to, String subject, String body) {

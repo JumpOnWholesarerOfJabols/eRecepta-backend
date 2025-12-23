@@ -30,12 +30,18 @@ spring:
 
 rabbitmq:
   exchange-name: user-exchange
+  prescription-exchange-name: prescription-exchange
+
   verification-code-event-routing-key: verification-code-event
   reset-password-code-event-routing-key: reset-password-code-event
   visit-change-routing-key: visit-change-event
+  prescription-email-event-routing-key: prescription.email.event
+
   verification-code-event-topic: verification-code-queue
   reset-password-code-event-topic: reset-password-code-queue
   visit-change-event-topic: visit-change-event
+  prescription-email-event-topic: prescription-email-queue
+
 
 server:
   port: ${SERVER_PORT:12001}

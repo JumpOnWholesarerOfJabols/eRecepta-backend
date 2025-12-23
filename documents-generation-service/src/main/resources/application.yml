@@ -9,7 +9,10 @@ spring:
 
 rabbitmq:
   exchange-name: prescription-exchange
+
   generate-prescription-event-routing-key: generate-prescription-event
+  prescription-email-routing-key: prescription.email.event
+
   generate-prescription-event-topic: prescription-generation-queue
 
 server:

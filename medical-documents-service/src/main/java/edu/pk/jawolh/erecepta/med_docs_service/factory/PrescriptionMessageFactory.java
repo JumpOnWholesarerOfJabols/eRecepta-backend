@@ -40,6 +40,7 @@ public class PrescriptionMessageFactory {
 
                 .patientName(patientData.getFirstName() + " " + patientData.getLastName())
                 .patientPesel(patientData.getPesel())
+                .patientEmail(patientData.getEmail())
                 .doctorName(doctorData.getFirstName() + " " + doctorData.getLastName())
                 .medicationName(medicationName)
                 .build();

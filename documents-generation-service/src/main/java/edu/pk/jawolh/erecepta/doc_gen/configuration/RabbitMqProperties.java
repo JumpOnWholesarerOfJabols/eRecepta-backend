@@ -13,4 +13,6 @@ public class RabbitMqProperties {
 
     private String generatePrescriptionEventRoutingKey;
     private String generatePrescriptionEventTopic;
+
+    private String prescriptionEmailRoutingKey;
 }

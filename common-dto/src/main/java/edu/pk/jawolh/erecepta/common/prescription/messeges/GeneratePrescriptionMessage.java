@@ -20,4 +20,5 @@ public class GeneratePrescriptionMessage {
     private String patientPesel;
     private String doctorName;
     private String medicationName;
+    private String patientEmail;
 }
