@@ -8,6 +8,7 @@ import edu.pk.jawolh.erecepta.common.prescription.messeges.GeneratePrescriptionM
 import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcMedicationClient;
 import edu.pk.jawolh.erecepta.med_docs_service.client.GrpcUserClient;
 import edu.pk.jawolh.erecepta.med_docs_service.exceptions.*;
+import edu.pk.jawolh.erecepta.med_docs_service.factory.PrescriptionMessageFactory;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.mappers.PrescriptionStatusMapper;
 import edu.pk.jawolh.erecepta.med_docs_service.model.Prescription;
@@ -36,14 +37,16 @@ public class PrescriptionService {
     private final GrpcUserClient grpcUserClient;
     private final GrpcMedicationClient grpcMedicationClient;
     private final RabbitMqPrescriptionMessageSender rabbitMqPrescriptionMessageSender;
+    private final PrescriptionMessageFactory prescriptionMessageFactory;
 
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient, GrpcMedicationClient grpcMedicationClient, RabbitMqPrescriptionMessageSender rabbitMqPrescriptionMessageSender) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, CodeGenerator codeGenerator, PrescriptionDAO prescriptionDAO, GrpcUserClient grpcUserClient, GrpcMedicationClient grpcMedicationClient, RabbitMqPrescriptionMessageSender rabbitMqPrescriptionMessageSender, PrescriptionMessageFactory prescriptionMessageFactory) {
         this.prescriptionRepository = prescriptionRepository;
         this.codeGenerator = codeGenerator;
         this.prescriptionDAO = prescriptionDAO;
         this.grpcUserClient = grpcUserClient;
         this.grpcMedicationClient = grpcMedicationClient;
         this.rabbitMqPrescriptionMessageSender = rabbitMqPrescriptionMessageSender;
+        this.prescriptionMessageFactory = prescriptionMessageFactory;
     }
 
     public com.example.demo.codegen.types.Prescription verifyPrescription(String accessCode, UUID patientIdentifier) {
@@ -110,7 +113,8 @@ public class PrescriptionService {
 
         Prescription saved = prescriptionRepository.save(prescription);
 
-        sendHardcodedDataToGenerator(saved);
+        GeneratePrescriptionMessage message = prescriptionMessageFactory.createMessage(saved);
+        rabbitMqPrescriptionMessageSender.sendPrescriptionGenerationRequest(message);
 
         return PrescriptionMapper.toDTO(saved);
     }
@@ -174,25 +178,4 @@ public class PrescriptionService {
         Prescription saved = prescriptionRepository.save(fromDb);
         return PrescriptionMapper.toDTO(saved);
     }
-
-    private void sendHardcodedDataToGenerator(Prescription prescription) {
-        GeneratePrescriptionMessage message = GeneratePrescriptionMessage.builder()
-                // Real data
-                .prescriptionId(prescription.getId().toString())
-                .accessCode(prescription.getAccessCode() != null ? prescription.getAccessCode() : "1234")
-                .status(prescription.getStatus().name())
-                .issueDate(prescription.getCreated() != null ? prescription.getCreated().toString() : "2023-01-01")
-                .expirationDate(prescription.getExpiresAt() != null ? prescription.getExpiresAt().toString() : "2024-01-01")
-                .totalPackages(prescription.getTotalPackages())
-
-                // HARDCODED DATA todo: get real data
-                .patientName("Jan Kowalski (TEST)")
-                .patientPesel("90010112345")
-                .doctorName("Dr House (TEST)")
-                .medicationName("Ibuprom Zatoki (TEST)")
-                .build();
-
-        rabbitMqPrescriptionMessageSender.sendPrescriptionGenerationRequest(message);
-    }
-
 }

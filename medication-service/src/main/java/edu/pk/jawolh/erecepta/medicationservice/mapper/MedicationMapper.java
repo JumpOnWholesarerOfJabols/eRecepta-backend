@@ -2,6 +2,7 @@ package edu.pk.jawolh.erecepta.medicationservice.mapper;
 
 import com.example.demo.codegen.types.CreateMedicationInput;
 import com.example.demo.codegen.types.Medication;
+import edu.pk.jawolh.erecepta.common.medication.proto.GetMedicationDataReply;
 import edu.pk.jawolh.erecepta.medicationservice.model.Ingredient;
 
 import java.util.Collections;
@@ -56,6 +57,33 @@ public class MedicationMapper {
                 .ingredients(ingredients)
                 .indications(input.getIndications() != null ? input.getIndications() : Collections.emptyList())
                 .sideEffects(input.getSideEffects() != null ? input.getSideEffects() : Collections.emptyList())
+                .build();
+    }
+
+    public static GetMedicationDataReply toProto(edu.pk.jawolh.erecepta.medicationservice.model.Medication domainMedication) {
+        if (domainMedication == null) {
+            return null;
+        }
+
+        return GetMedicationDataReply.newBuilder()
+                .setId(domainMedication.getId().toString())
+                .setEan(domainMedication.getEan())
+                .setAtcCode(domainMedication.getAtcCode())
+                .setTradeName(domainMedication.getTradeName())
+                .setGenericName(domainMedication.getGenericName())
+                .setManufacturer(domainMedication.getManufacturer())
+
+                .setForm(MedicationFormMapper.toProto(domainMedication.getForm()))
+                .setRoute(RouteOfAdministrationMapper.toProto(domainMedication.getRoute()))
+                .setPackageSize(domainMedication.getPackageSize())
+                .setRequiresPrescription(domainMedication.isRequiresPrescription())
+
+                .addAllIngredients(domainMedication.getIngredients().stream()
+                        .map(IngredientMapper::toProto)
+                        .collect(Collectors.toList()))
+
+                .addAllIndications(domainMedication.getIndications() != null ? domainMedication.getIndications() : Collections.emptyList())
+                .addAllSideEffects(domainMedication.getSideEffects() != null ? domainMedication.getSideEffects() : Collections.emptyList())
                 .build();
     }
 }
