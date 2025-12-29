@@ -15,5 +15,11 @@ rabbitmq:
 
   generate-prescription-event-topic: prescription-generation-queue
 
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket: ${MINIO_PRESCRIPTIONS_BUCKET}
+
 server:
   port: ${SERVER_PORT:12006}

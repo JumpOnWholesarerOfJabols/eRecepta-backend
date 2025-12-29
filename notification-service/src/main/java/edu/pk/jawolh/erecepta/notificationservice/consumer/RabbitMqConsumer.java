@@ -4,6 +4,7 @@ import edu.pk.jawolh.erecepta.common.user.messages.ResetPasswordCodeMessage;
 import edu.pk.jawolh.erecepta.common.user.messages.VerificationCodeMessage;
 import edu.pk.jawolh.erecepta.common.visit.messages.VisitMessage;
 import edu.pk.jawolh.erecepta.notificationservice.service.EmailService;
+import edu.pk.jawolh.erecepta.notificationservice.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class RabbitMqConsumer {
 
     private final EmailService emailService;
+    private final StorageService storageService;
 
     @RabbitListener(queues = "#{rabbitMqProperties.getVerificationCodeEventTopic()}")
     public void processVerificationCodeMessage(VerificationCodeMessage message) {
@@ -42,11 +44,21 @@ public class RabbitMqConsumer {
     public void processPrescriptionEmail(edu.pk.jawolh.erecepta.common.prescription.messeges.PrescriptionEmailMessage message) {
         log.info("Received prescription email request for: {}", message.getRecipientEmail());
 
-        emailService.sendPrescriptionEmail(
-                message.getRecipientEmail(),
-                message.getPatientName(),
-                message.getPrescriptionId(),
-                message.getPdfContent()
-        );
+        try {
+            byte[] pdfContent = storageService.downloadFile(message.getFileKey());
+            log.info("Downloaded PDF from MinIO. Size: {} bytes", pdfContent.length);
+
+            emailService.sendPrescriptionEmail(
+                    message.getRecipientEmail(),
+                    message.getPatientName(),
+                    message.getPrescriptionId(),
+                    pdfContent
+            );
+
+            log.info("Email sent successfully.");
+
+        } catch (Exception e) {
+            log.error("Failed to handle prescription email for ID: {}", message.getPrescriptionId(), e);
+        }
     }
 }
