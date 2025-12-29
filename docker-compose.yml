@@ -177,6 +177,11 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
+      MINIO_URL: ${MINIO_URL}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_PRESCRIPTIONS_BUCKET: ${MINIO_PRESCRIPTIONS_BUCKET}
+
 
   medical-documents-service:
     build: ./medical-documents-service
@@ -190,6 +195,8 @@ services:
       rabbitmq:
         condition: service_healthy
       eureka:
+        condition: service_started
+      minio:
         condition: service_started
     environment:
       SERVER_PORT: ${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}
@@ -214,6 +221,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      minio:
+        condition: service_started
     environment:
       SERVER_PORT: ${DOC_GEN_SERVICE_INTERNAL_PORT}
 
@@ -221,6 +230,21 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+      MINIO_URL: ${MINIO_URL}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_PRESCRIPTIONS_BUCKET: ${MINIO_PRESCRIPTIONS_BUCKET}
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
 
 networks:
   erecepta-network:
