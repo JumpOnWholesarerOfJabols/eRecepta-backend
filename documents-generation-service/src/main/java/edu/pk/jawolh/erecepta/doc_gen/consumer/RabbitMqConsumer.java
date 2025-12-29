@@ -5,10 +5,13 @@ import edu.pk.jawolh.erecepta.common.prescription.messeges.PrescriptionEmailMess
 import edu.pk.jawolh.erecepta.doc_gen.model.PrescriptionPdfData;
 import edu.pk.jawolh.erecepta.doc_gen.rabbitMq.RabbitMqMessageSender;
 import edu.pk.jawolh.erecepta.doc_gen.service.PdfGeneratorService;
+import edu.pk.jawolh.erecepta.doc_gen.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -17,6 +20,7 @@ public class RabbitMqConsumer {
 
     private final PdfGeneratorService pdfGeneratorService;
     private final RabbitMqMessageSender rabbitMqMessageSender;
+    private final StorageService storageService;
 
     @RabbitListener(queues = "#{@rabbitMqProperties.getGeneratePrescriptionEventTopic()}")
     public void receiveGeneratePrescriptionMessage(GeneratePrescriptionMessage message) {
@@ -24,16 +28,18 @@ public class RabbitMqConsumer {
 
         try {
             PrescriptionPdfData pdfData = mapToPdfData(message);
-
             byte[] pdfContent = pdfGeneratorService.generatePrescriptionPdf(pdfData);
 
-            log.info("PDF generated successfully. Size: {} bytes", pdfContent.length);
+            String fileKey = "prescription_" + message.getPrescriptionId() + "_" + UUID.randomUUID() + ".pdf";
+
+            storageService.uploadFile(fileKey, pdfContent);
+            log.info("PDF uploaded to MinIO with key: {}", fileKey);
 
             PrescriptionEmailMessage emailMessage = PrescriptionEmailMessage.builder()
                     .recipientEmail(message.getPatientEmail())
                     .patientName(message.getPatientName())
                     .prescriptionId(message.getPrescriptionId())
-                    .pdfContent(pdfContent)
+                    .fileKey(fileKey)
                     .build();
 
             rabbitMqMessageSender.sendPrescriptionEmail(emailMessage);
