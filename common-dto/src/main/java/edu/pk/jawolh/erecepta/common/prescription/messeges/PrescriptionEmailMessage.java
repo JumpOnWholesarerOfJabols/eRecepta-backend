@@ -13,5 +13,5 @@ public class PrescriptionEmailMessage {
     private String recipientEmail;
     private String patientName;
     private String prescriptionId;
-    private byte[] pdfContent;
+    private String fileKey;
 }
