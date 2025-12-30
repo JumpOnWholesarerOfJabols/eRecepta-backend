@@ -43,13 +43,30 @@ public class IdentityDataFetcher {
 
     @DgsMutation
     public AuthToken login(@InputArgument LoginInput input){
-        JwtTokenDTO token = authService.login(
+
+        return authService.login(
                 input.getLogin(),
                 input.getPassword());
+    }
 
-        return AuthToken.newBuilder()
-                .token(token.token())
-                .expiresAt(token.expiresAt())
+    @DgsMutation
+    public AuthToken refreshToken(@InputArgument String refreshToken) {
+        return authService.refreshToken(refreshToken);
+    }
+
+    @DgsMutation
+    public Message logout(@InputArgument String refreshToken) {
+        String message = authService.logout(refreshToken);
+        return Message.newBuilder()
+                .message(message)
+                .build();
+    }
+
+    @DgsMutation
+    public Message logoutFromOtherDevices(@InputArgument String refreshToken) {
+        String message = authService.logoutFromOtherDevices(refreshToken);
+        return Message.newBuilder()
+                .message(message)
                 .build();
     }
 

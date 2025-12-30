@@ -1,17 +1,16 @@
 package edu.pk.jawolh.erecepta.identityservice;
 
+import com.example.demo.codegen.types.AuthToken;
 import com.example.demo.codegen.types.Gender;
 import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.client.RabbitMQClient;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.exception.*;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
+import edu.pk.jawolh.erecepta.identityservice.model.RefreshToken;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
-import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
-import edu.pk.jawolh.erecepta.identityservice.service.JwtService;
-import edu.pk.jawolh.erecepta.identityservice.service.ResetPasswordCodeService;
-import edu.pk.jawolh.erecepta.identityservice.service.VerificationCodeService;
+import edu.pk.jawolh.erecepta.identityservice.service.*;
 import lombok.Builder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
@@ -49,6 +48,8 @@ public class AuthServiceIntegrationTest {
     private ResetPasswordCodeService resetPasswordCodeService;
     @MockitoBean
     private JwtService jwtService;
+    @MockitoBean
+    private RefreshTokenService refreshTokenService;
 
     @Builder(toBuilder = true)
     private record RegistrationData(
@@ -200,12 +201,17 @@ public class AuthServiceIntegrationTest {
         void shouldSucceed_whenCredentialsAreCorrectAndUserIsVerified() {
             String password = "Password123!";
             UserAccount user = saveVerifiedUser(password);
-            when(jwtService.generateToken(user.getId(), user.getRole())).thenReturn(new JwtTokenDTO("test-token", ""));
+            when(jwtService.generateToken(user.getId(), user.getRole()))
+                    .thenReturn(new JwtTokenDTO("access-token-jwt", "2024-12-31"));
 
-            JwtTokenDTO token = authService.login(user.getEmail(), password);
+            RefreshToken mockRefreshToken = createMockRefreshToken(user.getId(), "refresh-token-uuid");
+            when(refreshTokenService.createRefreshToken(user.getId())).thenReturn(mockRefreshToken);
 
-            assertNotNull(token);
-            assertEquals("test-token", token.token());
+            AuthToken result = authService.login(user.getEmail(), password);
+
+            assertNotNull(result);
+            assertEquals("access-token-jwt", result.getToken());
+            assertEquals("refresh-token-uuid", result.getRefreshToken());
         }
 
         @Test
@@ -249,13 +255,16 @@ public class AuthServiceIntegrationTest {
             UserAccount user = saveVerifiedUser("oldPassword1!");
             String newPassword = "newValidPassword1!";
             String code = "valid-reset-code";
+
             doNothing().when(resetPasswordCodeService).verifyResetPasswordCode(user.getId(), code);
+            doNothing().when(refreshTokenService).deleteAllByUserId(user.getId());
 
             String result = authService.resetPassword(user.getEmail(), newPassword, code);
 
-            assertEquals("Reset password successfully", result);
             UserAccount updatedUser = userRepository.findById(user.getId()).orElseThrow();
             assertTrue(passwordEncoder.matches(newPassword, updatedUser.getHashedPassword()));
+
+            verify(refreshTokenService).deleteAllByUserId(user.getId());
         }
 
         @Test
@@ -288,6 +297,85 @@ public class AuthServiceIntegrationTest {
         void shouldThrowAccountVerificationException_whenUserIsVerified() {
             UserAccount user = saveVerifiedUser();
             assertThrows(AccountVerificationException.class, () -> authService.sendVerificationCode(user.getEmail()));
+        }
+    }
+
+
+
+    private RefreshToken createMockRefreshToken(UUID userId, String tokenString) {
+        return RefreshToken.builder()
+                .userId(userId)
+                .token(tokenString)
+                .expiryDate(java.time.LocalDateTime.now().plusHours(1))
+                .build();
+    }
+
+    @Nested
+    class RefreshTokenTests {
+
+        @Test
+        void shouldSucceed_whenRefreshTokenIsValid() {
+            UserAccount user = saveVerifiedUser();
+            String oldRefreshTokenStr = "old-valid-token";
+            RefreshToken oldToken = createMockRefreshToken(user.getId(), oldRefreshTokenStr);
+            String newRefreshTokenStr = "new-valid-token";
+            RefreshToken newToken = createMockRefreshToken(user.getId(), newRefreshTokenStr);
+
+            when(refreshTokenService.findByToken(oldRefreshTokenStr)).thenReturn(oldToken);
+            doNothing().when(refreshTokenService).verifyExpiration(oldToken);
+            doNothing().when(refreshTokenService).deleteByToken(oldRefreshTokenStr);
+            when(refreshTokenService.createRefreshToken(user.getId())).thenReturn(newToken);
+            when(jwtService.generateToken(user.getId(), user.getRole()))
+                    .thenReturn(new JwtTokenDTO("new-access-jwt", "tomorrow"));
+
+            AuthToken result = authService.refreshToken(oldRefreshTokenStr);
+
+            assertNotNull(result);
+            assertEquals("new-access-jwt", result.getToken());
+            assertEquals(newRefreshTokenStr, result.getRefreshToken());
+
+            verify(refreshTokenService).deleteByToken(oldRefreshTokenStr);
+        }
+
+        @Test
+        void shouldThrowUserDoesNotExist_whenUserFromTokenNotFound() {
+            String tokenStr = "orphan-token";
+            UUID nonExistentUserId = UUID.randomUUID();
+            RefreshToken token = createMockRefreshToken(nonExistentUserId, tokenStr);
+
+            when(refreshTokenService.findByToken(tokenStr)).thenReturn(token);
+
+            assertThrows(UserDoesNotExistException.class, () -> authService.refreshToken(tokenStr));
+        }
+    }
+
+    @Nested
+    class LogoutTests {
+
+        @Test
+        void logout_shouldDeleteToken() {
+            String token = "some-refresh-token";
+            doNothing().when(refreshTokenService).deleteByToken(token);
+
+            String result = authService.logout(token);
+
+            assertEquals("Logged out successfully", result);
+            verify(refreshTokenService).deleteByToken(token);
+        }
+
+        @Test
+        void logoutFromOtherDevices_shouldDeleteOtherTokens() {
+            UserAccount user = saveVerifiedUser();
+            String currentTokenStr = "current-token";
+            RefreshToken currentToken = createMockRefreshToken(user.getId(), currentTokenStr);
+
+            when(refreshTokenService.findByToken(currentTokenStr)).thenReturn(currentToken);
+            doNothing().when(refreshTokenService).deleteByUserIdAndTokenNot(user.getId(), currentTokenStr);
+
+            String result = authService.logoutFromOtherDevices(currentTokenStr);
+
+            assertEquals("Logged out from other devices successfully", result);
+            verify(refreshTokenService).deleteByUserIdAndTokenNot(user.getId(), currentTokenStr);
         }
     }
 }

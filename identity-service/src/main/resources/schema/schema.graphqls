@@ -52,6 +52,7 @@ input ResetPasswordInput {
 type AuthToken {
     token: String!
     expiresAt: String!
+    refreshToken: String!
 }
 
 type Message {
@@ -64,9 +65,15 @@ type Message {
 
 type Mutation {
     register(input: RegisterInput!): Message!
+
+    login(input: LoginInput!): AuthToken!
+    refreshToken(refreshToken: String!): AuthToken!
+    logout(refreshToken: String!): Message!
+    logoutFromOtherDevices(refreshToken: String!): Message!
+
     sendVerificationCodeRequest(input: SendVerificationCodeRequestInput!): Message!
     verifyAccount(input: VerifyInput!): Message!
-    login(input: LoginInput!): AuthToken!
     requestPasswordReset(input: ResetPasswordRequestInput!): Message!
     resetPassword(input: ResetPasswordInput!): Message!
+
 }

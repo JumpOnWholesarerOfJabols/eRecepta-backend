@@ -1,5 +1,6 @@
 package edu.pk.jawolh.erecepta.identityservice.service;
 
+import com.example.demo.codegen.types.AuthToken;
 import com.example.demo.codegen.types.Gender;
 import edu.pk.jawolh.erecepta.common.user.enums.UserGender;
 import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
@@ -10,6 +11,7 @@ import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsExcept
 import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsException;
 import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistException;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
+import edu.pk.jawolh.erecepta.identityservice.model.RefreshToken;
 import edu.pk.jawolh.erecepta.identityservice.model.UserAccount;
 import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.validation.RegisterValidator;
@@ -17,12 +19,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -32,6 +36,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RegisterValidator registerValidator;
     private final RabbitMQClient rabbitMQClient;
+    private final RefreshTokenService refreshTokenService;
 
     public String registerUser(
             String email,
@@ -98,6 +103,36 @@ public class AuthService {
         return "User registered successfully";
     }
 
+    public AuthToken refreshToken(String requestRefreshToken) {
+        RefreshToken token = refreshTokenService.findByToken(requestRefreshToken);
+        refreshTokenService.verifyExpiration(token);
+
+        UserAccount user = userRepository.findById(token.getUserId())
+                .orElseThrow(() -> new UserDoesNotExistException("User not found"));
+
+        refreshTokenService.deleteByToken(requestRefreshToken);
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+        JwtTokenDTO newAccessToken = jwtService.generateToken(user.getId(), user.getRole());
+
+        return AuthToken.newBuilder()
+                .token(newAccessToken.token())
+                .expiresAt(newAccessToken.expiresAt())
+                .refreshToken(newRefreshToken.getToken())
+                .build();
+    }
+
+    public String logout(String refreshToken) {
+        refreshTokenService.deleteByToken(refreshToken);
+        return "Logged out successfully";
+    }
+
+    public String logoutFromOtherDevices(String refreshToken) {
+        RefreshToken token = refreshTokenService.findByToken(refreshToken);
+        refreshTokenService.deleteByUserIdAndTokenNot(token.getUserId(), refreshToken);
+        return "Logged out from other devices successfully";
+    }
+
     public String verifyAccount(String login, String code) {
         UserAccount account = getAccount(login);
 
@@ -115,7 +150,7 @@ public class AuthService {
         return "Account verified successfully";
     }
 
-    public JwtTokenDTO login(String login, String password) {
+    public AuthToken login(String login, String password) {
         UserAccount account = getAccount(login);
 
         if (!passwordEncoder.matches(password, account.getHashedPassword()))
@@ -124,7 +159,15 @@ public class AuthService {
         if (!account.isVerified())
             throw new AccountVerificationException("Account is not verified");
 
-        return jwtService.generateToken(account.getId(), account.getRole());
+        JwtTokenDTO accessToken = jwtService.generateToken(account.getId(), account.getRole());
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(account.getId());
+
+        return AuthToken.newBuilder()
+                .token(accessToken.token())
+                .expiresAt(accessToken.expiresAt())
+                .refreshToken(refreshToken.getToken())
+                .build();
     }
 
     public String resetPasswordRequest(String login) {
@@ -147,6 +190,8 @@ public class AuthService {
 
         account.setHashedPassword(passwordEncoder.encode(password));
         userRepository.save(account);
+
+        refreshTokenService.deleteAllByUserId(account.getId());
 
         return "Reset password successfully";
     }
