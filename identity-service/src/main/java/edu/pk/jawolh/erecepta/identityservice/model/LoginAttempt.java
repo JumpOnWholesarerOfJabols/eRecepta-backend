@@ -12,10 +12,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserVerificationCode {
+public class LoginAttempt {
     private UUID id;
     private UUID userId;
-
-    private String code;
-    private LocalDateTime expiryDate;
+    private String ipAddress;
+    private boolean success;
+    private LocalDateTime attemptDate;
 }

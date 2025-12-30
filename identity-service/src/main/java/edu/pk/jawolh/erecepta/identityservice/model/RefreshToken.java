@@ -12,10 +12,9 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserVerificationCode {
+public class RefreshToken {
     private UUID id;
     private UUID userId;
-
-    private String code;
+    private String token;
     private LocalDateTime expiryDate;
 }

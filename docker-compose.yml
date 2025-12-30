@@ -271,6 +271,8 @@ services:
       APP_USER: ${IDENTITY_DB_USER}
       APP_USER_PASSWORD: ${IDENTITY_DB_USER_PASSWORD}
       ORACLE_DATABASE: ${IDENTITY_DB_NAME}
+    volumes:
+      - ./identity-service.sql:/container-entrypoint-initdb.d/init.sql
     networks:
       - erecepta-network
     healthcheck:
