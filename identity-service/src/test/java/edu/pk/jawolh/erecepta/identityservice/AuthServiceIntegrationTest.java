@@ -23,6 +23,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -104,7 +105,7 @@ public class AuthServiceIntegrationTest {
         @Test
         void shouldSucceed_whenDataIsValid() {
             RegistrationData data = RegistrationData.valid().build();
-            when(verificationCodeService.generateVerificationCode(data.email, data.pesel)).thenReturn("123456");
+            when(verificationCodeService.generateVerificationCode(any(UUID.class))).thenReturn("123456");
 
             String result = authService.registerUser(data.email, data.pesel, data.firstName, data.lastName,
                     data.phoneNumber, data.gender, data.dateOfBirth, data.password);
@@ -177,7 +178,7 @@ public class AuthServiceIntegrationTest {
         void shouldSucceed_whenCodeIsCorrect() {
             UserAccount user = saveUnverifiedUser();
             String correctCode = "valid-code";
-            doNothing().when(verificationCodeService).verifyVerificationCode(user.getEmail(), user.getPesel(), correctCode);
+            doNothing().when(verificationCodeService).verifyVerificationCode(user.getId(), correctCode);
 
             String result = authService.verifyAccount(user.getEmail(), correctCode);
 
@@ -232,7 +233,7 @@ public class AuthServiceIntegrationTest {
         void shouldSucceed() {
             UserAccount user = saveVerifiedUser();
             String code = "reset-code-123";
-            when(resetPasswordCodeService.generateResetPasswordCode(user.getEmail(), user.getPesel())).thenReturn(code);
+            when(resetPasswordCodeService.generateResetPasswordCode(user.getId())).thenReturn(code);
 
             String result = authService.resetPasswordRequest(user.getEmail());
 
@@ -248,7 +249,7 @@ public class AuthServiceIntegrationTest {
             UserAccount user = saveVerifiedUser("oldPassword1!");
             String newPassword = "newValidPassword1!";
             String code = "valid-reset-code";
-            doNothing().when(resetPasswordCodeService).verifyResetPasswordCode(user.getEmail(), user.getEmail(), code);
+            doNothing().when(resetPasswordCodeService).verifyResetPasswordCode(user.getId(), code);
 
             String result = authService.resetPassword(user.getEmail(), newPassword, code);
 
@@ -262,7 +263,7 @@ public class AuthServiceIntegrationTest {
             UserAccount user = saveVerifiedUser();
             String invalidCode = "invalid-code";
             doThrow(new InvalidCredentialsException("Code has expired"))
-                    .when(resetPasswordCodeService).verifyResetPasswordCode(user.getEmail(), user.getEmail(), invalidCode);
+                    .when(resetPasswordCodeService).verifyResetPasswordCode(user.getId(), invalidCode);
 
             assertThrows(InvalidCredentialsException.class, () ->
                     authService.resetPassword(user.getEmail(), "new-password", invalidCode));
@@ -275,7 +276,7 @@ public class AuthServiceIntegrationTest {
         void shouldSucceed_whenUserIsUnverified() {
             UserAccount user = saveUnverifiedUser();
             String newCode = "new-code-456";
-            when(verificationCodeService.generateVerificationCode(user.getEmail(), user.getPesel())).thenReturn(newCode);
+            when(verificationCodeService.generateVerificationCode(user.getId())).thenReturn(newCode);
 
             String result = authService.sendVerificationCode(user.getEmail());
 

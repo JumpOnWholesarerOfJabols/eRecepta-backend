@@ -9,21 +9,21 @@ spring:
     port: ${SPRING_RABBITMQ_PORT:5672}
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: true
 
   datasource:
-    url: jdbc:h2:mem:db
-    driver-class-name: org.h2.Driver
-    username: admin
-    password: password
+    url: jdbc:oracle:thin:@${ORACLE_DB_HOST:localhost}:${ORACLE_DB_PORT:13000}/${ORACLE_DB_NAME:IDENTITY_DB}
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: ${IDENTITY_DB_USER:user}
+    password: ${IDENTITY_DB_USER_PASSWORD:password}
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
 rabbitmq:
   exchange-name: user-exchange

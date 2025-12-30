@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,14 +23,13 @@ public class ResetPasswordCodeService {
     private final CodeProperties codeProperties;
 
     @Transactional
-    public String generateResetPasswordCode(String email, String pesel) {
-        if (resetPasswordCodeRepository.existsByPeselOrEmail(email, pesel))
-            resetPasswordCodeRepository.deleteAllByPeselOrEmail(email, pesel);
+    public String generateResetPasswordCode(UUID userId) {
+        if (resetPasswordCodeRepository.existsByUserId(userId))
+            resetPasswordCodeRepository.deleteAllByUserId(userId);
 
         String code = codeGenerator.generateCode(codeProperties.getLength());
         ResetPasswordCode resetPasswordCode = ResetPasswordCode.builder()
-                .pesel(pesel)
-                .email(email)
+                .userId(userId)
                 .code(code)
                 .expiryDate(LocalDateTime.now().plus(codeProperties.getExpiration()))
                 .build();
@@ -40,10 +40,10 @@ public class ResetPasswordCodeService {
     }
 
     @Transactional
-    public void verifyResetPasswordCode(String email, String pesel, String code) {
+    public void verifyResetPasswordCode(UUID userId, String code) {
         ResetPasswordCode resetPasswordCode =
                 resetPasswordCodeRepository
-                        .findByPeselOrEmail(email, pesel)
+                        .findByUserId(userId)
                         .orElseThrow(()->
                                 new CodeDoesNotExistException("Reset password code not found for provided PESEL or email"));
 
