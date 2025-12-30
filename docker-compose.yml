@@ -55,8 +55,19 @@ services:
         condition: service_healthy
       eureka:
         condition: service_started
+      identity-db:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
+
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@identity-db:1521/${IDENTITY_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${IDENTITY_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${IDENTITY_DB_USER_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: oracle.jdbc.OracleDriver
+
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.OracleDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
 
       APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
@@ -248,6 +259,25 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     networks:
       - erecepta-network
+
+
+  identity-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: identity-db
+    ports:
+      - "${IDENTITY_DB_PORT}:1521"
+    environment:
+      ORACLE_PASSWORD: ${IDENTITY_DB_PASSWORD}
+      APP_USER: ${IDENTITY_DB_USER}
+      APP_USER_PASSWORD: ${IDENTITY_DB_USER_PASSWORD}
+      ORACLE_DATABASE: ${IDENTITY_DB_NAME}
+    networks:
+      - erecepta-network
+    healthcheck:
+      test: [ "CMD", "sqlplus", "-L", "${IDENTITY_DB_USER}/${IDENTITY_DB_USER_PASSWORD}@//localhost:1521/${IDENTITY_DB_NAME}", "select 1 from dual;" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 networks:
   erecepta-network:
