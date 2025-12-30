@@ -1,16 +1,68 @@
 package edu.pk.jawolh.erecepta.identityservice.repository;
 
 import edu.pk.jawolh.erecepta.identityservice.model.ResetPasswordCode;
-import edu.pk.jawolh.erecepta.identityservice.model.UserVerificationCode;
-import org.springframework.data.jpa.repository.JpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ResetPasswordCodeRepository extends JpaRepository<ResetPasswordCode, UUID> {
-    Optional<ResetPasswordCode> findByPeselOrEmail(String pesel, String email);
-    boolean existsByPeselOrEmail(String pesel, String email);
-    void deleteAllByPeselOrEmail(String pesel, String email);
+@RequiredArgsConstructor
+public class ResetPasswordCodeRepository {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<ResetPasswordCode> rowMapper = (rs, rowNum) -> ResetPasswordCode.builder()
+            .id(UUID.fromString(rs.getString("ID")))
+            .userId(UUID.fromString(rs.getString("USER_ID")))
+            .code(rs.getString("CODE"))
+            .expiryDate(rs.getTimestamp("EXPIRY_DATE").toLocalDateTime())
+            .build();
+
+    public void save(ResetPasswordCode code) {
+        if (code.getId() == null) code.setId(UUID.randomUUID());
+
+        String sql = """
+            INSERT INTO RESET_PASSWORD_CODE (ID, USER_ID, CODE, EXPIRY_DATE)
+            VALUES (?, ?, ?, ?)
+        """;
+
+        jdbcTemplate.update(sql,
+                code.getId().toString(),
+                code.getUserId().toString(),
+                code.getCode(),
+                Timestamp.valueOf(code.getExpiryDate())
+        );
+    }
+
+    public Optional<ResetPasswordCode> findByUserId(UUID userId) {
+        String sql = "SELECT * FROM RESET_PASSWORD_CODE WHERE USER_ID = ?";
+        try {
+            ResetPasswordCode code = jdbcTemplate.queryForObject(sql, rowMapper, userId.toString());
+            return Optional.ofNullable(code);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public boolean existsByUserId(UUID userId) {
+        String sql = "SELECT COUNT(*) FROM RESET_PASSWORD_CODE WHERE USER_ID = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId.toString());
+        return count != null && count > 0;
+    }
+
+    public void deleteAllByUserId(UUID userId) {
+        String sql = "DELETE FROM RESET_PASSWORD_CODE WHERE USER_ID = ?";
+        jdbcTemplate.update(sql, userId.toString());
+    }
+
+    public void delete(ResetPasswordCode code) {
+        String sql = "DELETE FROM RESET_PASSWORD_CODE WHERE ID = ?";
+        jdbcTemplate.update(sql, code.getId().toString());
+    }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,14 +24,13 @@ public class VerificationCodeService {
     private final CodeGenerator codeGenerator;
 
     @Transactional
-    public String generateVerificationCode(String email, String pesel) {
-        if (verificationCodeRepository.existsByPeselOrEmail(email, pesel))
-            verificationCodeRepository.deleteAllByPeselOrEmail(email, pesel);
+    public String generateVerificationCode(UUID userId) {
+        if (verificationCodeRepository.existsByUserId(userId))
+            verificationCodeRepository.deleteAllByUserId(userId);
 
         String code = codeGenerator.generateCode(codeProperties.getLength());
         UserVerificationCode userVerificationCode = UserVerificationCode.builder()
-                .pesel(pesel)
-                .email(email)
+                .userId(userId)
                 .code(code)
                 .expiryDate(LocalDateTime.now().plus(codeProperties.getExpiration()))
                 .build();
@@ -43,10 +43,10 @@ public class VerificationCodeService {
     }
 
     @Transactional
-    public void verifyVerificationCode(String email, String pesel, String code) {
+    public void verifyVerificationCode(UUID userId, String code) {
         UserVerificationCode verificationCode =
                 verificationCodeRepository
-                        .findByPeselOrEmail(pesel, email)
+                        .findByUserId(userId)
                         .orElseThrow(()->
                                 new CodeDoesNotExistException("Verification code not found for provided PESEL or email"));
 

@@ -92,7 +92,7 @@ public class AuthService {
 
         UserAccount savedUser = userRepository.save(account);
 
-        String verificationCode = verificationCodeService.generateVerificationCode(savedUser.getEmail(), savedUser.getPesel());
+        String verificationCode = verificationCodeService.generateVerificationCode(account.getId());
         rabbitMQClient.sendVerificationCodeEvent(savedUser.getEmail(), verificationCode);
 
         return "User registered successfully";
@@ -107,7 +107,7 @@ public class AuthService {
         log.info("Verification data check: email={}, pesel={}, code={}",
                 account.getEmail(), account.getPesel(), code);
 
-        verificationCodeService.verifyVerificationCode(account.getEmail(), account.getPesel(), code);
+        verificationCodeService.verifyVerificationCode(account.getId(), code);
 
         account.setVerified(true);
         userRepository.save(account);
@@ -130,7 +130,7 @@ public class AuthService {
     public String resetPasswordRequest(String login) {
         UserAccount account = getAccount(login);
 
-        String code = resetPasswordCodeService.generateResetPasswordCode(account.getEmail(), account.getPesel());
+        String code = resetPasswordCodeService.generateResetPasswordCode(account.getId());
         rabbitMQClient.sendResetPasswordCodeEvent(account.getEmail(), code);
         log.info("Generated reset password code: {}", code);
 
@@ -143,7 +143,7 @@ public class AuthService {
         if (!account.isVerified())
             throw new AccountVerificationException("Account is not verified");
 
-        resetPasswordCodeService.verifyResetPasswordCode(login, login, code);
+        resetPasswordCodeService.verifyResetPasswordCode(account.getId(), code);
 
         account.setHashedPassword(passwordEncoder.encode(password));
         userRepository.save(account);
@@ -157,7 +157,7 @@ public class AuthService {
         if (account.isVerified())
             throw new AccountVerificationException("Account is already verified");
 
-        String code = verificationCodeService.generateVerificationCode(account.getEmail(), account.getPesel());
+        String code = verificationCodeService.generateVerificationCode(account.getId());
         rabbitMQClient.sendVerificationCodeEvent(account.getEmail(), code);
         log.info("Generated verification code: {}", code);
 
