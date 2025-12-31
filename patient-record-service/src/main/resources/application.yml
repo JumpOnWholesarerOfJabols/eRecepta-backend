@@ -10,8 +10,8 @@ spring:
     name: patient-record-service
   datasource:
     url: jdbc:postgresql://postgres:5432/patient_record_db
-    username: postgres
-    password: password
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

@@ -114,6 +114,9 @@ services:
       ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
 
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
   medication-service:
     build: ./medication-service
     container_name: medication-service
@@ -121,6 +124,9 @@ services:
       - "${MEDICATION_SERVICE_PORT}:${MEDICATION_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${MEDICATION_SERVICE_INTERNAL_PORT}
 
@@ -128,6 +134,9 @@ services:
       ERECEPTA_EUREKA_HOST: eureka
 
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
+
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
 
   visit-service:
     build: ./visit-service
@@ -212,6 +221,8 @@ services:
         condition: service_started
       minio:
         condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}
 
@@ -290,15 +301,15 @@ services:
     ports:
       - "${POSTGRES_DB_PORT}:1521"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - erecepta-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
