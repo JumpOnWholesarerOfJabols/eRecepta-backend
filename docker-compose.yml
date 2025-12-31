@@ -103,6 +103,8 @@ services:
     depends_on:
       eureka:
         condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT}
 
@@ -112,6 +114,9 @@ services:
       ERECEPTA_USER_CHANNEL: "${ERECEPTA_USER_CHANNEL:-identity-service:9090}"
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
 
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
   medication-service:
     build: ./medication-service
     container_name: medication-service
@@ -119,6 +124,9 @@ services:
       - "${MEDICATION_SERVICE_PORT}:${MEDICATION_SERVICE_INTERNAL_PORT}"
     networks:
       - erecepta-network
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${MEDICATION_SERVICE_INTERNAL_PORT}
 
@@ -126,6 +134,9 @@ services:
       ERECEPTA_EUREKA_HOST: eureka
 
       ERECEPTA_MEDICATION_CHANNEL: ${ERECEPTA_MEDICATION_CHANNEL}
+
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
 
   visit-service:
     build: ./visit-service
@@ -135,6 +146,8 @@ services:
         condition: service_healthy
       eureka:
         condition: service_started
+      postgres:
+        condition: service_healthy
     ports:
       - "${VISIT_SERVICE_PORT}:${VISIT_SERVICE_INTERNAL_PORT}"
     networks:
@@ -150,6 +163,9 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
 
   admin-service:
     build: ./admin-service
@@ -194,7 +210,6 @@ services:
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_PRESCRIPTIONS_BUCKET: ${MINIO_PRESCRIPTIONS_BUCKET}
 
-
   medical-documents-service:
     build: ./medical-documents-service
     container_name: medical-documents-service
@@ -210,6 +225,8 @@ services:
         condition: service_started
       minio:
         condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${MEDICAL_DOCUMENTS_SERVICE_INTERNAL_PORT}
 
@@ -223,6 +240,9 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
 
   documents-generation-service:
     build: ./documents-generation-service
@@ -282,6 +302,27 @@ services:
       timeout: 5s
       retries: 10
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    ports:
+      - "${POSTGRES_DB_PORT}:1521"
+    environment:
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - erecepta-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   erecepta-network:
     driver: bridge
+volumes:
+  postgres_data:
