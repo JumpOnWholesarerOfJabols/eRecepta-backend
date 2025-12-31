@@ -103,6 +103,8 @@ services:
     depends_on:
       eureka:
         condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       SERVER_PORT: ${PATIENT_RECORD_SERVICE_INTERNAL_PORT}
 
@@ -282,6 +284,27 @@ services:
       timeout: 5s
       retries: 10
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    ports:
+      - "${POSTGRES_DB_PORT}:1521"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - erecepta-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   erecepta-network:
     driver: bridge
+volumes:
+  postgres_data:
