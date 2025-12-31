@@ -146,6 +146,8 @@ services:
         condition: service_healthy
       eureka:
         condition: service_started
+      postgres:
+        condition: service_healthy
     ports:
       - "${VISIT_SERVICE_PORT}:${VISIT_SERVICE_INTERNAL_PORT}"
     networks:
@@ -161,6 +163,9 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
 
   admin-service:
     build: ./admin-service
@@ -204,7 +209,6 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_PRESCRIPTIONS_BUCKET: ${MINIO_PRESCRIPTIONS_BUCKET}
-
 
   medical-documents-service:
     build: ./medical-documents-service
