@@ -237,6 +237,9 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
   documents-generation-service:
     build: ./documents-generation-service
     container_name: documents-generation-service
