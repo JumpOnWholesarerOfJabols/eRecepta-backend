@@ -9,6 +9,7 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.patientrecordservice.service.PatientRecordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,12 +21,14 @@ public class PatientRecordDataFetcher {
     private final PatientRecordService patientRecordService;
 
     @DgsQuery
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR') or (hasRole('PATIENT') and authentication.name == #userId.toString())")
     public PatientInfo getPatientRecordByUserId(UUID userId) {
         return patientRecordService.getPatientInfo(userId);
     }
 
 
     @DgsMutation
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR')")
     public PatientInfo updatePatientInfo(
             @InputArgument UUID userId,
             @InputArgument UpdatePatientInfoInput input) {
@@ -34,6 +37,7 @@ public class PatientRecordDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR')")
     public PatientInfo addAllergy(
             @InputArgument UUID userId,
             @InputArgument String allergy) {
@@ -42,6 +46,7 @@ public class PatientRecordDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR')")
     public PatientInfo removeAllergy(
             @InputArgument UUID userId,
             @InputArgument String allergy) {
@@ -51,6 +56,7 @@ public class PatientRecordDataFetcher {
 
 
     @DgsMutation
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR')")
     public PatientInfo addMedication(
             @InputArgument UUID userId,
             @InputArgument UUID medicationId) {
@@ -59,6 +65,7 @@ public class PatientRecordDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR')")
     public PatientInfo addChronicDisease(
             @InputArgument UUID userId,
             @InputArgument String disease) {
@@ -67,6 +74,7 @@ public class PatientRecordDataFetcher {
     }
 
     @DgsMutation
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR')")
     public PatientInfo removeChronicDisease(
             @InputArgument UUID userId,
             @InputArgument String disease) {
@@ -75,6 +83,7 @@ public class PatientRecordDataFetcher {
     }
 
     @DgsQuery
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DOCTOR') or (hasRole('PATIENT') and authentication.name == #userId.toString())")
     public List<PatientHistoryEntry> getPatientHistory(@InputArgument UUID userId) {
         return patientRecordService.getPatientHistory(userId);
     }
