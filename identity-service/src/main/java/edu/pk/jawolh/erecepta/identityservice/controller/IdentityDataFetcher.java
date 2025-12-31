@@ -3,16 +3,26 @@ package edu.pk.jawolh.erecepta.identityservice.controller;
 import com.example.demo.codegen.types.*;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
+import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
+import edu.pk.jawolh.erecepta.identityservice.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.List;
+import java.util.UUID;
 
 @DgsComponent
 @RequiredArgsConstructor
 public class IdentityDataFetcher {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @DgsMutation
     public Message register(@InputArgument RegisterInput input){
@@ -24,7 +34,8 @@ public class IdentityDataFetcher {
                 input.getPhoneNumber(),
                 input.getGender(),
                 input.getDateOfBirth(),
-                input.getPassword()
+                input.getPassword(),
+                getClientIp()
         );
 
         return Message.newBuilder()
@@ -33,9 +44,11 @@ public class IdentityDataFetcher {
 
     @DgsMutation
     public Message verifyAccount(@InputArgument VerifyInput input){
+
         String message = authService.verifyAccount(
                 input.getLogin(),
-                input.getCode());
+                input.getCode(),
+                getClientIp());
 
         return Message.newBuilder()
                 .message(message).build();
@@ -43,20 +56,47 @@ public class IdentityDataFetcher {
 
     @DgsMutation
     public AuthToken login(@InputArgument LoginInput input){
-        JwtTokenDTO token = authService.login(
-                input.getLogin(),
-                input.getPassword());
 
-        return AuthToken.newBuilder()
-                .token(token.token())
-                .expiresAt(token.expiresAt())
+        return authService.login(
+                input.getLogin(),
+                input.getPassword(),
+                getClientIp());
+    }
+
+    @DgsMutation
+    public AuthToken refreshToken(@InputArgument String refreshToken) {
+        return authService.refreshToken(
+                refreshToken,
+                getClientIp());
+    }
+
+    @DgsMutation
+    public Message logout(@InputArgument String refreshToken) {
+        String message = authService.logout(
+                refreshToken,
+                getClientIp());
+
+        return Message.newBuilder()
+                .message(message)
+                .build();
+    }
+
+    @DgsMutation
+    public Message logoutFromOtherDevices(@InputArgument String refreshToken) {
+        String message = authService.logoutFromOtherDevices(
+                refreshToken,
+                getClientIp());
+
+        return Message.newBuilder()
+                .message(message)
                 .build();
     }
 
     @DgsMutation
     public Message requestPasswordReset(@InputArgument ResetPasswordRequestInput input){
         String message = authService.resetPasswordRequest(
-                input.getLogin());
+                input.getLogin(),
+                getClientIp());
 
         return Message.newBuilder().message(message).build();
     }
@@ -66,7 +106,8 @@ public class IdentityDataFetcher {
         String message = authService.resetPassword(
                 input.getLogin(),
                 input.getPassword(),
-                input.getCode()
+                input.getCode(),
+                getClientIp()
         );
 
         return Message.newBuilder().message(message).build();
@@ -74,8 +115,56 @@ public class IdentityDataFetcher {
 
     @DgsMutation
     public Message sendVerificationCodeRequest(@InputArgument SendVerificationCodeRequestInput input){
-        String message = authService.sendVerificationCode(input.getLogin());
+        String message = authService.sendVerificationCode(
+                input.getLogin(),
+                getClientIp());
 
         return Message.newBuilder().message(message).build();
+    }
+
+    private String getClientIp() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+            if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty()) {
+                return xForwardedForHeader.split(",")[0].trim();
+            }
+            return request.getRemoteAddr();
+        }
+        return "UNKNOWN";
+    }
+
+    @DgsQuery
+    public List<LoginAttempt> myLoginAttempts() {
+        UUID userId = getCurrentUserId();
+
+        return authService.getUserLoginAttempts(userId);
+    }
+
+    @DgsQuery
+    public List<AuditLog> myAuditLogs() {
+        UUID userId = getCurrentUserId();
+        return authService.getUserAuditLogs(userId);
+    }
+
+    private UUID getCurrentUserId() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            throw new RuntimeException("No request attributes found");
+        }
+        HttpServletRequest request = attributes.getRequest();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+
+        String userIdString = jwtService.extractUserId(token);
+
+        return UUID.fromString(userIdString);
     }
 }

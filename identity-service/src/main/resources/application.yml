@@ -16,14 +16,14 @@ spring:
     username: ${IDENTITY_DB_USER:user}
     password: ${IDENTITY_DB_USER_PASSWORD:password}
 
-  jpa:
-    database-platform: org.hibernate.dialect.OracleDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+#  jpa:
+#    database-platform: org.hibernate.dialect.OracleDialect
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
 
 rabbitmq:
   exchange-name: user-exchange
@@ -46,6 +46,8 @@ application:
     jwt:
       secret-key: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
       expiration: ${APPLICATION_SECURITY_JWT_EXPIRATION:1h}
+      refresh-expiration: ${APPLICATION_SECURITY_REFRESH_EXPIRATION:7d}
+
   codes:
     expiration: ${APPLICATION_ACTION_TOKEN_EXPIRATION:15m}
     length: 6
