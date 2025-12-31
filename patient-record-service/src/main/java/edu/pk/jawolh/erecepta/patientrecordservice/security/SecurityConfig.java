@@ -24,7 +24,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(requests -> requests.anyRequest().hasAnyRole(UserRole.ADMINISTRATOR.name(), UserRole.DOCTOR.name()))
+                .authorizeHttpRequests(requests -> requests.anyRequest()
+                        .hasAnyRole(UserRole.ADMINISTRATOR.name(), UserRole.DOCTOR.name(), UserRole.PATIENT.name()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
