@@ -92,7 +92,8 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
                     Gender.values()[request.getGender()],
                     request.getDateOfBirth(),
                     request.getPassword(),
-                    UserRole.values()[request.getRole()]
+                    UserRole.values()[request.getRole()],
+                    "gRPC"
             );
 
             reply.setSuccess(true);
