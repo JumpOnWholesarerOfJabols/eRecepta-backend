@@ -10,7 +10,9 @@ import edu.pk.jawolh.erecepta.identityservice.exception.AccountVerificationExcep
 import edu.pk.jawolh.erecepta.identityservice.exception.InvalidCredentialsException;
 import edu.pk.jawolh.erecepta.identityservice.exception.UserAlreadyExistsException;
 import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistException;
+import edu.pk.jawolh.erecepta.identityservice.mapper.AuditLogMapper;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
+import edu.pk.jawolh.erecepta.identityservice.mapper.LoginAttemptMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.AuditLog;
 import edu.pk.jawolh.erecepta.identityservice.model.LoginAttempt;
 import edu.pk.jawolh.erecepta.identityservice.model.RefreshToken;
@@ -27,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -116,6 +120,10 @@ public class AuthService {
         return "User registered successfully";
     }
 
+    @Transactional(noRollbackFor = {
+            InvalidCredentialsException.class,
+            AccountVerificationException.class
+    })
     public AuthToken login(String login, String password, String ipAddress) {
         UserAccount account = getAccount(login);
 
@@ -277,5 +285,19 @@ public class AuthService {
         } catch (Exception e) {
             log.error("Failed to save login attempt for user {}", userId, e);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<com.example.demo.codegen.types.LoginAttempt> getUserLoginAttempts(UUID userId) {
+        return loginAttemptRepository.findAllByUserId(userId).stream()
+                .map(LoginAttemptMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<com.example.demo.codegen.types.AuditLog> getUserAuditLogs(UUID userId) {
+        return auditLogRepository.findAllByUserId(userId).stream()
+                .map(AuditLogMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

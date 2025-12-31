@@ -3,19 +3,26 @@ package edu.pk.jawolh.erecepta.identityservice.controller;
 import com.example.demo.codegen.types.*;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
+import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
+import edu.pk.jawolh.erecepta.identityservice.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.List;
+import java.util.UUID;
 
 @DgsComponent
 @RequiredArgsConstructor
 public class IdentityDataFetcher {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @DgsMutation
     public Message register(@InputArgument RegisterInput input){
@@ -126,5 +133,38 @@ public class IdentityDataFetcher {
             return request.getRemoteAddr();
         }
         return "UNKNOWN";
+    }
+
+    @DgsQuery
+    public List<LoginAttempt> myLoginAttempts() {
+        UUID userId = getCurrentUserId();
+
+        return authService.getUserLoginAttempts(userId);
+    }
+
+    @DgsQuery
+    public List<AuditLog> myAuditLogs() {
+        UUID userId = getCurrentUserId();
+        return authService.getUserAuditLogs(userId);
+    }
+
+    private UUID getCurrentUserId() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            throw new RuntimeException("No request attributes found");
+        }
+        HttpServletRequest request = attributes.getRequest();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+
+        String userIdString = jwtService.extractUserId(token);
+
+        return UUID.fromString(userIdString);
     }
 }

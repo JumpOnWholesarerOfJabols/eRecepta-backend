@@ -3,9 +3,11 @@ package edu.pk.jawolh.erecepta.identityservice.repository;
 import edu.pk.jawolh.erecepta.identityservice.model.LoginAttempt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -13,6 +15,14 @@ import java.util.UUID;
 public class LoginAttemptRepository {
 
     private final JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<LoginAttempt> loginAttemptRowMapper = (rs, rowNum) -> LoginAttempt.builder()
+            .id(UUID.fromString(rs.getString("ID")))
+            .userId(UUID.fromString(rs.getString("USER_ID")))
+            .ipAddress(rs.getString("IP_ADDRESS"))
+            .success(rs.getBoolean("SUCCESS"))
+            .attemptDate(rs.getTimestamp("ATTEMPT_DATE").toLocalDateTime())
+            .build();
 
     public void save(LoginAttempt attempt) {
         String sql = """
@@ -31,5 +41,10 @@ public class LoginAttemptRepository {
                 attempt.isSuccess() ? 1 : 0,
                 Timestamp.valueOf(attempt.getAttemptDate())
         );
+    }
+
+    public List<LoginAttempt> findAllByUserId(UUID userId) {
+        String sql = "SELECT * FROM LOGIN_ATTEMPTS WHERE USER_ID = ? ORDER BY ATTEMPT_DATE DESC";
+        return jdbcTemplate.query(sql, loginAttemptRowMapper, userId.toString());
     }
 }

@@ -59,9 +59,30 @@ type Message {
     message: String!
 }
 
+type LoginAttempt {
+    id: ID!
+    userId: ID!
+    ipAddress: String
+    success: Boolean!
+    attemptDate: String!
+}
+
+type AuditLog {
+    id: ID!
+    userId: ID!
+    ipAddress: String
+    actionName: String!
+    logDate: String!
+}
+
 # ========================
 # OPERATIONS
 # ========================
+
+type Query {
+    myLoginAttempts: [LoginAttempt!]!
+    myAuditLogs: [AuditLog!]!
+}
 
 type Mutation {
     register(input: RegisterInput!): Message!
