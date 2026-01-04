@@ -19,7 +19,7 @@ public class VisitDAO implements VisitRepository {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
-            st.execute("CREATE TABLE IF NOT EXISTS VISIT(id uuid primary key, doctorId uuid, patientId uuid, specialization int, visitTime timestamp, visitStatus int)");
+            st.execute("CREATE TABLE IF NOT EXISTS VISIT(id varchar(255) primary key, doctorId varchar(255), patientId varchar(255), specialization int, visitTime timestamp, visitStatus int)");
             st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);

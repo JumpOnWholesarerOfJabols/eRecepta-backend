@@ -20,7 +20,7 @@ public class WeeklyAvailabilityDAO implements WeeklyAvailabilityRepository {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
-            st.execute("CREATE TABLE IF NOT EXISTS WEEKLY_AVAILABILITY(doctorId uuid, dayOfWeek tinyint, startTime time, endTime time, CONSTRAINT PK_WA PRIMARY KEY (doctorId, dayOfWeek))");
+            st.execute("CREATE TABLE IF NOT EXISTS WEEKLY_AVAILABILITY(doctorId varchar(255), dayOfWeek smallint, startTime time, endTime time, CONSTRAINT PK_WA PRIMARY KEY (doctorId, dayOfWeek))");
             st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);

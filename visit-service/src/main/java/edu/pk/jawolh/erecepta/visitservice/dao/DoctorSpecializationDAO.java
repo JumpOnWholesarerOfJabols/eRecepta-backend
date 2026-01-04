@@ -20,7 +20,7 @@ public class DoctorSpecializationDAO implements DoctorSpecializationRepository {
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
-            st.execute("CREATE TABLE IF NOT EXISTS DOCTOR_SPECIALIZATION(doctorId uuid, specialization tinyint, CONSTRAINT PK_DS PRIMARY KEY (doctorId, specialization))");
+            st.execute("CREATE TABLE IF NOT EXISTS DOCTOR_SPECIALIZATION(doctorId varchar(255), specialization smallint, CONSTRAINT PK_DS PRIMARY KEY (doctorId, specialization))");
             st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);

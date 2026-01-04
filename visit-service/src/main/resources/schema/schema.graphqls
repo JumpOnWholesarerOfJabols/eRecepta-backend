@@ -6,7 +6,7 @@ type Query {
 
     findAllAvailabilityExceptions(doctorId: String!, startDate: String, endDate: String): [AvailabilityException]
 
-    findAllDoctors(specialization: Specialization!): [String]
+    findAllDoctors(specialization: Specialization!): [DoctorData]
     findAllSpecializations(doctorId: String!): [Specialization]
     findAllDoctorSpecializations: [DoctorSpecialization]
 }

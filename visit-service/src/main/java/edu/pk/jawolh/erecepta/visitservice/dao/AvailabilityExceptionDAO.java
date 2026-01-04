@@ -18,7 +18,7 @@ public class AvailabilityExceptionDAO implements AvailabilityExceptionRepository
         try {
             connection = DriverManager.getConnection(dbUrl, username, password);
             Statement st = connection.createStatement();
-            st.execute("CREATE TABLE IF NOT EXISTS AVAILABILITY_EXCEPTION(id uuid PRIMARY KEY, doctorId uuid, exceptionDate date, startTime time, endTime time)");
+            st.execute("CREATE TABLE IF NOT EXISTS AVAILABILITY_EXCEPTION(id varchar(255) PRIMARY KEY, doctorId varchar(255), exceptionDate date, startTime time, endTime time)");
             st.close();
         } catch (SQLException ex) {
             System.err.println("Error connecting to database: " + dbUrl);

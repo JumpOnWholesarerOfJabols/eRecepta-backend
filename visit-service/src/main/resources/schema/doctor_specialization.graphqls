@@ -2,3 +2,10 @@ type DoctorSpecialization {
     doctorId: String!
     specialization: Specialization
 }
+
+type DoctorData {
+    doctorId: String!
+    firstName: String!
+    lastName: String!
+    email: String!
+}
