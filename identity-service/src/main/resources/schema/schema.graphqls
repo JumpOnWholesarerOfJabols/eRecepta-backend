@@ -82,6 +82,8 @@ type AuditLog {
 type Query {
     myLoginAttempts: [LoginAttempt!]!
     myAuditLogs: [AuditLog!]!
+
+    getUserId(identifier: String!): String
 }
 
 type Mutation {
