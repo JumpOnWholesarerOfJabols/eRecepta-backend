@@ -51,6 +51,11 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
+    public UserRole extractUserRole(String token) {
+        String roleName = extractAllClaims(token).get("role", String.class);
+        return UserRole.valueOf(roleName);
+    }
+
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignInKey())

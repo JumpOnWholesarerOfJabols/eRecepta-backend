@@ -5,11 +5,14 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
+import edu.pk.jawolh.erecepta.common.user.enums.UserRole;
 import edu.pk.jawolh.erecepta.identityservice.dto.JwtTokenDTO;
+import edu.pk.jawolh.erecepta.identityservice.exception.UnauthorizedException;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
 import edu.pk.jawolh.erecepta.identityservice.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -122,18 +125,7 @@ public class IdentityDataFetcher {
         return Message.newBuilder().message(message).build();
     }
 
-    private String getClientIp() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpServletRequest request = attributes.getRequest();
-            String xForwardedForHeader = request.getHeader("X-Forwarded-For");
-            if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty()) {
-                return xForwardedForHeader.split(",")[0].trim();
-            }
-            return request.getRemoteAddr();
-        }
-        return "UNKNOWN";
-    }
+
 
     @DgsQuery
     public List<LoginAttempt> myLoginAttempts() {
@@ -167,4 +159,48 @@ public class IdentityDataFetcher {
 
         return UUID.fromString(userIdString);
     }
+
+    @DgsQuery
+    public String getUserId(@InputArgument String identifier) {
+        UserRole currentUserRole = getCurrentUserRole();
+
+        if (currentUserRole == UserRole.PATIENT) {
+            throw new UnauthorizedException("Access denied. Available only to medical staff and administrators.");
+        }
+
+        return authService.getUserIdByPeselOrEmail(identifier).toString();
+    }
+
+    private String getClientIp() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+            if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty()) {
+                return xForwardedForHeader.split(",")[0].trim();
+            }
+            return request.getRemoteAddr();
+        }
+        return "UNKNOWN";
+    }
+
+    private UserRole getCurrentUserRole() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            throw new RuntimeException("No request attributes found");
+        }
+        HttpServletRequest request = attributes.getRequest();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+
+        return jwtService.extractUserRole(token);
+    }
 }
+
+

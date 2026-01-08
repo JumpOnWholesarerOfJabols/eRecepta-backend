@@ -300,4 +300,10 @@ public class AuthService {
                 .map(AuditLogMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public UUID getUserIdByPeselOrEmail(String identifier) {
+        return userRepository.findIdByPeselOrEmail(identifier)
+                .orElseThrow(() -> new UserDoesNotExistException("User with given PESEL or email not found"));
+    }
 }

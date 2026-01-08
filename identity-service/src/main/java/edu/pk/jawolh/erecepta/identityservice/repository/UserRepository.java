@@ -145,4 +145,14 @@ public class UserRepository {
 
         jdbcTemplate.update("DELETE FROM USER_ACCOUNT");
     }
+
+    public Optional<UUID> findIdByPeselOrEmail(String identifier) {
+        String sql = "SELECT ID FROM USER_ACCOUNT WHERE PESEL = ? OR EMAIL = ?";
+        try {
+            String idStr = jdbcTemplate.queryForObject(sql, String.class, identifier, identifier);
+            return Optional.ofNullable(idStr).map(UUID::fromString);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }
