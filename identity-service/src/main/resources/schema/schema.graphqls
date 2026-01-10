@@ -75,6 +75,20 @@ type AuditLog {
     logDate: String!
 }
 
+type UserAccount {
+    id: ID!
+    email: String!
+    pesel: String!
+    firstName: String!
+    lastName: String!
+    phoneNumber: String
+    dateOfBirth: String!
+    role: String!
+    userGender: String!
+    hashedPassword: String
+    verified: Boolean!
+}
+
 # ========================
 # OPERATIONS
 # ========================
@@ -84,6 +98,7 @@ type Query {
     myAuditLogs: [AuditLog!]!
 
     getUserId(identifier: String!): String
+    getUserInfo(id: String!): UserAccount
 }
 
 type Mutation {

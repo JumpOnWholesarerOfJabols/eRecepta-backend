@@ -13,6 +13,7 @@ import edu.pk.jawolh.erecepta.identityservice.exception.UserDoesNotExistExceptio
 import edu.pk.jawolh.erecepta.identityservice.mapper.AuditLogMapper;
 import edu.pk.jawolh.erecepta.identityservice.mapper.GenderMapper;
 import edu.pk.jawolh.erecepta.identityservice.mapper.LoginAttemptMapper;
+import edu.pk.jawolh.erecepta.identityservice.mapper.UserMapper;
 import edu.pk.jawolh.erecepta.identityservice.model.AuditLog;
 import edu.pk.jawolh.erecepta.identityservice.model.LoginAttempt;
 import edu.pk.jawolh.erecepta.identityservice.model.RefreshToken;
@@ -305,5 +306,14 @@ public class AuthService {
     public UUID getUserIdByPeselOrEmail(String identifier) {
         return userRepository.findIdByPeselOrEmail(identifier)
                 .orElseThrow(() -> new UserDoesNotExistException("User with given PESEL or email not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public com.example.demo.codegen.types.UserAccount getUserInfoById(UUID id) {
+        UserAccount userAccount = userRepository.findById(id).orElseThrow(
+                () -> new UserDoesNotExistException("User with given id does not exists")
+        );
+
+        return UserMapper.toDTO(userAccount);
     }
 }

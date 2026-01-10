@@ -170,6 +170,17 @@ public class IdentityDataFetcher {
 
         return authService.getUserIdByPeselOrEmail(identifier).toString();
     }
+    //getUserInfo(id: String!): UserAccount
+    @DgsQuery
+    public UserAccount getUserInfo(@InputArgument UUID id){
+        UserRole currentUserRole = getCurrentUserRole();
+
+        if (currentUserRole == UserRole.PATIENT) {
+            throw new UnauthorizedException("Access denied. Available only to medical staff and administrators.");
+        }
+
+        return authService.getUserInfoById(id);
+    }
 
     private String getClientIp() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
