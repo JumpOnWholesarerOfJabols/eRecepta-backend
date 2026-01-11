@@ -137,24 +137,26 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
         UUID id;
         try {
             id = UUID.fromString(request.getId());
+
+            if (!userRepository.existsById(id)) {
+                log.warn("User not found, userId={}", id);
+                reply.setSuccess(false);
+                reply.setMessage("User does not exist");
+            } else {
+                userRepository.deleteById(id);
+
+                log.info("User successfully deleted, userId={}", id);
+                reply.setSuccess(true);
+                reply.setMessage("User deleted");
+            }
         } catch (IllegalArgumentException e) {
-            log.warn("Invalid UUID format: {}", request.getId());
+            log.warn("Invalid UUID format: {}", request.getId(), e);
             reply.setSuccess(false);
             reply.setMessage("Invalid user ID format");
-
-            responseObserver.onNext(reply.build());
-            responseObserver.onCompleted();
-            return;
-        }
-        if (!userRepository.existsById(id)) {
-            log.warn("User not found, userId={}", id);
+        } catch (Exception e) {
+            log.error("Unexpected error while deleting user: {}", request.getId(), e);
             reply.setSuccess(false);
-            reply.setMessage("User does not exist");
-        } else {
-            userRepository.deleteById(id);
-            log.info("User successfully deleted, userId={}", id);
-            reply.setSuccess(true);
-            reply.setMessage("User deleted");
+            reply.setMessage("Internal server error: " + e.getMessage());
         }
 
         responseObserver.onNext(reply.build());
