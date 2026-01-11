@@ -58,7 +58,9 @@ public class VisitDataFetcher extends AbstractDataFetcher {
     }
 
     @DgsMutation
-    @PreAuthorize("hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).PATIENT.name())")
+    @PreAuthorize(
+            "hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).PATIENT.name())" +
+                    " or hasRole(T(edu.pk.jawolh.erecepta.common.user.enums.UserRole).DOCTOR.name())")
     public boolean cancelVisit(@InputArgument UUID visitId) {
         return facade.updateVisitStatus(visitId, getCurrentUserId(), VisitStatus.CANCELLED);
     }
