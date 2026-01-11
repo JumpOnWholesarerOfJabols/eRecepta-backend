@@ -10,11 +10,13 @@ import edu.pk.jawolh.erecepta.identityservice.repository.UserRepository;
 import edu.pk.jawolh.erecepta.identityservice.service.AuthService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
@@ -130,13 +132,27 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
 
     @Override
     public void deleteUser(DeleteUserRequest request, StreamObserver<DeleteUserReply> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
+        log.info("Received deleteUser request, userId={}", request.getId());
         DeleteUserReply.Builder reply = DeleteUserReply.newBuilder();
+        UUID id;
+        try {
+            id = UUID.fromString(request.getId());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid UUID format: {}", request.getId());
+            reply.setSuccess(false);
+            reply.setMessage("Invalid user ID format");
+
+            responseObserver.onNext(reply.build());
+            responseObserver.onCompleted();
+            return;
+        }
         if (!userRepository.existsById(id)) {
+            log.warn("User not found, userId={}", id);
             reply.setSuccess(false);
             reply.setMessage("User does not exist");
         } else {
             userRepository.deleteById(id);
+            log.info("User successfully deleted, userId={}", id);
             reply.setSuccess(true);
             reply.setMessage("User deleted");
         }
