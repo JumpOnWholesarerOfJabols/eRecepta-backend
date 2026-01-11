@@ -134,6 +134,15 @@ public class UserRepository {
     }
 
     public void deleteById(UUID id) {
+        String idStr = id.toString();
+
+        jdbcTemplate.update("DELETE FROM VERIFICATION_CODE WHERE USER_ID = ?", idStr);
+        jdbcTemplate.update("DELETE FROM RESET_PASSWORD_CODE WHERE USER_ID = ?", idStr);
+        jdbcTemplate.update("DELETE FROM REFRESH_TOKEN WHERE USER_ID = ?", idStr);
+        jdbcTemplate.update("DELETE FROM LOGIN_ATTEMPTS WHERE USER_ID = ?", idStr);
+        jdbcTemplate.update("DELETE FROM AUDIT_LOG WHERE USER_ID = ?", idStr);
+        jdbcTemplate.update("DELETE FROM BLACK_LIST WHERE USER_ID = ?", idStr);
+
         String sql = "DELETE FROM USER_ACCOUNT WHERE ID = ?";
         jdbcTemplate.update(sql, id.toString());
     }
