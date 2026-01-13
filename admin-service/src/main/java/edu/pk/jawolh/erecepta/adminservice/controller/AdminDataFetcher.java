@@ -9,6 +9,7 @@ import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import edu.pk.jawolh.erecepta.adminservice.client.GrpcUserClient;
+import edu.pk.jawolh.erecepta.adminservice.service.AdminService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -16,20 +17,23 @@ import java.util.List;
 @DgsComponent
 @RequiredArgsConstructor
 public class AdminDataFetcher {
-    private final GrpcUserClient client;
+
+    private final AdminService adminService;
 
     @DgsQuery
     public List<User> getAllUsers() {
-        return client.getAllUsers();
+
+        return adminService.getAllUsers();
     }
 
     @DgsMutation
     public CreateUserResult createUser(@InputArgument CreateUserInput input) {
-        return client.createUser(input);
+        return adminService.createUser(input);
     }
 
     @DgsMutation
     public DeleteUserResult deleteUser(@InputArgument String userId) {
-        return client.deleteUser(userId);
+
+        return adminService.deleteUser(userId);
     }
 }
