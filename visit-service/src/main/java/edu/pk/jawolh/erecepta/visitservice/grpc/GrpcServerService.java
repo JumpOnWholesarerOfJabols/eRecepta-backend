@@ -37,6 +37,6 @@ public class GrpcServerService extends VisitServiceGrpc.VisitServiceImplBase {
         }
 
         responseObserver.onNext(reply.build());
-        super.cancelVisitByUserId(request, responseObserver);
+        responseObserver.onCompleted();
     }
 }
