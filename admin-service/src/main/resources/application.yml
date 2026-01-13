@@ -8,9 +8,9 @@ spring:
     client:
       channels:
         user:
-          address: '${ERECEPTA_USER_CHANNEL:0.0.0.0:9090}'
+          address: '${ERECEPTA_USER_CHANNEL:identity-service:9090}'
         visit:
-          address: '${ERECEPTA_VISIT_CHANNEL:0.0.0.0:9090}'
+          address: '${ERECEPTA_VISIT_CHANNEL:visit-service:9090}'
 
 eureka:
   client:
