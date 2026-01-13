@@ -4,6 +4,9 @@ import edu.pk.jawolh.erecepta.common.visit.enums.Specialization;
 import edu.pk.jawolh.erecepta.common.visit.enums.VisitStatus;
 import edu.pk.jawolh.erecepta.visitservice.model.Visit;
 import edu.pk.jawolh.erecepta.visitservice.repository.VisitRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
+@Slf4j
 public class VisitDAO implements VisitRepository {
     private Connection connection;
 
@@ -213,5 +217,20 @@ public class VisitDAO implements VisitRepository {
         v.setVisitStatus(VisitStatus.values()[result.getInt(6)]);
 
         return v;
+    }
+
+    @Override
+    public boolean cancelAllByDoctorIdOrPatientId(UUID userId) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE VISIT SET visitStatus = ? WHERE doctorId = ? OR patientId = ?")) {
+            statement.setInt(1, VisitStatus.CANCELLED.ordinal());
+            statement.setString(2, userId.toString());
+            statement.setString(3, userId.toString());
+            statement.execute();
+            return true;
+        } catch (SQLException e) {
+            log.warn("Error cancelling visits for user: {}", userId);
+            return false;
+        }
     }
 }

@@ -74,4 +74,9 @@ public class VisitService {
     public List<Visit> findAllByDoctorIdAndVisitTimeBetween(UUID doctorId, LocalDateTime start, LocalDateTime end) {
         return visitRepository.findAllByDoctorIdAndVisitTimeBetween(doctorId, start, end);
     }
+
+
+    public boolean cancelVisitByUserId(UUID id) {
+        return visitRepository.cancelAllByDoctorIdOrPatientId(id);
+    }
 }

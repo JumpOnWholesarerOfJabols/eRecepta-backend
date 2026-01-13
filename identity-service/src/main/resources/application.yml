@@ -16,15 +16,6 @@ spring:
     username: ${IDENTITY_DB_USER:user}
     password: ${IDENTITY_DB_USER_PASSWORD:password}
 
-#  jpa:
-#    database-platform: org.hibernate.dialect.OracleDialect
-#    hibernate:
-#      ddl-auto: update
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
-
 rabbitmq:
   exchange-name: user-exchange
   verification-code-routing-key: verification-code-event
