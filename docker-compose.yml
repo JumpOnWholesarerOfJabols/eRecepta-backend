@@ -182,7 +182,8 @@ services:
 
       ERECEPTA_EUREKA_PORT: ${EUREKA_INTERNAL_PORT}
       ERECEPTA_EUREKA_HOST: eureka
-      ERECEPTA_USER_CHANNEL: identity-service:9090
+      ERECEPTA_USER_CHANNEL: ${ERECEPTA_USER_CHANNEL}
+      ERECEPTA_VISIT_CHANNEL: ${ERECEPTA_VISIT_CHANNEL}
 
   notification-service:
     build: ./notification-service
