@@ -281,7 +281,6 @@ services:
     networks:
       - erecepta-network
 
-
   identity-db:
     image: gvenzl/oracle-xe:21-slim
     container_name: identity-db

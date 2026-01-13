@@ -28,4 +28,6 @@ public interface VisitRepository {
     boolean updateVisitTime(UUID id, LocalDateTime newVisitTime);
 
     boolean updateVisitStatus(UUID id, VisitStatus newVisitStatus);
+
+    boolean cancelAllByDoctorIdOrPatientId(UUID userId);
 }
