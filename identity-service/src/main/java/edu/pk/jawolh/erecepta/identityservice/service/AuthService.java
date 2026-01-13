@@ -66,6 +66,7 @@ public class AuthService {
         return registerUser(email, pesel, firstName, lastName, phoneNumber, gender, dateOfBirth, password, UserRole.PATIENT, ipAddress);
     }
 
+    @Transactional
     public String registerUser(
             String email,
             String pesel,

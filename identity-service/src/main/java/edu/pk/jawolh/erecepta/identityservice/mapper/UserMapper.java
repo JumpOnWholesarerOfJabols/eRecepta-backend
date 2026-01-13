@@ -1,6 +1,5 @@
 package edu.pk.jawolh.erecepta.identityservice.mapper;
 
-import com.example.demo.codegen.types.AuditLog;
 
 public class UserMapper {
 
