@@ -83,6 +83,7 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
 
     @Override
     public void createUser(CreateUserRequest request, StreamObserver<CreateUserReply> responseObserver) {
+        log.info("Create user request: email={}, rola={}", request.getEmail(), request.getRole());
         CreateUserReply.Builder reply = CreateUserReply.newBuilder();
         try {
             String msg = authService.registerUser(
@@ -97,13 +98,19 @@ public class GrpcServerService extends UserServiceGrpc.UserServiceImplBase {
                     UserRole.values()[request.getRole()],
                     "gRPC"
             );
+            log.info("User created successfully: email={}",request.getEmail());
 
             reply.setSuccess(true);
             reply.setMessage(msg);
         } catch (MultiFieldValidationException e) {
+            log.warn("User creation error {}: {}", request.getEmail(), e.getErrors());
             reply.setSuccess(false);
             reply.setMessage(e.getMessage());
             reply.putAllErrors(e.getErrors());
+        } catch (Exception e){
+            log.warn("Unknown error: {}",e.getMessage());
+            reply.setSuccess(false);
+            reply.setMessage(e.getMessage());
         }
 
         responseObserver.onNext(reply.build());
